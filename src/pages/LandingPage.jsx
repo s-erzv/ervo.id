@@ -949,4 +949,4 @@ const S = {
   .footer-link:hover { color: #0f172a !important; }
   .wa-fab-hover:hover { transform: scale(1.1) translateY(-4px); background: #1fba59 !important; }
   .icon-btn:hover { opacity: 0.7; }
-`;
+`}</style> ;
