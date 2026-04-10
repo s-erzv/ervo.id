@@ -86,12 +86,40 @@ const BAR_HEIGHTS = [55, 72, 60, 85, 68, 96, 78];
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 const WA_URL = 'https://api.whatsapp.com/send?phone=6285117677245';
 
+const CSS_RULES = `
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { -webkit-font-smoothing: antialiased; }
+
+  .desktop-only { display: flex !important; }
+  .mobile-only  { display: none !important; }
+
+  @media (max-width: 768px) {
+    .desktop-only { display: none !important; }
+    .mobile-only  { display: flex !important; }
+    .dash-sidebar { display: none !important; }
+  }
+
+  .nav-link:hover { color: #0f172a !important; }
+  .btn-primary-hover:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-hero-primary-hover:hover { transform: translateY(-2px); box-shadow: 0 22px 35px -5px rgba(15,23,42,0.35) !important; }
+  .btn-hero-secondary-hover:hover { background: #f8fafc !important; }
+  .feat-card:hover { background: #fafafa !important; }
+  .why-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.07); }
+  .plan-btn:hover { opacity: 0.85; }
+  .btn-cta-white-hover:hover { opacity: 0.9; }
+  .btn-cta-ghost-hover:hover { background: rgba(255,255,255,0.18) !important; }
+  .footer-link:hover { color: #0f172a !important; }
+  .wa-fab-hover:hover { transform: scale(1.1) translateY(-4px); background: #1fba59 !important; }
+  .icon-btn:hover { opacity: 0.7; }
+`;
+
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 export default function LandingPage() {
   const [scrolled,    setScrolled]    = useState(false);
   const [menuOpen,    setMenuOpen]    = useState(false);
   const [visible,     setVisible]     = useState({});
-  const sectionRefs  = useRef({});
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -130,7 +158,7 @@ export default function LandingPage() {
 
   return (
     <div style={S.root}>
-      <style>{CSS}</style>
+      <style>{CSS_RULES}</style>
 
       {/* ── NAVBAR ── */}
       <header style={{ ...S.nav, ...(scrolled ? S.navScrolled : {}) }}>
@@ -171,7 +199,7 @@ export default function LandingPage() {
 
       {/* ── HERO ── */}
       <section id="hero" style={S.heroSection}>
-        <div {...fadeIn('hero-badge')} style={{ ...S.heroBadge, ...visible['hero-badge'] ? {} : {} }}>
+        <div {...fadeIn('hero-badge')} style={S.heroBadge}>
           <span style={S.greenDot} />
           Software Manajemen Distribusi & Akuntansi All-in-One
         </div>
@@ -920,33 +948,3 @@ const S = {
     transition:'all 0.3s',
   },
 };
-
-// ─── GLOBAL CSS ──────────────────────────────────────────────────────────────
-<style>{`
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body { -webkit-font-smoothing: antialiased; }
-
-  .desktop-only { display: flex !important; }
-  .mobile-only  { display: none !important; }
-
-  @media (max-width: 768px) {
-    .desktop-only { display: none !important; }
-    .mobile-only  { display: flex !important; }
-    .dash-sidebar { display: none !important; }
-  }
-
-  .nav-link:hover { color: #0f172a !important; }
-  .btn-primary-hover:hover { opacity: 0.85; transform: translateY(-1px); }
-  .btn-hero-primary-hover:hover { transform: translateY(-2px); box-shadow: 0 22px 35px -5px rgba(15,23,42,0.35) !important; }
-  .btn-hero-secondary-hover:hover { background: #f8fafc !important; }
-  .feat-card:hover { background: #fafafa !important; }
-  .why-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.07); }
-  .plan-btn:hover { opacity: 0.85; }
-  .btn-cta-white-hover:hover { opacity: 0.9; }
-  .btn-cta-ghost-hover:hover { background: rgba(255,255,255,0.18) !important; }
-  .footer-link:hover { color: #0f172a !important; }
-  .wa-fab-hover:hover { transform: scale(1.1) translateY(-4px); background: #1fba59 !important; }
-  .icon-btn:hover { opacity: 0.7; }
-`}</style> ;
