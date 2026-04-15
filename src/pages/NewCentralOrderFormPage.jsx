@@ -355,7 +355,7 @@ const NewCentralOrderFormPage = () => {
           </Button>
           <Button 
               onClick={handleSaveOrder} 
-              className="w-full mt-4 bg-[#10182b] text-white hover:bg-[#10182b]/90" 
+              className="w-full mt-4 bg-[#011e4b] text-white hover:bg-[#011e4b]/90" 
               disabled={loading || authLoading}
           >
             {loading || authLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Simpan Pesanan Baru'}

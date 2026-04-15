@@ -98,7 +98,7 @@ const DropshipperManagement = ({ companyId }) => {
     setIsSaving(true);
     try {
       const { data: authSession } = await supabase.auth.getSession();
-      const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/create-user', {
+      const response = await fetch('https://eyfjudhnkxvsdqusqnoy.supabase.co/functions/v1/create-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authSession.session?.access_token}` },
         body: JSON.stringify({ ...formData, role: 'dropship', companyId })
@@ -196,8 +196,8 @@ const DropshipperManagement = ({ companyId }) => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-bold flex items-center gap-2 text-[#10182b]"><Users className="h-5 w-5 text-blue-600" /> Manajemen Dropshipper Dropship</h3>
-        <Button onClick={() => { resetForm(); setIsModalAddOpen(true); }} className="bg-[#10182b] text-white hover:bg-slate-800 rounded-xl px-6">
+        <h3 className="text-lg font-bold flex items-center gap-2 text-[#011e4b]"><Users className="h-5 w-5 text-blue-600" /> Manajemen Dropshipper Dropship</h3>
+        <Button onClick={() => { resetForm(); setIsModalAddOpen(true); }} className="bg-[#011e4b] text-white hover:bg-slate-800 rounded-xl px-6">
             <UserPlus className="h-4 w-4 mr-2" /> Tambah Dropshipper Baru
         </Button>
       </div>
@@ -311,7 +311,7 @@ const DropshipperManagement = ({ companyId }) => {
       {/* MODAL ADD */}
       <Dialog open={isModalAddOpen} onOpenChange={setIsModalAddOpen}>
         <DialogContent className="sm:max-w-4xl h-[90vh] flex flex-col p-0 gap-0 overflow-hidden border-none shadow-2xl">
-          <DialogHeader className="p-6 bg-[#10182b] text-white">
+          <DialogHeader className="p-6 bg-[#011e4b] text-white">
             <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-500/20 rounded-lg"><UserPlus className="h-6 w-6 text-blue-400" /></div>
                 <div>
@@ -370,7 +370,7 @@ const DropshipperManagement = ({ companyId }) => {
             </div>
             <DialogFooter className="p-6 bg-slate-50 border-t flex justify-end gap-3 shrink-0">
                 <Button type="button" variant="ghost" onClick={() => setIsModalAddOpen(false)} className="rounded-xl font-bold">Batal</Button>
-                <Button type="submit" disabled={isSaving} className="bg-[#10182b] text-white rounded-xl px-10 font-bold hover:bg-slate-800 transition-all shadow-lg">{isSaving ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <Save className="h-4 w-4 mr-2" />} Aktifkan Dropshipper</Button>
+                <Button type="submit" disabled={isSaving} className="bg-[#011e4b] text-white rounded-xl px-10 font-bold hover:bg-slate-800 transition-all shadow-lg">{isSaving ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <Save className="h-4 w-4 mr-2" />} Aktifkan Dropshipper</Button>
             </DialogFooter>
           </form>
         </DialogContent>

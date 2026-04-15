@@ -214,7 +214,7 @@ const MapsPage = () => {
 
   const onUnmount = useCallback(() => setMap(null), []);
 
-  if (!isLoaded) return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-[#10182b]" /></div>;
+  if (!isLoaded) return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-[#011e4b]" /></div>;
 
   const mapCustomers = customers.filter(c => c.latitude && c.longitude);
 
@@ -222,7 +222,7 @@ const MapsPage = () => {
     <div className="container mx-auto p-4 md:p-8 max-w-7xl space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2 text-[#10182b]"><MapPin className="h-7 w-7"/> Peta Persebaran Pelanggan</h1>
+            <h1 className="text-2xl font-bold flex items-center gap-2 text-[#011e4b]"><MapPin className="h-7 w-7"/> Peta Persebaran Pelanggan</h1>
             <p className="text-sm text-gray-500">Total Pelanggan: {customers.length} | Terpetakan: {mapCustomers.length}</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto items-center">
@@ -241,7 +241,7 @@ const MapsPage = () => {
                     <div className="absolute top-full mt-1 w-full bg-white border rounded-md shadow-lg z-50 max-h-[200px] overflow-y-auto">
                         {searchResults.map(cust => (
                             <div key={cust.id} className="p-2 hover:bg-gray-100 cursor-pointer text-sm border-b last:border-0" onClick={() => handleSelectSearchResult(cust)}>
-                                <p className="font-semibold text-[#10182b]">{cust.name}</p>
+                                <p className="font-semibold text-[#011e4b]">{cust.name}</p>
                                 <p className="text-xs text-gray-500 truncate">{cust.address || 'Tanpa Alamat'}</p>
                                 {!cust.latitude && <span className="text-[10px] text-red-500 italic">Belum ada peta</span>}
                             </div>
@@ -266,7 +266,7 @@ const MapsPage = () => {
                     {selectedCustomer && (
                         <InfoWindow position={{ lat: selectedCustomer.latitude, lng: selectedCustomer.longitude }} onCloseClick={() => { setSelectedCustomer(null); setNearbyCustomers([]); }}>
                             <div className="p-1 min-w-[150px]">
-                                <h3 className="font-bold text-sm text-[#10182b]">{selectedCustomer.name}</h3>
+                                <h3 className="font-bold text-sm text-[#011e4b]">{selectedCustomer.name}</h3>
                                 <Badge variant="outline" className="text-[10px] h-5 mb-1">{selectedCustomer.customer_status || 'Umum'}</Badge>
                                 <p className="text-xs text-gray-500 mb-2 truncate max-w-[180px]">{selectedCustomer.address}</p>
                                 <Button 
@@ -281,12 +281,12 @@ const MapsPage = () => {
                             </div>
                         </InfoWindow>
                     )}
-                    {selectedCustomer && <Circle center={{ lat: selectedCustomer.latitude, lng: selectedCustomer.longitude }} radius={radius * 1000} options={{ fillColor: "#3b82f6", fillOpacity: 0.15, strokeColor: "#2563eb", strokeOpacity: 0.8, strokeWeight: 1 }} />}
+                    {selectedCustomer && <Circle center={{ lat: selectedCustomer.latitude, lng: selectedCustomer.longitude }} radius={radius * 1000} options={{ fillColor: "#015a97", fillOpacity: 0.15, strokeColor: "#015a97", strokeOpacity: 0.8, strokeWeight: 1 }} />}
                 </GoogleMap>
             </Card>
         </div>
         <div className="space-y-4">
-            <Card className="h-[600px] flex flex-col shadow-md border-t-4 border-t-[#10182b]">
+            <Card className="h-[600px] flex flex-col shadow-md border-t-4 border-t-[#011e4b]">
                 <CardHeader className="pb-3 bg-gray-50 border-b"><CardTitle className="text-base flex items-center gap-2"><ScanSearch className="h-5 w-5 text-blue-600" /> Radar Pelanggan</CardTitle></CardHeader>
                 <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
                     {!selectedCustomer ? (
@@ -295,7 +295,7 @@ const MapsPage = () => {
                         <>
                             <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                                 <div className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-1">Titik Pusat</div>
-                                <div className="font-bold text-[#10182b]">{selectedCustomer.name}</div>
+                                <div className="font-bold text-[#011e4b]">{selectedCustomer.name}</div>
                                 <div className="text-xs text-gray-500">{selectedCustomer.phone}</div>
                                 <Button size="sm" variant="outline" className="w-full mt-2 h-7 text-xs bg-white text-blue-600 border-blue-200 hover:bg-blue-100" onClick={() => handleFindNearby(selectedCustomer)} disabled={loadingNearby}>{loadingNearby ? <Loader2 className="h-3 w-3 animate-spin"/> : 'Scan Ulang Area Ini'}</Button>
                             </div>
@@ -306,7 +306,7 @@ const MapsPage = () => {
                                         {nearbyCustomers.map(nc => (
                                             <div key={nc.id} className="p-3 border rounded-lg hover:bg-gray-50 transition-all flex justify-between items-center group bg-white shadow-sm">
                                                 <div>
-                                                    <p className="text-sm font-semibold text-[#10182b]">{nc.name}</p>
+                                                    <p className="text-sm font-semibold text-[#011e4b]">{nc.name}</p>
                                                     <div className="flex items-center gap-1 text-xs text-gray-500"><Navigation className="h-3 w-3 text-orange-500" /><span className="font-mono font-medium text-orange-600">{nc.distance_km.toFixed(2)} km</span></div>
                                                 </div>
                                                 <Button 

@@ -226,7 +226,7 @@ const ProductSettings = () => {
 
   return (
     <Card className="border-0 shadow-lg bg-white">
-      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#10182b] text-white rounded-t-lg space-y-4 sm:space-y-0 p-6">
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#011e4b] text-white rounded-t-lg space-y-4 sm:space-y-0 p-6">
         <div>
             <CardTitle className="text-xl font-bold">Manajemen Produk</CardTitle>
             <p className="text-xs text-slate-300 mt-1">Kelola katalog, stok, dan urutan tampilan produk.</p>
@@ -238,7 +238,7 @@ const ProductSettings = () => {
             <Button variant="outline" className="bg-white/10 border-white/20 hover:bg-white/20 text-white" onClick={() => setIsSupplierModalOpen(true)}>
                 <ShoppingBag className="h-4 w-4 mr-2" /> Supplier
             </Button>
-            <Button className="bg-white text-[#10182b] hover:bg-slate-100" onClick={() => navigate('/products/add')}>
+            <Button className="bg-white text-[#011e4b] hover:bg-slate-100" onClick={() => navigate('/products/add')}>
               <PlusCircle className="h-4 w-4 mr-2" /> Tambah Produk
             </Button>
         </div>
@@ -285,7 +285,7 @@ const ProductSettings = () => {
 
         {loading ? (
           <div className="flex flex-col justify-center items-center h-60 gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-[#10182b]" />
+            <Loader2 className="h-8 w-8 animate-spin text-[#011e4b]" />
             <p className="text-sm text-slate-500">Memuat data produk...</p>
           </div>
         ) : products.length === 0 ? (

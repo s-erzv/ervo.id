@@ -348,7 +348,7 @@ const SalaryAndBonusPage = () => {
       </div>
 
       <Card className={`border-0 shadow-lg overflow-hidden ${editingPayoutId ? 'ring-2 ring-orange-500' : ''}`}>
-        <CardHeader className={`${editingPayoutId ? 'bg-orange-600' : 'bg-[#10182b]'} text-white p-4`}>
+        <CardHeader className={`${editingPayoutId ? 'bg-orange-600' : 'bg-[#011e4b]'} text-white p-4`}>
           <CardTitle className="text-base flex items-center gap-2">
             {editingPayoutId ? <Edit className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
             {editingPayoutId ? 'Update Detail Gaji' : 'Hitung Gaji Baru'}

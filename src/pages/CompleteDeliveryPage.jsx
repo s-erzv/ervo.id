@@ -648,23 +648,11 @@ useEffect(() => {
       };
 
       // 4. Panggil Edge Function
-      const response = await fetch(
-        "https://wzmgcainyratlwxttdau.supabase.co/functions/v1/complete-delivery",
-        {
-          method: "POST", // Fungsi ini akan diupdate di BE untuk menangani UPDATE
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const { data, error } = await supabase.functions.invoke('complete-delivery', {
+        body: payload,
+      });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Function error:', errorText);
-        throw new Error(errorText);
-      }
+      if (error) throw error;
 
       toast.success("Pesanan berhasil diselesaikan/diperbarui!");
       if (isQuickOrder) {
@@ -684,7 +672,7 @@ useEffect(() => {
   if (loading || !order) {
     return (
       <div className="flex flex-col justify-center items-center min-h-screen bg-white">
-        <Loader2 className="h-10 w-10 animate-spin text-[#10182b]" />
+        <Loader2 className="h-10 w-10 animate-spin text-[#011e4b]" />
         <p className="mt-4 text-muted-foreground">Memuat detail pesanan...</p>
       </div>
     );
@@ -712,11 +700,11 @@ useEffect(() => {
     <div className="container mx-auto p-4 md:p-6 max-w-lg space-y-6">
       <div className="flex items-center gap-2 mb-4">
         {/* PENTING: Mengubah navigasi tombol kembali */}
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-[#10182b] hover:bg-gray-100 flex-shrink-0">
+        <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-[#011e4b] hover:bg-gray-100 flex-shrink-0">
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="min-w-0"> 
-          <h1 className="text-xl font-bold text-[#10182b] truncate">
+          <h1 className="text-xl font-bold text-[#011e4b] truncate">
             {order.status === 'completed' ? 'Edit Penyelesaian' : 'Selesaikan Pesanan'}
           </h1>
           <p className="text-xs text-muted-foreground truncate">Lengkapi info pesanan #{order.id.slice(0, 8)}.</p>
@@ -726,17 +714,17 @@ useEffect(() => {
       <form onSubmit={handleCompleteDelivery} className="grid gap-4"> 
         <Card className="border-0 shadow-sm bg-white">
           <CardHeader className="p-4">
-            <CardTitle className="text-base text-[#10182b]">Informasi Pesanan</CardTitle>
+            <CardTitle className="text-base text-[#011e4b]">Informasi Pesanan</CardTitle>
             <CardDescription className="text-sm">Rincian pelanggan dan barang yang dikirim.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 p-4 pt-0">
             <div>
               <Label className="text-xs text-muted-foreground">Pelanggan</Label>
-              <p className="font-medium text-sm text-[#10182b]">{order.customers?.name}</p>
+              <p className="font-medium text-sm text-[#011e4b]">{order.customers?.name}</p>
             </div>
             <div>
               <Label className="text-xs text-muted-foreground">Alamat</Label>
-              <p className="text-sm text-[#10182b]">{order.customers?.address}</p>
+              <p className="text-sm text-[#011e4b]">{order.customers?.address}</p>
             </div>
             <Separator />
             <div className="grid grid-cols-2 gap-3">
@@ -751,11 +739,11 @@ useEffect(() => {
             </div>
             <Separator />
             <div className="space-y-2">
-              <Label className="font-medium text-sm text-[#10182b]">Detail Barang</Label>
+              <Label className="font-medium text-sm text-[#011e4b]">Detail Barang</Label>
               {order.order_items.map((item, idx) => (
                 <div key={idx} className="flex justify-between items-center text-xs">
                   <span className="text-muted-foreground">{item.products?.name}</span>
-                  <span className="text-[#10182b]">{item.qty} x {formatCurrency(item.price)}</span>
+                  <span className="text-[#011e4b]">{item.qty} x {formatCurrency(item.price)}</span>
                 </div>
               ))}
             </div>
@@ -764,12 +752,12 @@ useEffect(() => {
 
         <Card className="border-0 shadow-sm bg-white">
           <CardHeader className="p-4">
-            <CardTitle className="text-base text-[#10182b]">Rincian Penyelesaian</CardTitle>
+            <CardTitle className="text-base text-[#011e4b]">Rincian Penyelesaian</CardTitle>
             <CardDescription className="text-sm">Masukkan detail pembayaran, pengembalian, dan biaya.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 p-4 pt-0">
             <div className="space-y-3">
-              <Label className="text-sm font-semibold text-[#10182b]">Siapa yang mengirim pesanan ini?</Label>
+              <Label className="text-sm font-semibold text-[#011e4b]">Siapa yang mengirim pesanan ini?</Label>
               <div className="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
                 {allCompanyStaff.map((staff) => (
                   <div key={staff.id} className="flex items-center space-x-2">
@@ -920,7 +908,7 @@ useEffect(() => {
                         variant="outline"
                         className="w-full justify-start text-sm flex items-center gap-2 overflow-hidden max-w-full"
                       >
-                        <Package className="h-4 w-4 text-[#10182b] flex-shrink-0 items-center justify-center" />
+                        <Package className="h-4 w-4 text-[#011e4b] flex-shrink-0 items-center justify-center" />
                         <span className=" truncate text-left min-w-0 max-w-[85%] block">
                           {transferProofFile ? transferProofFile.name : 'Pilih File Bukti Transfer'}
                         </span>
@@ -949,7 +937,7 @@ useEffect(() => {
                 <>
                     <Separator />
                     <div className="space-y-4">
-                        <h3 className="text-base font-bold text-[#10182b] flex items-center gap-2">
+                        <h3 className="text-base font-bold text-[#011e4b] flex items-center gap-2">
                             <Package className="h-4 w-4" />
                             Rincian Kemasan Returnable
                         </h3>
@@ -1005,9 +993,9 @@ useEffect(() => {
                                 : 0; 
 
                             return (
-                                <div key={item.product_id} className={`space-y-3 border-l-4 p-3 ${item.isPrimarySoldItem ? 'border-l-[#10182b]' : 'border-l-gray-400 bg-gray-50'}`}>
+                                <div key={item.product_id} className={`space-y-3 border-l-4 p-3 ${item.isPrimarySoldItem ? 'border-l-[#011e4b]' : 'border-l-gray-400 bg-gray-50'}`}>
                                     <div className='flex justify-between items-start'>
-                                        <h4 className="font-semibold text-sm text-[#10182b]">{item.product_name} 
+                                        <h4 className="font-semibold text-sm text-[#011e4b]">{item.product_name} 
                                             {item.isPrimarySoldItem && orderedQty > 0 && ` (${orderedQty} dipesan)`}
                                         </h4>
                                         <Button 
@@ -1087,7 +1075,7 @@ useEffect(() => {
                     variant="outline"
                     className="w-full justify-start"
                 >
-                    <Package className='h-4 w-4 mr-2 text-[#10182b] flex-shrink-0' /> 
+                    <Package className='h-4 w-4 mr-2 text-[#011e4b] flex-shrink-0' /> 
                     <span className="text-[9px] truncate flex-1 text-left min-w-0">
                         {deliveryFile ? deliveryFile.name : (initialDeliveryProofUrl ? 'File lama tersedia' : 'Pilih File Bukti Pengiriman')}
                     </span>
@@ -1112,7 +1100,7 @@ useEffect(() => {
         <div className="mt-2">
           <Button 
             type="submit" 
-            className="w-full bg-[#10182b] text-white hover:bg-[#20283b] text-sm" 
+            className="w-full bg-[#011e4b] text-white hover:bg-[#00376a] text-sm" 
             disabled={isSubmitDisabled} 
           >
             {submitting ? (

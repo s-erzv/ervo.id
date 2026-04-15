@@ -80,19 +80,12 @@ const AddAdminForm = ({ open, onOpenChange, onUserAdded }) => {
         googleSheetsLink,
       };
 
-      const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/create-user', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify(payload),
+      const { data, error } = await supabase.functions.invoke('create-user', {
+        body: payload
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create admin');
+      if (error) {
+        throw new Error(error.message || 'Failed to create admin');
       }
       
       const { userId, companyId } = data;

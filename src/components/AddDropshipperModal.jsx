@@ -76,25 +76,18 @@ const AddDropshipperModal = ({ isOpen, onOpenChange, companyId, onSuccess }) => 
     
     setIsSaving(true);
     try {
-      const { data: authSession } = await supabase.auth.getSession();
-      const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/create-user', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authSession.session?.access_token}`
-        },
-        body: JSON.stringify({
+      const { data: result, error: invokeError } = await supabase.functions.invoke('create-user', {
+        body: {
           fullName: formData.fullName,
           email: formData.email,
           password: formData.password,
           phone: formData.phone,
           role: 'dropship',
           companyId: companyId
-        })
+        }
       });
 
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Gagal mendaftarkan Dropshipper');
+      if (invokeError) throw new Error(invokeError.message || 'Gagal mendaftarkan Dropshipper');
       const newUserId = result.userId;
 
       await supabase.from('profiles').update({ rekening: formData.rekening }).eq('id', newUserId);
@@ -133,7 +126,7 @@ const AddDropshipperModal = ({ isOpen, onOpenChange, companyId, onSuccess }) => 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-4xl w-[95vw] h-[95vh] sm:h-[90vh] flex flex-col p-0 gap-0 overflow-hidden border-none shadow-2xl rounded-t-2xl sm:rounded-2xl">
-        <DialogHeader className="p-4 sm:p-6 bg-[#10182b] text-white shrink-0">
+        <DialogHeader className="p-4 sm:p-6 bg-[#011e4b] text-white shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-500/20 rounded-lg hidden sm:block">
                 <UserCircle className="h-6 w-6 text-blue-400" />
@@ -298,7 +291,7 @@ const AddDropshipperModal = ({ isOpen, onOpenChange, companyId, onSuccess }) => 
             <Button 
                 onClick={handleFormSubmit} 
                 disabled={isSaving} 
-                className="flex-[2] sm:flex-none bg-[#10182b] text-white rounded-xl h-10 sm:h-11 px-6 sm:px-8 font-bold text-xs sm:text-sm shadow-lg shadow-slate-200"
+                className="flex-[2] sm:flex-none bg-[#011e4b] text-white rounded-xl h-10 sm:h-11 px-6 sm:px-8 font-bold text-xs sm:text-sm shadow-lg shadow-slate-200"
             >
               {isSaving ? (
                 <Loader2 className="animate-spin h-4 w-4" />

@@ -182,7 +182,7 @@ const WhatsappOrderModal = ({
                   );
                 })}
                 <Separator className="my-2" />
-                <li className="flex justify-between font-bold text-[#10182b]">
+                <li className="flex justify-between font-bold text-[#011e4b]">
                   <span>Total Estimasi</span>
                   <span>{formatCurrency(totalTransaction)}</span>
                 </li>

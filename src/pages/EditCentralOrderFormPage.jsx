@@ -519,21 +519,14 @@ const EditCentralOrderFormPage = () => { // NAMA KOMPONEN DIUBAH
               companyId: userProfile.company_id,
           };
           
-          const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/manage-central-order-galons', {
+          const { data, error } = await supabase.functions.invoke('manage-central-order-galons', {
               method: 'PUT',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${session.access_token}`,
-              },
-              body: JSON.stringify(payload),
+              body: payload,
           });
 
-          if (!response.ok) {
-              const errorText = await response.text();
-              throw new Error(errorText || 'Gagal memperbarui pesanan.');
-          }
+          if (error) throw error;
           
-          const responseData = await response.json();
+          const responseData = data;
           
           toast.success(responseData.message);
           setIsEditConfirmationModalOpen(false); 
@@ -831,19 +824,12 @@ const EditCentralOrderFormPage = () => { // NAMA KOMPONEN DIUBAH
     if (!window.confirm('Apakah Anda yakin ingin menghapus pesanan pusat ini? Semua data terkait akan dihapus dan stok akan dikembalikan.')) return;
     setLoading(true);
     try {
-        const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/manage-central-order-galons', {
+        const { data, error } = await supabase.functions.invoke('manage-central-order-galons', {
             method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${session.access_token}`,
-            },
-            body: JSON.stringify({ orderId: id, companyId }),
+            body: { orderId: id, companyId },
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Gagal menghapus pesanan.');
-        }
+        if (error) throw error;
 
         toast.success('Pesanan berhasil dihapus dan stok dikembalikan!');
         navigate('/central-orders');
@@ -890,19 +876,11 @@ const EditCentralOrderFormPage = () => { // NAMA KOMPONEN DIUBAH
     };
 
     try {
-      const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/manage-central-order-galons', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify(payload),
+      const { data, error } = await supabase.functions.invoke('manage-central-order-galons', {
+        body: payload,
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Gagal mencatat penerimaan barang.');
-      }
+      if (error) throw error;
       
       toast.success('Penerimaan barang berhasil dicatat dan stok diperbarui!');
       navigate('/central-orders');
@@ -963,19 +941,19 @@ const EditCentralOrderFormPage = () => { // NAMA KOMPONEN DIUBAH
         <div className="bg-white rounded-lg border p-1 mb-6">
           <TabsList className="grid w-full justify-start grid-cols-1 gap-1 bg-transparent p-0 h-auto md:grid-cols-3">
             <TabsTrigger 
-              className="w-full text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-[#10182b] data-[state=active]:text-white rounded-md" 
+              className="w-full text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-[#011e4b] data-[state=active]:text-white rounded-md" 
               value="order-items"
             >
               1. Detail & Item
             </TabsTrigger>
             <TabsTrigger 
-                className="w-full text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-[#10182b] data-[state=active]:text-white rounded-md" 
+                className="w-full text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-[#011e4b] data-[state=active]:text-white rounded-md" 
               value="attachments-expenses"
               >
                 2. Pembayaran & Lampiran
             </TabsTrigger>
             <TabsTrigger 
-                className="w-full text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-[#10182b] data-[state=active]:text-white rounded-md" 
+                className="w-full text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-[#011e4b] data-[state=active]:text-white rounded-md" 
                 value="cross-check"
                 disabled={!isCrossCheckEnabled}
               >
@@ -1089,7 +1067,7 @@ const EditCentralOrderFormPage = () => { // NAMA KOMPONEN DIUBAH
                     loading || authLoading ? "bg-gray-500 cursor-not-allowed" : 
                       orderStatus === 'received' 
                           ? 'bg-orange-600 hover:bg-orange-700' 
-                          : 'bg-[#10182b] hover:bg-[#10182b]/90' 
+                          : 'bg-[#011e4b] hover:bg-[#011e4b]/90' 
                   )}
                   disabled={loading || authLoading}
               >
@@ -1180,7 +1158,7 @@ const EditCentralOrderFormPage = () => { // NAMA KOMPONEN DIUBAH
                 </div>
                 <div className="space-y-2">
                   <Label>Total Tagihan</Label>
-                  <p className="text-2xl font-bold text-[#10182b]">{formatCurrency(totalOrderValue)}</p>
+                  <p className="text-2xl font-bold text-[#011e4b]">{formatCurrency(totalOrderValue)}</p>
                 </div>
                 <div className="space-y-2">
                   <Label>Total Dibayar</Label>
@@ -1236,7 +1214,7 @@ const EditCentralOrderFormPage = () => { // NAMA KOMPONEN DIUBAH
                       disabled={remainingDue <= 0}
                     />
                   </div>
-                  <Button type="submit" className="w-full bg-[#10182b] text-white hover:bg-[#10182b]/90" disabled={uploading || remainingDue <= 0}>
+                  <Button type="submit" className="w-full bg-[#011e4b] text-white hover:bg-[#011e4b]/90" disabled={uploading || remainingDue <= 0}>
                     {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Catat Pembayaran'}
                   </Button>
                   {remainingDue <= 0 && <p className="text-sm text-green-600 text-center">Pembayaran sudah lunas.</p>}
@@ -1309,7 +1287,7 @@ const EditCentralOrderFormPage = () => { // NAMA KOMPONEN DIUBAH
                   onChange={(e) => setTransactionDetails({...transactionDetails, notes: e.target.value})}
                 />
               </div>
-              <Button onClick={handleUpdateTransaction} className="w-full bg-[#10182b] text-white hover:bg-[#10182b]/90" disabled={loading}>
+              <Button onClick={handleUpdateTransaction} className="w-full bg-[#011e4b] text-white hover:bg-[#011e4b]/90" disabled={loading}>
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Simpan Detail Transaksi Lainnya'}
               </Button>
             </CardContent>
@@ -1422,7 +1400,7 @@ const EditCentralOrderFormPage = () => { // NAMA KOMPONEN DIUBAH
 
                   return (
                       <div key={item.product_id} className="space-y-4 col-span-full mt-4 p-4 border rounded-md bg-gray-50 text-xs sm:text-sm"> {/* NEW: Apply text-xs here */}
-                          <h4 className="font-semibold text-[#10182b] flex items-center gap-2 text-sm sm:text-base">
+                          <h4 className="font-semibold text-[#011e4b] flex items-center gap-2 text-sm sm:text-base">
                               <Package className="h-4 w-4" />
                               Detail Kemasan Returnable ({item.product_name})
                           </h4>
@@ -1483,7 +1461,7 @@ const EditCentralOrderFormPage = () => { // NAMA KOMPONEN DIUBAH
                   );
               })}
             
-            <Button onClick={handleFinalizeReceipt} className="w-full bg-[#10182b] text-white hover:bg-[#10182b]/90" disabled={loading || orderStatus === 'received'}>
+            <Button onClick={handleFinalizeReceipt} className="w-full bg-[#011e4b] text-white hover:bg-[#011e4b]/90" disabled={loading || orderStatus === 'received'}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Selesaikan Pengecekan & Perbarui Stok'}
             </Button>
             {orderStatus === 'received' && <p className="text-sm text-center text-green-600 mt-2">Penerimaan barang sudah dicatat.</p>}

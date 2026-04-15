@@ -238,7 +238,7 @@ Terima kasih.`
                   <Button 
                     onClick={() => handleSave(cat.id)} 
                     disabled={saving} 
-                    className="w-full bg-[#10182b] hover:bg-slate-800 text-white flex h-11 transition-all"
+                    className="w-full bg-[#011e4b] hover:bg-slate-800 text-white flex h-11 transition-all"
                   >
                     {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                     Simpan Template {cat.label}

@@ -179,7 +179,7 @@ const CustomerForm = ({ isOpen, onOpenChange, onCustomerAdded, initialDropshippe
     <>
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl w-[95vw] max-h-[92vh] flex flex-col p-0 overflow-hidden rounded-xl border-none shadow-2xl">
-        <DialogHeader className="p-6 bg-[#10182b] text-white shrink-0">
+        <DialogHeader className="p-6 bg-[#011e4b] text-white shrink-0">
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
             <UserPlus className="h-5 w-5 text-blue-400" /> Tambah Pelanggan
           </DialogTitle>
@@ -304,7 +304,7 @@ const CustomerForm = ({ isOpen, onOpenChange, onCustomerAdded, initialDropshippe
             type="submit" 
             form="customer-form-main" 
             disabled={loading || (userRole === 'dropship' && validDsStatuses.length === 0)}
-            className="bg-[#10182b] text-white font-bold px-8 flex-1 md:flex-none shadow-lg shadow-slate-200"
+            className="bg-[#011e4b] text-white font-bold px-8 flex-1 md:flex-none shadow-lg shadow-slate-200"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : "Simpan Pelanggan"}
           </Button>

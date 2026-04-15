@@ -89,11 +89,11 @@ const UserManagementComponent = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center px-1">
         <h2 className="text-xl font-bold flex items-center gap-2">
-            <Users className="w-5 h-5 text-[#10182b]" /> 
+            <Users className="w-5 h-5 text-[#011e4b]" /> 
             <span className="hidden sm:inline">Manajemen Pengguna</span>
             <span className="sm:hidden text-lg">User List</span>
         </h2>
-        <Button onClick={() => setIsAddModalOpen(true)} className="bg-[#10182b] text-white h-9">
+        <Button onClick={() => setIsAddModalOpen(true)} className="bg-[#011e4b] text-white h-9">
           + <span className="hidden sm:inline ml-1">Tambah User</span>
         </Button>
       </div>

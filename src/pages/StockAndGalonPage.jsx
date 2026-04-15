@@ -472,7 +472,7 @@ const StockAndGalonPage = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-white">
-        <Loader2 className="h-8 w-8 animate-spin text-[#10182b]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#011e4b]" />
       </div>
     );
   }
@@ -481,14 +481,14 @@ const StockAndGalonPage = () => {
     // Mengurangi padding horizontal di mobile (p-4)
     <div className="container mx-auto p-4 md:p-8 max-w-7xl space-y-6">
       {/* Mengurangi ukuran font judul di mobile */}
-      <h1 className="text-2xl font-bold text-[#10182b] flex items-center gap-2">
+      <h1 className="text-2xl font-bold text-[#011e4b] flex items-center gap-2">
         <Package className="h-6 w-6 md:h-8 md:w-8" />
         Manajemen Stok
       </h1>
 
       <Card className="border-0 shadow-sm bg-white">
         <CardHeader className="p-4 md:p-6 pb-2">
-          <CardTitle className="text-base font-semibold text-[#10182b] flex items-center gap-2">
+          <CardTitle className="text-base font-semibold text-[#011e4b] flex items-center gap-2">
             <Search className="h-4 w-4" /> Cari / Pilih Produk
           </CardTitle>
         </CardHeader>
@@ -531,9 +531,9 @@ const StockAndGalonPage = () => {
       
       <Tabs value={activeStockTab} onValueChange={(v) => setActiveStockTab(v)}>
         {/* Tabs List agar full width di mobile */}
-        <TabsList className="w-full grid grid-cols-2 bg-gray-100 text-[#10182b]">
-          <TabsTrigger value="summary" className="text-sm data-[state=active]:bg-[#10182b] data-[state=active]:text-white data-[state=active]:shadow-sm">Ringkasan Stok</TabsTrigger>
-          <TabsTrigger value="adjustment" className="text-sm data-[state=active]:bg-[#10182b] data-[state=active]:text-white data-[state=active]:shadow-sm">Penyesuaian</TabsTrigger>
+        <TabsList className="w-full grid grid-cols-2 bg-gray-100 text-[#011e4b]">
+          <TabsTrigger value="summary" className="text-sm data-[state=active]:bg-[#011e4b] data-[state=active]:text-white data-[state=active]:shadow-sm">Ringkasan Stok</TabsTrigger>
+          <TabsTrigger value="adjustment" className="text-sm data-[state=active]:bg-[#011e4b] data-[state=active]:text-white data-[state=active]:shadow-sm">Penyesuaian</TabsTrigger>
         </TabsList>
         
         <TabsContent value="summary" className="pt-4 space-y-6">
@@ -541,16 +541,16 @@ const StockAndGalonPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="border-0 shadow-sm bg-white">
               <CardHeader className="p-4">
-                <CardTitle className="text-base text-[#10182b]">Stok Produk (Siap Jual)</CardTitle>
+                <CardTitle className="text-base text-[#011e4b]">Stok Produk (Siap Jual)</CardTitle>
               </CardHeader>
               <CardContent className="p-4 pt-0">
-                <p className="text-3xl font-bold text-[#10182b]">{currentProductStock}</p>
+                <p className="text-3xl font-bold text-[#011e4b]">{currentProductStock}</p>
               </CardContent>
             </Card>
             {isReturnable && (
                 <Card className="border-0 shadow-sm bg-white">
                   <CardHeader className="p-4">
-                    <CardTitle className="text-base text-[#10182b]">Stok Kemasan Kosong</CardTitle>
+                    <CardTitle className="text-base text-[#011e4b]">Stok Kemasan Kosong</CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 pt-0">
                     <p className="text-3xl font-bold text-gray-500">{currentEmptyBottleStock}</p>
@@ -562,25 +562,25 @@ const StockAndGalonPage = () => {
           {isReturnable && (
             <Card className="border-0 shadow-sm bg-white">
               <CardHeader className="p-4">
-                <CardTitle className="text-base text-[#10182b]">Ringkasan Product Returnable</CardTitle>
+                <CardTitle className="text-base text-[#011e4b]">Ringkasan Product Returnable</CardTitle>
               </CardHeader>
               <CardContent className="p-4 pt-0">
                 {/* Mengubah grid menjadi 1 kolom di mobile dan 3 di sm */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
                   <div className="p-3 rounded-lg border bg-gray-50">
-                    <h3 className="text-sm font-semibold text-[#10182b] mb-1">Diterima</h3>
+                    <h3 className="text-sm font-semibold text-[#011e4b] mb-1">Diterima</h3>
                     <p className="text-2xl font-bold text-green-600">
                       {galonMovements.returnedFromCustomer}
                     </p>
                   </div>
                   <div className="p-3 rounded-lg border bg-gray-50">
-                    <h3 className="text-sm font-semibold text-[#10182b] mb-1">Dibeli</h3>
+                    <h3 className="text-sm font-semibold text-[#011e4b] mb-1">Dibeli</h3>
                     <p className="text-2xl font-bold text-purple-600">
                       {galonMovements.purchasedFromCustomer}
                     </p>
                   </div>
                   <div className="p-3 rounded-lg border bg-gray-50">
-                    <h3 className="text-sm font-semibold text-[#10182b] mb-1">Dipinjam</h3>
+                    <h3 className="text-sm font-semibold text-[#011e4b] mb-1">Dipinjam</h3>
                     <p className="text-2xl font-bold text-yellow-600">
                       {galonMovements.borrowed}
                     </p>
@@ -593,12 +593,12 @@ const StockAndGalonPage = () => {
           {isReturnable && (
             <Card className="border-0 shadow-sm bg-white">
               <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-4 md:p-6">
-                <CardTitle className="text-base text-[#10182b]">Daftar Hutang Kemasan Pelanggan</CardTitle>
+                <CardTitle className="text-base text-[#011e4b]">Daftar Hutang Kemasan Pelanggan</CardTitle>
                 <Button 
                   onClick={() => fetchGalonDebts(selectedProductId)} 
                   disabled={loading || refreshing} 
                   variant="outline" 
-                  className="w-full sm:w-auto text-[#10182b] hover:bg-gray-100 text-sm"
+                  className="w-full sm:w-auto text-[#011e4b] hover:bg-gray-100 text-sm"
                 >
                   {refreshing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <RefreshCw className="h-4 w-4 mr-2" />}
                   Refresh
@@ -609,11 +609,11 @@ const StockAndGalonPage = () => {
                   <Table className="min-w-max">
                     <TableHeader>
                       <TableRow className="text-xs md:text-sm">
-                        <TableHead className="min-w-[120px] text-[#10182b]">Pelanggan</TableHead>
-                        <TableHead className="min-w-[100px] text-[#10182b]">Telepon</TableHead>
+                        <TableHead className="min-w-[120px] text-[#011e4b]">Pelanggan</TableHead>
+                        <TableHead className="min-w-[100px] text-[#011e4b]">Telepon</TableHead>
                         {/* UPDATED HEADER */}
-                        <TableHead className="min-w-[150px] text-[#10182b]">Hutang / Kelebihan</TableHead>
-                        <TableHead className="min-w-[80px] text-[#10182b]">Status</TableHead>
+                        <TableHead className="min-w-[150px] text-[#011e4b]">Hutang / Kelebihan</TableHead>
+                        <TableHead className="min-w-[80px] text-[#011e4b]">Status</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -635,7 +635,7 @@ const StockAndGalonPage = () => {
                                         className={'cursor-pointer hover:bg-gray-50 text-xs'}
                                         onClick={() => handleDebtRowClick(debt, pd)}
                                     >
-                                        <TableCell className={`font-medium ${isDebt ? 'text-red-600' : isSurplus ? 'text-green-600' : 'text-[#10182b]'}`}>
+                                        <TableCell className={`font-medium ${isDebt ? 'text-red-600' : isSurplus ? 'text-green-600' : 'text-[#011e4b]'}`}>
                                             {debt.name}
                                         </TableCell>
                                         <TableCell className="whitespace-nowrap">{debt.phone}</TableCell>
@@ -686,18 +686,18 @@ const StockAndGalonPage = () => {
 
           <Card className="border-0 shadow-sm bg-white">
             <CardHeader className="p-4 md:p-6">
-              <CardTitle className="text-base text-[#10182b]">Log Semua Pergerakan Stok</CardTitle>
+              <CardTitle className="text-base text-[#011e4b]">Log Semua Pergerakan Stok</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <div className="rounded-md border-t overflow-x-auto">
                 <Table className="min-w-max">
                   <TableHeader>
                     <TableRow className="text-xs md:text-sm">
-                      <TableHead className="min-w-[100px] text-[#10182b]">Tanggal</TableHead>
-                      <TableHead className="min-w-[120px] text-[#10182b]">Produk</TableHead>
-                      <TableHead className="min-w-[80px] text-[#10182b]">Jenis</TableHead>
-                      <TableHead className="min-w-[60px] text-[#10182b]">Jumlah</TableHead>
-                      <TableHead className="min-w-[150px] text-[#10182b]">Catatan</TableHead>
+                      <TableHead className="min-w-[100px] text-[#011e4b]">Tanggal</TableHead>
+                      <TableHead className="min-w-[120px] text-[#011e4b]">Produk</TableHead>
+                      <TableHead className="min-w-[80px] text-[#011e4b]">Jenis</TableHead>
+                      <TableHead className="min-w-[60px] text-[#011e4b]">Jumlah</TableHead>
+                      <TableHead className="min-w-[150px] text-[#011e4b]">Catatan</TableHead>
                     </TableRow>
                   </TableHeader>
                 {/* Ganti isi TableBody di Log Semua Pergerakan Stok (Sekitar baris 530) */}
@@ -751,7 +751,7 @@ const StockAndGalonPage = () => {
         <TabsContent value="adjustment" className="pt-4 space-y-6">
           <Card className="border-0 shadow-sm bg-white">
             <CardHeader className="p-4 md:p-6">
-              <CardTitle className="text-base text-[#10182b]">Penyesuaian Stok</CardTitle>
+              <CardTitle className="text-base text-[#011e4b]">Penyesuaian Stok</CardTitle>
               <CardDescription className="text-sm">
                 Tambahkan stok masuk atau keluar secara manual.
               </CardDescription>
@@ -812,7 +812,7 @@ const StockAndGalonPage = () => {
                     className="text-sm"
                   />
                 </div>
-                <Button type="submit" className="w-full bg-[#10182b] text-white hover:bg-[#20283b] text-sm" disabled={loading}>
+                <Button type="submit" className="w-full bg-[#011e4b] text-white hover:bg-[#00376a] text-sm" disabled={loading}>
                   {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : 'Catat Penyesuaian'}
                 </Button>
               </form>
@@ -821,18 +821,18 @@ const StockAndGalonPage = () => {
           
           <Card className="border-0 shadow-sm bg-white">
             <CardHeader className="p-4 md:p-6">
-              <CardTitle className="text-base text-[#10182b]">Riwayat Penyesuaian Manual</CardTitle>
+              <CardTitle className="text-base text-[#011e4b]">Riwayat Penyesuaian Manual</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <div className="rounded-md border-t overflow-x-auto">
                 <Table className="min-w-max">
                   <TableHeader>
                     <TableRow className="text-xs md:text-sm">
-                      <TableHead className="min-w-[100px] text-[#10182b]">Tanggal</TableHead>
-                      <TableHead className="min-w-[120px] text-[#10182b]">Produk</TableHead>
-                      <TableHead className="min-w-[80px] text-[#10182b]">Jenis</TableHead>
-                      <TableHead className="min-w-[60px] text-[#10182b]">Jumlah</TableHead>
-                      <TableHead className="min-w-[150px] text-[#10182b]">Catatan</TableHead>
+                      <TableHead className="min-w-[100px] text-[#011e4b]">Tanggal</TableHead>
+                      <TableHead className="min-w-[120px] text-[#011e4b]">Produk</TableHead>
+                      <TableHead className="min-w-[80px] text-[#011e4b]">Jenis</TableHead>
+                      <TableHead className="min-w-[60px] text-[#011e4b]">Jumlah</TableHead>
+                      <TableHead className="min-w-[150px] text-[#011e4b]">Catatan</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -865,7 +865,7 @@ const StockAndGalonPage = () => {
       <Dialog open={isDebtDetailModalOpen} onOpenChange={setIsDebtDetailModalOpen}>
           <DialogContent className="sm:max-w-4xl max-h-[95vh] overflow-y-auto">
               <DialogHeader>
-                  <DialogTitle className="text-[#10182b] flex items-center gap-2">
+                  <DialogTitle className="text-[#011e4b] flex items-center gap-2">
                       <FileText className="h-5 w-5" /> Riwayat Hutang Kemasan: {selectedDebtCustomer?.name}
                   </DialogTitle>
                   <CardDescription>

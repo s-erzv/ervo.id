@@ -45,11 +45,11 @@ const formatCurrency = (amount) => {
 const getOrderStatusBadge = (status) => {
   switch (status) {
     case 'draft':
-      return <Badge className="bg-gray-200 text-[#10182b] flex items-center gap-1 h-5 px-2 py-0.5 text-[10px] whitespace-nowrap"><Clock className="h-3 w-3" /> Draft</Badge>;
+      return <Badge className="bg-gray-200 text-[#011e4b] flex items-center gap-1 h-5 px-2 py-0.5 text-[10px] whitespace-nowrap"><Clock className="h-3 w-3" /> Draft</Badge>;
     case 'received':
       return <Badge className="bg-blue-500 text-white flex items-center gap-1 h-5 px-2 py-0.5 text-[10px] whitespace-nowrap"><PackageCheck className="h-3 w-3" /> Diterima</Badge>;
     default:
-      return <Badge className="bg-gray-200 text-[#10182b] flex items-center gap-1 h-5 px-2 py-0.5 text-[10px] whitespace-nowrap">Proses</Badge>;
+      return <Badge className="bg-gray-200 text-[#011e4b] flex items-center gap-1 h-5 px-2 py-0.5 text-[10px] whitespace-nowrap">Proses</Badge>;
   }
 };
 
@@ -306,18 +306,13 @@ const CentralOrderPage = () => {
     setLoading(true);
     
     try {
-        const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/manage-central-order-galons', {
+        const { data, error: invokeError } = await supabase.functions.invoke('manage-central-order-galons', {
             method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${session.access_token}`,
-            },
-            body: JSON.stringify({ orderId, companyId }),
+            body: { orderId, companyId },
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Gagal menghapus pesanan.');
+        if (invokeError) {
+            throw new Error(invokeError.message || 'Gagal menghapus pesanan.');
         }
 
         toast.success('Pesanan berhasil dihapus dan stok dikembalikan!');
@@ -398,7 +393,7 @@ const CentralOrderPage = () => {
       <div className="container mx-auto p-4 md:p-8 max-w-7xl space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
           <div className="space-y-1">
-            <h1 className="text-xl font-bold text-[#10182b]">
+            <h1 className="text-xl font-bold text-[#011e4b]">
               Daftar Pesanan dari Pusat
             </h1>
             {!loading && (
@@ -408,10 +403,10 @@ const CentralOrderPage = () => {
             )}
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
-            <Button onClick={exportToExcel} variant="outline" className="w-full sm:w-auto border-[#10182b] text-[#10182b] hover:bg-gray-50">
+            <Button onClick={exportToExcel} variant="outline" className="w-full sm:w-auto border-[#011e4b] text-[#011e4b] hover:bg-gray-50">
                 <Download className="h-4 w-4 mr-2" /> Export Excel
             </Button>
-            <Button onClick={() => navigate('/central-order/new-form')} className="w-full sm:w-auto bg-[#10182b] text-white hover:bg-[#10182b]/90 text-sm">
+            <Button onClick={() => navigate('/central-order/new-form')} className="w-full sm:w-auto bg-[#011e4b] text-white hover:bg-[#011e4b]/90 text-sm">
                 <PlusCircle className="h-4 w-4 mr-2" /> Buat Pesanan Baru
             </Button>
           </div>
@@ -447,8 +442,8 @@ const CentralOrderPage = () => {
                 </CardHeader>
                 <CardContent className="p-4 pt-0 space-y-2 cursor-pointer" onClick={() => navigate(`/central-order/${lastViewedCentralOrder.id}`)}>
                     <div className="flex justify-between text-sm">
-                        <p className="font-medium text-[#10182b]">Dibuat oleh: {lastViewedCentralOrder.userName}</p>
-                        <p className="font-bold text-lg text-[#10182b]">{formatCurrency(lastViewedCentralOrder.calculatedTotal)}</p>
+                        <p className="font-medium text-[#011e4b]">Dibuat oleh: {lastViewedCentralOrder.userName}</p>
+                        <p className="font-bold text-lg text-[#011e4b]">{formatCurrency(lastViewedCentralOrder.calculatedTotal)}</p>
                     </div>
                     <div className="flex justify-between text-xs text-gray-500">
                         <p>Tanggal Order: {lastViewedCentralOrder.orderDate}</p>
@@ -463,20 +458,20 @@ const CentralOrderPage = () => {
 
         <Card className="border-0 shadow-sm bg-white">
           <CardHeader className="p-4 md:p-6">
-            <CardTitle className="text-lg font-semibold text-[#10182b]">Riwayat Pesanan ({totalCount.toLocaleString('id-ID')})</CardTitle>
+            <CardTitle className="text-lg font-semibold text-[#011e4b]">Riwayat Pesanan ({totalCount.toLocaleString('id-ID')})</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <div className="rounded-md border-t overflow-x-auto">
               <Table className="min-w-max">
                 <TableHeader>
                   <TableRow className="text-xs"> 
-                    <TableHead className="min-w-[80px] text-[#10182b] py-2 px-1">Tanggal</TableHead>
-                    <TableHead className="min-w-[80px] text-[#10182b] py-2 px-1">Status Order</TableHead>
-                    <TableHead className="min-w-[80px] text-[#10182b] py-2 px-1">Status Bayar</TableHead> 
-                    <TableHead className="min-w-[100px] text-[#10182b] py-2 px-1">Total</TableHead>
-                    <TableHead className="min-w-[120px] text-[#10182b] py-2 px-1">Produk</TableHead> 
-                    <TableHead className="min-w-[80px] text-[#10182b] py-2 px-1">Dibuat Oleh</TableHead>
-                    <TableHead className="min-w-[100px] text-[#10182b] py-2 px-1">Aksi</TableHead>
+                    <TableHead className="min-w-[80px] text-[#011e4b] py-2 px-1">Tanggal</TableHead>
+                    <TableHead className="min-w-[80px] text-[#011e4b] py-2 px-1">Status Order</TableHead>
+                    <TableHead className="min-w-[80px] text-[#011e4b] py-2 px-1">Status Bayar</TableHead> 
+                    <TableHead className="min-w-[100px] text-[#011e4b] py-2 px-1">Total</TableHead>
+                    <TableHead className="min-w-[120px] text-[#011e4b] py-2 px-1">Produk</TableHead> 
+                    <TableHead className="min-w-[80px] text-[#011e4b] py-2 px-1">Dibuat Oleh</TableHead>
+                    <TableHead className="min-w-[100px] text-[#011e4b] py-2 px-1">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -539,7 +534,7 @@ const CentralOrderPage = () => {
                               <Button 
                                 variant="outline" 
                                 size="xs" 
-                                className="h-6 text-[#10182b] hover:bg-gray-100 text-[10px] whitespace-nowrap"
+                                className="h-6 text-[#011e4b] hover:bg-gray-100 text-[10px] whitespace-nowrap"
                                 onClick={(e) => e.stopPropagation()} 
                               >
                                 Lihat ({order.items.length}) <ChevronDown className="ml-1 h-3 w-3" />
@@ -557,7 +552,7 @@ const CentralOrderPage = () => {
                                     return (
                                       <li key={index} className="text-gray-700 whitespace-normal border-b border-slate-50 pb-2 last:border-0">
                                         <div className="flex justify-between items-start mb-1">
-                                          <strong className="text-[#10182b]">{item.product?.name ?? 'Produk Dihapus'}</strong>
+                                          <strong className="text-[#011e4b]">{item.product?.name ?? 'Produk Dihapus'}</strong>
                                         </div>
                                         <div className="ml-4 flex flex-col gap-1.5">
                                           <span className="text-slate-500 text-[10px]">Dipesan: {dipesan} pcs</span>
@@ -603,7 +598,7 @@ const CentralOrderPage = () => {
                                                 <Button 
                                                   variant="ghost" 
                                                   size="icon" 
-                                                  className="h-5 w-5 text-gray-400 hover:text-[#10182b]"
+                                                  className="h-5 w-5 text-gray-400 hover:text-[#011e4b]"
                                                   onClick={() => setEditingReceived(prev => ({ ...prev, [item.id]: diterima }))}
                                                 >
                                                   <Pencil className="h-2.5 w-2.5" />
@@ -656,8 +651,8 @@ const CentralOrderPage = () => {
             {totalPages > 1 && (
               <div className="flex flex-col sm:flex-row justify-between items-center p-4 border-t gap-4 bg-gray-50/50 rounded-b-xl">
                 <p className="text-xs text-slate-500 font-medium">
-                  Halaman <span className="font-semibold text-[#10182b]">{currentPage}</span> dari{' '}
-                  <span className="font-semibold text-[#10182b]">{totalPages}</span>
+                  Halaman <span className="font-semibold text-[#011e4b]">{currentPage}</span> dari{' '}
+                  <span className="font-semibold text-[#011e4b]">{totalPages}</span>
                 </p>
                 <div className="flex items-center gap-1">
                   <Button
@@ -688,7 +683,7 @@ const CentralOrderPage = () => {
                           key={page}
                           variant={currentPage === page ? 'default' : 'outline'}
                           size="sm"
-                          className={`h-8 w-8 p-0 text-xs shrink-0 ${currentPage === page ? 'bg-[#10182b] text-white' : ''}`}
+                          className={`h-8 w-8 p-0 text-xs shrink-0 ${currentPage === page ? 'bg-[#011e4b] text-white' : ''}`}
                           disabled={loading}
                           onClick={() => setCurrentPage(page)}
                         >

@@ -368,7 +368,7 @@ const AddProductPage = () => {
       </div>
 
       <Card className="border-0 shadow-lg bg-white">
-        <CardHeader className="bg-[#10182b] text-white rounded-t-lg">
+        <CardHeader className="bg-[#011e4b] text-white rounded-t-lg">
           <CardTitle>Formulir Produk</CardTitle>
           <CardDescription className="text-gray-200">
             Isi detail produk, SKU, dan foto untuk katalog sistem.
@@ -556,7 +556,7 @@ const AddProductPage = () => {
                 </div>
             )}
 
-            <Button type="submit" className="w-full bg-[#10182b] text-white font-bold h-11" disabled={loading || !isFormValid}>
+            <Button type="submit" className="w-full bg-[#011e4b] text-white font-bold h-11" disabled={loading || !isFormValid}>
                 {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />} 
                 Tambah Produk
             </Button>

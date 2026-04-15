@@ -282,7 +282,7 @@ const App = () => {
                             href="https://api.whatsapp.com/send?phone=6285111301943" 
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="fixed bottom-4 right-4 z-50 p-4 rounded-full bg-[#10182b] text-white shadow-xl hover:bg-[#20283b] transition-colors duration-200"
+                            className="fixed bottom-4 right-4 z-50 p-4 rounded-full bg-[#011e4b] text-white shadow-xl hover:bg-[#00376a] transition-colors duration-200"
                             aria-label="Hubungi Admin via WhatsApp"
                         >
                             <Headset className="h-6 w-6" />

@@ -108,7 +108,7 @@ const CalendarPage = () => {
   return (
     <div className="container mx-auto p-4 md:p-8 max-w-7xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h1 className="text-3xl font-bold text-[#10182b] flex items-center gap-3">
+        <h1 className="text-3xl font-bold text-[#011e4b] flex items-center gap-3">
           <CalendarIcon className="h-8 w-8" />
           Kalender Order & Pengiriman
         </h1>
@@ -120,7 +120,7 @@ const CalendarPage = () => {
           <Button variant="ghost" size="icon" onClick={handlePrevMonth}>
             <ChevronLeft className="h-5 w-5" />
           </Button>
-          <CardTitle className="text-xl font-semibold text-[#10182b]">
+          <CardTitle className="text-xl font-semibold text-[#011e4b]">
             {format(currentDate, 'MMMM yyyy', { locale: id })}
           </CardTitle>
           <Button variant="ghost" size="icon" onClick={handleNextMonth}>
@@ -184,7 +184,7 @@ const CalendarPage = () => {
       
       {/* Legend */}
       <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-        <h2 className="text-sm font-bold text-[#10182b] uppercase tracking-wider mb-3">Keterangan Label</h2>
+        <h2 className="text-sm font-bold text-[#011e4b] uppercase tracking-wider mb-3">Keterangan Label</h2>
         <div className="flex flex-wrap gap-4">
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 bg-gray-200 rounded-sm border border-gray-300"></div>

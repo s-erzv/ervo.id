@@ -288,19 +288,13 @@ const EditOrderPage = () => {
         })),
       };
 
-      const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/edit-order', {
+      const { data: result, error: invokeError } = await supabase.functions.invoke('edit-order', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify(payload),
+        body: payload,
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Gagal memperbarui pesanan.');
+      if (invokeError) {
+        throw new Error(invokeError.message || 'Gagal memperbarui pesanan.');
       }
     
       toast.success('Pesanan berhasil diperbarui!');
@@ -330,7 +324,7 @@ const EditOrderPage = () => {
   if (loading) {
     return (
       <div className="flex flex-col justify-center items-center min-h-screen bg-white">
-        <Loader2 className="h-10 w-10 animate-spin text-[#10182b]" />
+        <Loader2 className="h-10 w-10 animate-spin text-[#011e4b]" />
         <p className="mt-4 text-muted-foreground">Memuat data...</p>
       </div>
     );
@@ -352,13 +346,13 @@ const EditOrderPage = () => {
           <ArrowLeft className="h-5 w-5 text-slate-700" />
         </Button>
         <div>
-          <h1 className="text-xl font-bold text-[#10182b]">Edit Pesanan #{order.invoice_number || order.id.slice(0,8)}</h1>
+          <h1 className="text-xl font-bold text-[#011e4b]">Edit Pesanan #{order.invoice_number || order.id.slice(0,8)}</h1>
           <p className="text-xs text-muted-foreground">Perbarui detail pesanan pelanggan.</p>
         </div>
       </div>
       
       <Card className="border-none shadow-xl bg-white overflow-hidden">
-        <CardHeader className="bg-[#10182b] text-white pb-6">
+        <CardHeader className="bg-[#011e4b] text-white pb-6">
           <CardTitle className="text-lg font-medium">Formulir Perubahan</CardTitle>
         </CardHeader>
         <CardContent className="p-4 md:p-6 space-y-6">
@@ -484,7 +478,7 @@ const EditOrderPage = () => {
                       disabled={!newEditItem.product_id || editingIndex !== -1}
                       className="w-24 border-slate-200 h-14 text-center font-bold text-lg"
                     />
-                    <Button type="button" onClick={handleEditItemAdd} disabled={!newEditItem.product_id || newEditItem.qty <= 0 || editingIndex !== -1} size="icon" className="bg-[#10182b] hover:bg-slate-800 shrink-0 text-white h-14 w-14">
+                    <Button type="button" onClick={handleEditItemAdd} disabled={!newEditItem.product_id || newEditItem.qty <= 0 || editingIndex !== -1} size="icon" className="bg-[#011e4b] hover:bg-slate-800 shrink-0 text-white h-14 w-14">
                       <Plus className="h-6 w-6" />
                     </Button>
                 </div>
@@ -540,7 +534,7 @@ const EditOrderPage = () => {
                                       </div>
                                       
                                       <div className="flex items-center justify-between w-full sm:w-auto gap-4 pl-16 sm:pl-0">
-                                          <span className="font-bold text-base text-[#10182b]">{formatCurrency(itemTotal)}</span>
+                                          <span className="font-bold text-base text-[#011e4b]">{formatCurrency(itemTotal)}</span>
                                           <div className="flex gap-1">
                                               <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-blue-500" onClick={() => handleEditClick(index)} disabled={isSubmitting}>
                                                   <Pencil className="h-3.5 w-3.5" />
@@ -586,10 +580,10 @@ const EditOrderPage = () => {
                   <p className="text-[11px] text-slate-400">Total belanja: {formatCurrency(editItems.reduce((acc, curr) => acc + (curr.qty * curr.price), 0))}</p>
                   <h3 className="text-xs font-semibold text-slate-500 tracking-widest">Total Bayar</h3>
               </div>
-              <h3 className="text-2xl font-semibold text-[#10182b]">{formatCurrency(calculateTotal())}</h3>
+              <h3 className="text-2xl font-semibold text-[#011e4b]">{formatCurrency(calculateTotal())}</h3>
             </div>
 
-            <Button type="submit" className="w-full bg-[#10182b] text-white hover:bg-slate-800 py-7 text-base font-semibold shadow-lg shadow-slate-200" disabled={isSubmitting || editItems.length === 0 || editingIndex !== -1}>
+            <Button type="submit" className="w-full bg-[#011e4b] text-white hover:bg-slate-800 py-7 text-base font-semibold shadow-lg shadow-slate-200" disabled={isSubmitting || editItems.length === 0 || editingIndex !== -1}>
               {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Check className="h-5 w-5 mr-2" />}
               Simpan Perubahan
             </Button>

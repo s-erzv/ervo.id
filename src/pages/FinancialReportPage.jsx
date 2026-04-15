@@ -100,7 +100,7 @@ const compressImage = (file, targetMB) => {
   });
 };
 
-const SUPABASE_PROJECT_REF = 'wzmgcainyratlwxttdau';
+const SUPABASE_PROJECT_REF = 'eyfjudhnkxvsdqusqnoy';
 const SUPABASE_STORAGE_URL = `https://${SUPABASE_PROJECT_REF}.supabase.co/storage/v1/object/public/proofs/`;
 
 const fetchAllData = async (queryFn) => {
@@ -764,7 +764,7 @@ const FinancialReportPage = () => {
   };
 
   const isAllowedToView = paymentMethods.length > 0 || userRole === 'admin' || userRole === 'super_admin';
-  if (loading) return <div className="flex justify-center items-center h-screen bg-white"><Loader2 className="h-8 w-8 animate-spin text-[#10182b]" /></div>;
+  if (loading) return <div className="flex justify-center items-center h-screen bg-white"><Loader2 className="h-8 w-8 animate-spin text-[#011e4b]" /></div>;
   if (!isAllowedToView) return (
     <div className="container mx-auto p-4 md:p-8 max-w-7xl space-y-6">
       <Card className="mt-10 border-red-500 border-2">
@@ -777,17 +777,17 @@ const FinancialReportPage = () => {
     <div className="container mx-auto p-3 md:p-8 max-w-7xl space-y-4 md:space-y-6">
       {/* HEADER */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-2 md:mb-4 gap-3">
-        <h1 className="text-xl md:text-2xl font-bold text-[#10182b] flex items-center gap-2"><PiggyBank className="h-5 w-5 md:h-6 md:w-6" /> Laporan Keuangan</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-[#011e4b] flex items-center gap-2"><PiggyBank className="h-5 w-5 md:h-6 md:w-6" /> Laporan Keuangan</h1>
         <div className="flex flex-wrap w-full lg:w-auto gap-2">
-          <Button onClick={fetchFinancialData} variant="outline" className="flex-1 md:flex-none text-[#10182b] hover:bg-gray-100 text-xs md:text-sm h-9 md:h-10"><RefreshCcw className="h-4 w-4 mr-1 md:mr-2" /> Refresh</Button>
-          <Button onClick={() => setIsTransferModalOpen(true)} className="flex-1 md:flex-none bg-[#10182b] text-white hover:bg-[#1a2542] text-xs md:text-sm h-9 md:h-10"><ArrowRightLeft className="h-4 w-4 mr-1 md:mr-2" /> Transfer</Button>
+          <Button onClick={fetchFinancialData} variant="outline" className="flex-1 md:flex-none text-[#011e4b] hover:bg-gray-100 text-xs md:text-sm h-9 md:h-10"><RefreshCcw className="h-4 w-4 mr-1 md:mr-2" /> Refresh</Button>
+          <Button onClick={() => setIsTransferModalOpen(true)} className="flex-1 md:flex-none bg-[#011e4b] text-white hover:bg-[#00376a] text-xs md:text-sm h-9 md:h-10"><ArrowRightLeft className="h-4 w-4 mr-1 md:mr-2" /> Transfer</Button>
           <Button variant="outline" onClick={() => setIsTemplateModalOpen(true)} className="w-full md:w-auto text-xs md:text-sm h-9 md:h-10"><Settings className="mr-1 md:mr-2 h-4 w-4" /> Atur WA</Button>
         </div>
       </div>
 
       {/* TOP SUMMARY CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
-        <Card className="border-0 shadow-lg bg-[#10182b] text-white">
+        <Card className="border-0 shadow-lg bg-[#011e4b] text-white">
           <CardHeader className="p-4"><CardTitle className="text-xs md:text-sm font-medium opacity-80 flex items-center gap-2"><Banknote className="h-4 w-4" /> Total Saldo Riil</CardTitle></CardHeader>
           <CardContent className="p-4 pt-0">
             <p className="text-2xl md:text-3xl font-bold">{formatCurrency(reportData.totalBalance)}</p>
@@ -916,7 +916,7 @@ const FinancialReportPage = () => {
                       {filteredDropshipData.map(order => (
                         <TableRow key={order.id} className="text-[11px] md:text-sm">
                           <TableCell className="whitespace-nowrap">{new Date(order.created_at).toLocaleDateString('id-ID')}</TableCell>
-                          <TableCell className="font-bold text-[#10182b]">{order.dropshipper?.full_name || 'N/A'}</TableCell>
+                          <TableCell className="font-bold text-[#011e4b]">{order.dropshipper?.full_name || 'N/A'}</TableCell>
                           <TableCell>#{order.invoice_number}</TableCell>
                           <TableCell className="max-w-[100px] truncate">{order.customers?.name}</TableCell>
                           <TableCell className="text-right font-bold text-green-600">{formatCurrency(order.dropshipper_commission)}</TableCell>
@@ -957,14 +957,14 @@ const FinancialReportPage = () => {
         </div>
       )}
 
-      <h2 className="text-base md:text-lg font-bold mb-3 flex items-center gap-2 text-[#10182b]">Rincian per Metode</h2>
+      <h2 className="text-base md:text-lg font-bold mb-3 flex items-center gap-2 text-[#011e4b]">Rincian per Metode</h2>
       {/* PAYMENT METHODS GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
         {reportData.balances.map(item => (
-          <Card key={item.id} className={`border border-gray-200 shadow-sm transition-all hover:shadow-md hover:cursor-pointer ${expandedMethodId === item.id ? 'border-2 border-[#10182b] shadow-lg ring-1 ring-[#10182b]/20' : ''}`} onClick={() => handleCardClick(item.id)}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4"><CardTitle className="text-sm md:text-base font-semibold text-[#10182b] truncate pr-2">{item.method_name}</CardTitle><div className="p-1.5 rounded-full bg-[#10182b] text-white flex-shrink-0">{item.type === 'cash' ? <Banknote className="h-3 w-3 md:h-4 md:w-4" /> : <CreditCard className="h-3 w-3 md:h-4 md:w-4" />}</div></CardHeader>
+          <Card key={item.id} className={`border border-gray-200 shadow-sm transition-all hover:shadow-md hover:cursor-pointer ${expandedMethodId === item.id ? 'border-2 border-[#011e4b] shadow-lg ring-1 ring-[#011e4b]/20' : ''}`} onClick={() => handleCardClick(item.id)}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4"><CardTitle className="text-sm md:text-base font-semibold text-[#011e4b] truncate pr-2">{item.method_name}</CardTitle><div className="p-1.5 rounded-full bg-[#011e4b] text-white flex-shrink-0">{item.type === 'cash' ? <Banknote className="h-3 w-3 md:h-4 md:w-4" /> : <CreditCard className="h-3 w-3 md:h-4 md:w-4" />}</div></CardHeader>
             <CardContent className="p-4 pt-0">
-              <div className="text-xl md:text-2xl font-bold text-[#10182b]">{formatCurrency(item.balance)}</div>
+              <div className="text-xl md:text-2xl font-bold text-[#011e4b]">{formatCurrency(item.balance)}</div>
               <div className="text-[10px] md:text-xs text-muted-foreground mt-2 flex justify-between items-center border-t pt-2"><span>Masuk: <span className="font-semibold text-green-600">{formatCurrency(item.income)}</span></span><span>Keluar: <span className="font-semibold text-red-600">{formatCurrency(item.expense)}</span></span></div>
               {item.type === 'transfer' && <p className="text-[9px] md:text-xs text-muted-foreground mt-2 truncate italic">{item.account_name} - {item.account_number}</p>}
             </CardContent>
@@ -987,10 +987,10 @@ const FinancialReportPage = () => {
             </CardContent>
           </Card>
           <Card id="transaction-history-table" className="border-0 shadow-lg bg-white overflow-hidden">
-            <CardHeader className="bg-gray-100 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"><CardTitle className="text-sm md:text-base text-[#10182b] flex items-center gap-2 font-bold"><FileText className="h-4 w-4" /> Riwayat Transaksi</CardTitle><Button onClick={handleExportTransactions} variant="outline" size="sm" className="w-full sm:w-auto text-xs" disabled={methodTransactions.length === 0}><Download className="h-3 w-3 mr-2" /> Export Riwayat</Button></CardHeader>
+            <CardHeader className="bg-gray-100 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"><CardTitle className="text-sm md:text-base text-[#011e4b] flex items-center gap-2 font-bold"><FileText className="h-4 w-4" /> Riwayat Transaksi</CardTitle><Button onClick={handleExportTransactions} variant="outline" size="sm" className="w-full sm:w-auto text-xs" disabled={methodTransactions.length === 0}><Download className="h-3 w-3 mr-2" /> Export Riwayat</Button></CardHeader>
             <CardContent className="p-0">
               <div className="overflow-x-auto max-h-[500px] scrollbar-thin scrollbar-thumb-gray-300">
-                {loadingHistory ? <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-[#10182b]" /></div> : <Table className="min-w-[850px] text-xs md:text-sm"><TableHeader className="sticky top-0 bg-gray-100 z-20 shadow-sm"><TableRow className="text-[10px] md:text-xs"><TableHead>Tgl</TableHead><TableHead>Tipe</TableHead><TableHead className="text-green-700">Masuk</TableHead><TableHead className="text-red-700">Keluar</TableHead><TableHead>Saldo</TableHead><TableHead className="w-1/3">Deskripsi</TableHead><TableHead className="text-center">Aksi</TableHead></TableRow></TableHeader><TableBody>{filteredMethodTransactions.map(t => (<TableRow key={t.id} className="hover:bg-gray-50"><TableCell className="whitespace-nowrap font-medium">{new Date(t.date).toLocaleDateString('id-ID')}</TableCell><TableCell><Badge variant={t.type === 'income' ? 'success' : 'destructive'} className="text-[9px] px-1 py-0">{t.type === 'income' ? 'In' : 'Out'}</Badge></TableCell><TableCell className="text-green-700">{t.type === 'income' ? formatCurrency(t.amount) : '-'}</TableCell><TableCell className="text-red-700">{t.type === 'expense' ? formatCurrency(t.amount) : '-'}</TableCell><TableCell className="font-bold">{formatCurrency(t.runningBalance)}</TableCell><TableCell className="max-w-[200px] truncate md:whitespace-normal italic">{t.description}</TableCell><TableCell className="text-center"><div className="flex gap-1 justify-center">{t.proofUrl && <a href={getProofUrl(t.proofUrl)} target="_blank" rel="noreferrer"><Button variant="ghost" size="icon" className="h-7 w-7"><Eye className="h-3.5 w-3.5" /></Button></a>}{(userRole === 'admin' || userRole === 'super_admin') && (<Button variant="ghost" size="icon" className="text-red-500 h-7 w-7" onClick={() => handleDeleteTransaction(t)}><Trash2 className="h-3.5 w-3.5" /></Button>)}</div></TableCell></TableRow>))}</TableBody></Table>}
+                {loadingHistory ? <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-[#011e4b]" /></div> : <Table className="min-w-[850px] text-xs md:text-sm"><TableHeader className="sticky top-0 bg-gray-100 z-20 shadow-sm"><TableRow className="text-[10px] md:text-xs"><TableHead>Tgl</TableHead><TableHead>Tipe</TableHead><TableHead className="text-green-700">Masuk</TableHead><TableHead className="text-red-700">Keluar</TableHead><TableHead>Saldo</TableHead><TableHead className="w-1/3">Deskripsi</TableHead><TableHead className="text-center">Aksi</TableHead></TableRow></TableHeader><TableBody>{filteredMethodTransactions.map(t => (<TableRow key={t.id} className="hover:bg-gray-50"><TableCell className="whitespace-nowrap font-medium">{new Date(t.date).toLocaleDateString('id-ID')}</TableCell><TableCell><Badge variant={t.type === 'income' ? 'success' : 'destructive'} className="text-[9px] px-1 py-0">{t.type === 'income' ? 'In' : 'Out'}</Badge></TableCell><TableCell className="text-green-700">{t.type === 'income' ? formatCurrency(t.amount) : '-'}</TableCell><TableCell className="text-red-700">{t.type === 'expense' ? formatCurrency(t.amount) : '-'}</TableCell><TableCell className="font-bold">{formatCurrency(t.runningBalance)}</TableCell><TableCell className="max-w-[200px] truncate md:whitespace-normal italic">{t.description}</TableCell><TableCell className="text-center"><div className="flex gap-1 justify-center">{t.proofUrl && <a href={getProofUrl(t.proofUrl)} target="_blank" rel="noreferrer"><Button variant="ghost" size="icon" className="h-7 w-7"><Eye className="h-3.5 w-3.5" /></Button></a>}{(userRole === 'admin' || userRole === 'super_admin') && (<Button variant="ghost" size="icon" className="text-red-500 h-7 w-7" onClick={() => handleDeleteTransaction(t)}><Trash2 className="h-3.5 w-3.5" /></Button>)}</div></TableCell></TableRow>))}</TableBody></Table>}
               </div>
             </CardContent>
           </Card>
@@ -1027,7 +1027,7 @@ const FinancialReportPage = () => {
             </div>
             <div className="grid gap-1.5"><Label className="text-xs uppercase font-bold text-gray-500">Bukti (Opsional)</Label><Input type="file" accept="image/*" onChange={e => setTransferForm(prev => ({ ...prev, proof_file: e.target.files }))} className="text-xs h-9 cursor-pointer" /></div>
             <div className="grid gap-1.5"><Label className="text-xs uppercase font-bold text-gray-500">Keterangan</Label><Input value={transferForm.description} onChange={e => setTransferForm(prev => ({ ...prev, description: e.target.value }))} className="h-9" placeholder="Contoh: Setor tunai ke Bank" /></div>
-            <DialogFooter className="pt-2"><Button type="submit" disabled={isSubmitting} className="w-full bg-[#10182b]">{isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Catat Transfer'}</Button></DialogFooter>
+            <DialogFooter className="pt-2"><Button type="submit" disabled={isSubmitting} className="w-full bg-[#011e4b]">{isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Catat Transfer'}</Button></DialogFooter>
           </form>
         </DialogContent>
       </Dialog>

@@ -74,7 +74,7 @@ const LoginForm = () => {
           required
         />
       </div>
-      <Button type="submit" className="w-full bg-[#10182b] text-white hover:bg-[#20283b]" disabled={loading}>
+      <Button type="submit" className="w-full bg-[#011e4b] text-white hover:bg-[#00376a]" disabled={loading}>
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Login'}
       </Button>
       {message && (

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { RocketIcon, Users, ListOrdered } from 'lucide-react';
+import { RocketIcon, Users, ListOrdered, ArrowRight } from 'lucide-react';
 import { Loader2, Building2, BarChart, Phone } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,17 @@ const getStartOf30Days = () => {
 const getTodayDate = () => {
     return format(new Date(), 'yyyy-MM-dd');
 };
+
+// Curated professional color palette for the chart
+const CHART_COLORS = [
+    '#015a97', // Primary Blue
+    '#0EA5E9', // Sky Blue
+    '#10B981', // Emerald
+    '#F59E0B', // Amber
+    '#8B5CF6', // Violet
+    '#F43F5E', // Rose
+    '#64748B', // Slate
+];
 
 const simulateStockPrediction = (productsData) => {
     const sellableProducts = (productsData || []).filter(p => p.stock > 0);
@@ -92,8 +103,9 @@ const DashboardPage = () => {
       if (!session || !userProfile || loading) return;
 
       if (userProfile.role === 'super_admin' && !companyId) {
-        // Logika Super Admin (Tetap)
         setDataLoading(true);
+        
+        // 1. Ambil daftar tenant
         const { data: companiesData, error: companiesError } = await supabase.from('companies').select('id, name');
         if (companiesError) {
           console.error('Error fetching companies:', companiesError);
@@ -102,32 +114,38 @@ const DashboardPage = () => {
           setCompanies(companiesData || []);
         }
 
-        const { data: sales, error: salesError } = await supabase
-          .from('orders')
-          .select('company_id, grand_total, created_at')
-          .gte('created_at', subDays(new Date(), 30).toISOString());
+        // 2. LOGIKA BARU: Ambil data pendapatan dari subscription_payments yang sudah di-ACC
+        const { data: payments, error: paymentsError } = await supabase
+          .from('subscription_payments')
+          .select('company_id, amount, approved_at')
+          .eq('status', 'approved') // Hanya ambil yang sudah disetujui admin
+          .gte('approved_at', subDays(new Date(), 30).toISOString());
 
-        if (salesError) {
-          console.error('Error fetching sales data:', salesError);
+        if (paymentsError) {
+          console.error('Error fetching subscription revenue:', paymentsError);
           setSalesData([]);
         } else {
           const allDates = Array.from({ length: 30 }, (_, i) => 
             format(subDays(new Date(), 29 - i), 'yyyy-MM-dd')
           );
 
-          const processedSales = sales.reduce((acc, sale) => {
-            const date = format(new Date(sale.created_at), 'yyyy-MM-dd');
-            const company = companiesData.find(c => c.id === sale.company_id)?.name || 'Unknown';
+          const processedRevenue = payments.reduce((acc, payment) => {
+            if (!payment.approved_at) return acc;
+            
+            const date = format(new Date(payment.approved_at), 'yyyy-MM-dd');
+            const company = companiesData?.find(c => c.id === payment.company_id)?.name || 'Unknown';
+            
             if (!acc[date]) {
               acc[date] = { date: date };
             }
-            acc[date][company] = (acc[date][company] || 0) + (sale.grand_total || 0);
+            // Tambahkan nominal subscription ke array perusahaan di tanggal tersebut
+            acc[date][company] = (acc[date][company] || 0) + (Number(payment.amount) || 0);
             return acc;
           }, {});
           
-          const finalSalesData = allDates.map(date => {
-            const dateData = processedSales[date] || { date };
-            companiesData.forEach(company => {
+          const finalRevenueData = allDates.map(date => {
+            const dateData = processedRevenue[date] || { date };
+            companiesData?.forEach(company => {
               if (!dateData[company.name]) {
                 dateData[company.name] = 0;
               }
@@ -135,7 +153,7 @@ const DashboardPage = () => {
             return dateData;
           });
 
-          setSalesData(finalSalesData);
+          setSalesData(finalRevenueData);
         }
 
         setDataLoading(false);
@@ -146,7 +164,6 @@ const DashboardPage = () => {
 
       setDataLoading(true);
       try {
-        // PASS FILTER RENTANG WAKTU KE FETCHDATA
         await fetchData(userProfile.role, session.user.id, companyId, startDate, endDate);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -156,21 +173,17 @@ const DashboardPage = () => {
     };
 
     fetchDashboardData();
-  }, [session, userProfile, loading, companyId, startDate, endDate]); // DEPENDENCIES DIUBAH
+  }, [session, userProfile, loading, companyId, startDate, endDate]); 
 
-
-  // FIX: Fungsi fetchData diubah untuk menerima rentang tanggal & menghitung diskon
  const fetchData = async (role, userId, currentCompanyId, sDate, eDate) => {
     try {
       const todayString = getTodayDate();
       
-      // Hitung selisih hari untuk Chart Data
       const date1 = new Date(sDate);
       const date2 = new Date(eDate);
       const timeDiff = date2.getTime() - date1.getTime();
       const daysInPeriod = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
 
-      // FIX CRITICAL: Tambahkan 1 hari ke endDate agar mencakup seluruh hari terakhir
       const endDateObj = new Date(eDate + 'T00:00:00'); 
       const queryEndDate = format(addDays(endDateObj, 1), 'yyyy-MM-dd');
 
@@ -185,16 +198,12 @@ const DashboardPage = () => {
             return acc;
         }, {});
         
-        // Orders Hari Ini (tetap harian)
         const { data: ordersToday } = await supabase
           .from('orders')
           .select('id, payment_status')
           .eq('company_id', currentCompanyId)
           .eq('planned_date', todayString);
 
-
-        // --- 1. KPI CARDS (MENGGUNAKAN TANGGAL DIKIRIM - delivered_at) ---
-        // FIX KRITIS: Mengubah dasar penghitungan KPI Sales ke delivered_at (realisasi)
         const { data: periodOrders, error: periodOrdersError } = await supabase
             .from('orders')
             .select(`
@@ -203,15 +212,15 @@ const DashboardPage = () => {
                 invoices (total_discount)
             `)
             .eq('company_id', currentCompanyId)
-            .eq('status', 'completed') // HANYA HITUNG ORDER YANG SELESAI
-            .gte('delivered_at', sDate) // GANTI created_at DENGAN delivered_at
-            .lt('delivered_at', queryEndDate); // GANTI created_at DENGAN delivered_at
+            .eq('status', 'completed') 
+            .gte('delivered_at', sDate) 
+            .lt('delivered_at', queryEndDate); 
 
         if (periodOrdersError) {
             console.error('Error fetching period orders for summary:', periodOrdersError);
         }
         
-        let totalGrossRevenue = 0; // Penjualan Kotor (sebelum diskon)
+        let totalGrossRevenue = 0; 
         let totalDiscountApplied = 0;
         let totalCogs = 0;
         
@@ -219,7 +228,6 @@ const DashboardPage = () => {
             let orderGrossRevenue = 0;
             let orderCogs = 0;
             
-            // Hitung Revenue Kotor & COGS
             (order.order_items || []).forEach(item => {
                 const sellingPrice = parseFloat(item.price) || 0;
                 const quantity = parseInt(item.qty) || 0;
@@ -229,28 +237,23 @@ const DashboardPage = () => {
                 orderCogs += purchasePrice * quantity;
             });
 
-            // Ambil Diskon
             const invoice = Array.isArray(order.invoices) ? order.invoices[0] : order.invoices;
             const orderDiscount = Number(invoice?.total_discount) || 0; 
             
-            // Akumulasi Total
             totalGrossRevenue += orderGrossRevenue;
             totalDiscountApplied += orderDiscount;
             totalCogs += orderCogs;
         });
 
-        // Hitung FINAL KPI
         const totalNetSale = totalGrossRevenue - totalDiscountApplied;
         
         const monthlySummary = {
-            totalSale: Math.round(totalNetSale), // NET SALE (HANYA DARI YANG SUDAH DIKIRIM)
+            totalSale: Math.round(totalNetSale), 
             totalCogs: Math.round(totalCogs),
-            totalGrossProfit: Math.round(totalNetSale - totalCogs), // FINAL GROSS PROFIT
-            totalOrders: (periodOrders || []).length, // HANYA ORDER YANG SUDAH SELESAI
+            totalGrossProfit: Math.round(totalNetSale - totalCogs), 
+            totalOrders: (periodOrders || []).length, 
         };
-        // ----------------------------------------------------------------------------------
         
-        // --- 2. DAILY PROFIT CALCULATION FOR CHART (TIDAK BERUBAH) ---
         const { data: recentOrders } = await supabase
             .from('orders')
             .select(`
@@ -265,7 +268,6 @@ const DashboardPage = () => {
 
         const profitByDate = {};
         
-        // Loop untuk inisialisasi data harian
         let currentDate = new Date(sDate);
         for (let i = 0; i < daysInPeriod; i++) {
             const dateKey = format(new Date(currentDate), 'yyyy-MM-dd'); 
@@ -278,14 +280,12 @@ const DashboardPage = () => {
             const date = format(new Date(order.delivered_at), 'yyyy-MM-dd');
             if (!profitByDate[date]) return; 
             
-            // Ambil Diskon
             const invoice = Array.isArray(order.invoices) ? order.invoices[0] : order.invoices;
             const totalDiscount = Number(invoice?.total_discount) || 0; 
             
             let orderGrossRevenue = 0;
             let orderCogs = 0;
             
-            // Hitung Revenue Kotor & COGS
             (order.order_items || []).forEach(item => {
                 const sellingPrice = parseFloat(item.price) || 0;
                 const quantity = parseInt(item.qty) || 0;
@@ -295,13 +295,10 @@ const DashboardPage = () => {
                 orderCogs += purchasePrice * quantity;
             });
 
-            // Hitung Net Revenue: Revenue Kotor - Diskon
             const netRevenue = orderGrossRevenue - totalDiscount; 
-            
-            // Hitung Final Profit: Net Revenue - COGS
             const finalProfit = netRevenue - orderCogs;
             
-            profitByDate[date].Revenue += netRevenue; // Revenue yang dicatat adalah NET Revenue
+            profitByDate[date].Revenue += netRevenue; 
             profitByDate[date].COGS += orderCogs;
             profitByDate[date].Profit += finalProfit;
         });
@@ -312,7 +309,6 @@ const DashboardPage = () => {
             COGS: Math.round(d.COGS),
             Profit: Math.round(d.Profit),
         }));
-        // ------------------------------------------------------------
         
         const stockAlerts = simulateStockPrediction(productsData); 
         const unpaidCount = ordersToday?.filter(o => o.payment_status !== 'paid').length || 0;
@@ -344,55 +340,51 @@ const DashboardPage = () => {
         }));
       }
 
-    if (role === 'dropship') {
-      // Tambahkan jam agar mencakup seluruh hari terakhir (eDate)
-      const queryEndDate = format(addDays(new Date(eDate), 1), 'yyyy-MM-dd');
+      if (role === 'dropship') {
+        const queryEndDate = format(addDays(new Date(eDate), 1), 'yyyy-MM-dd');
 
-      const { data: dsOrders, error: dsError } = await supabase
-        .from('orders')
-        .select(`
-          id, 
-          status, 
-          grand_total, 
-          dropshipper_commission, 
-          invoice_number,
-          delivered_at,
-          created_at,
-          customers(name)
-        `)
-        .eq('dropshipper_id', userId)
-        .eq('company_id', currentCompanyId)
-        // GUNAKAN delivered_at atau planned_date sesuai kebutuhan bisnis
-        .gte('created_at', sDate) 
-        .lt('created_at', queryEndDate);
+        const { data: dsOrders, error: dsError } = await supabase
+            .from('orders')
+            .select(`
+            id, 
+            status, 
+            grand_total, 
+            dropshipper_commission, 
+            invoice_number,
+            delivered_at,
+            created_at,
+            customers(name)
+            `)
+            .eq('dropshipper_id', userId)
+            .eq('company_id', currentCompanyId)
+            .gte('created_at', sDate) 
+            .lt('created_at', queryEndDate);
 
-      if (dsError) throw dsError;
+        if (dsError) throw dsError;
 
-      // Logic Summary & Stats tetap sama (tapi sekarang datanya sudah terfilter)
-      const summary = {
-        totalSales: dsOrders.reduce((sum, o) => sum + (Number(o.grand_total) || 0), 0),
-        totalCommission: dsOrders.filter(o => o.status === 'completed').reduce((sum, o) => sum + (Number(o.dropshipper_commission) || 0), 0),
-        pendingCommission: dsOrders.filter(o => o.status !== 'completed' && o.status !== 'cancelled').reduce((sum, o) => sum + (Number(o.dropshipper_commission) || 0), 0),
-        totalOrders: dsOrders.length,
-        completedOrders: dsOrders.filter(o => o.status === 'completed').length
-      };
+        const summary = {
+            totalSales: dsOrders.reduce((sum, o) => sum + (Number(o.grand_total) || 0), 0),
+            totalCommission: dsOrders.filter(o => o.status === 'completed').reduce((sum, o) => sum + (Number(o.dropshipper_commission) || 0), 0),
+            pendingCommission: dsOrders.filter(o => o.status !== 'completed' && o.status !== 'cancelled').reduce((sum, o) => sum + (Number(o.dropshipper_commission) || 0), 0),
+            totalOrders: dsOrders.length,
+            completedOrders: dsOrders.filter(o => o.status === 'completed').length
+        };
 
-      // Stats harian untuk grafik
-      const statsMap = {};
-      dsOrders.forEach(o => {
-        const dateKey = format(new Date(o.created_at), 'dd MMM');
-        if (!statsMap[dateKey]) statsMap[dateKey] = { date: dateKey, commission: 0 };
-        if (o.status === 'completed') {
-          statsMap[dateKey].commission += Number(o.dropshipper_commission) || 0;
-        }
-      });
+        const statsMap = {};
+        dsOrders.forEach(o => {
+            const dateKey = format(new Date(o.created_at), 'dd MMM');
+            if (!statsMap[dateKey]) statsMap[dateKey] = { date: dateKey, commission: 0 };
+            if (o.status === 'completed') {
+            statsMap[dateKey].commission += Number(o.dropshipper_commission) || 0;
+            }
+        });
 
-      setDashboardData({
-        summary,
-        dailyStats: Object.values(statsMap),
-        recentOrders: dsOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5)
-      });
-    }
+        setDashboardData({
+            summary,
+            dailyStats: Object.values(statsMap),
+            recentOrders: dsOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5)
+        });
+      }
     } catch (error) {
       console.error('Error in fetchData:', error);
       setDashboardData(prev => ({
@@ -408,61 +400,92 @@ const DashboardPage = () => {
   const renderDashboardComponent = () => { 
     if (userProfile.role === 'super_admin' && !companyId) { 
         return (
-            <div className="container mx-auto p-4 md:p-8 max-w-7xl">
-                <h1 className="text-3xl font-bold mb-6 flex items-center gap-3">
-                    <Building2 className="h-8 w-8" />
-                    Pilih Perusahaan
-                </h1>
+            <div className="container mx-auto p-4 md:p-8 max-w-7xl animate-in fade-in slide-in-from-bottom-2">
                 
-                <Card className="mb-8 border-0 shadow-lg bg-white">
-                    <CardHeader className="bg-[#10182b] text-white rounded-t-lg">
-                    <CardTitle className="text-xl flex items-center gap-2">
-                        <BarChart className="h-6 w-6" /> Tren Penjualan 30 Hari Terakhir
-                    </CardTitle>
+                {/* Header Section */}
+                <div className="mb-10">
+                    <h1 className="text-3xl font-medium text-[#011e4b] flex items-center gap-3">
+                        <Building2 className="h-8 w-8 text-[#015a97]" />
+                        Pilih Perusahaan
+                    </h1>
+                    <p className="text-slate-500 mt-2 font-medium">
+                        Pantau metrik dan kelola operasional tenant secara spesifik.
+                    </p>
+                </div>
+                
+                {/* Chart Section */}
+                <Card className="mb-12 border border-slate-200/60 shadow-sm bg-white rounded-2xl overflow-hidden">
+                    <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-6">
+                        <CardTitle className="text-lg font-medium text-[#011e4b] flex items-center gap-2">
+                            <BarChart className="h-5 w-5 text-[#015a97]" /> Tren Pendapatan Langganan (30 Hari Terakhir)
+                        </CardTitle>
                     </CardHeader>
-                    <CardContent className="pt-6">
-                    {salesData && salesData.length > 0 ? (
-                        <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={salesData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="date" />
-                            <YAxis />
-                            <Tooltip />
-                            <Legend />
-                            {companies.map((company, index) => (
-                            <Line
-                                key={company.id}
-                                type="monotone"
-                                dataKey={company.name}
-                                stroke={`hsl(${(index * 137.508) % 360}, 70%, 50%)`}
-                                strokeWidth={2}
-                            />
-                            ))}
-                        </LineChart>
-                        </ResponsiveContainer>
-                    ) : (
-                        <div className="flex justify-center items-center h-40 text-muted-foreground">
-                        Tidak ada data penjualan untuk ditampilkan.
-                        </div>
-                    )}
+                    <CardContent className="p-6">
+                        {salesData && salesData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height={320}>
+                                <LineChart data={salesData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                                    <XAxis 
+                                        dataKey="date" 
+                                        tick={{ fill: '#64748B', fontSize: 12 }}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        tickFormatter={(val) => format(new Date(val), 'dd MMM')}
+                                        dy={10}
+                                    />
+                                    <YAxis 
+                                      tick={{ fill: '#64748B', fontSize: 12 }}
+                                      tickLine={false}
+                                      axisLine={false}
+                                      tickFormatter={(val) => `Rp ${(val / 1000000).toFixed(1)} Jt`}
+                                      dx={-10}
+                                  />
+                                    <Tooltip 
+                                        contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                    />
+                                    <Legend 
+                                        iconType="circle" 
+                                        wrapperStyle={{ paddingTop: '20px', fontSize: '14px', fontWeight: 500 }}
+                                    />
+                                    {companies.map((company, index) => (
+                                        <Line
+                                            key={company.id}
+                                            type="monotone"
+                                            dataKey={company.name}
+                                            stroke={CHART_COLORS[index % CHART_COLORS.length]}
+                                            strokeWidth={3}
+                                            dot={{ r: 0 }}
+                                            activeDot={{ r: 6, strokeWidth: 0 }}
+                                        />
+                                    ))}
+                                </LineChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="flex justify-center items-center h-48 text-slate-400 font-medium bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                                Belum ada data pendapatan langganan untuk ditampilkan.
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
                 
-                <p className="text-muted-foreground mb-8">
-                    Silakan pilih perusahaan yang ingin Anda kelola atau pantau.
-                </p>
+                {/* Company Selection Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {companies.map((company) => (
                     <Card 
                         key={company.id} 
-                        className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                        className="group cursor-pointer border border-slate-200/60 shadow-sm hover:shadow-md hover:border-[#015a97]/30 transition-all duration-300 rounded-2xl bg-white"
                         onClick={() => setActiveCompany(company.id)}
                     >
-                        <CardHeader>
-                        <CardTitle>{company.name}</CardTitle>
+                        <CardHeader className="p-6 pb-2">
+                            <CardTitle className="text-xl font-medium text-slate-800 group-hover:text-[#011e4b] transition-colors">
+                                {company.name}
+                            </CardTitle>
                         </CardHeader>
-                        <CardContent>
-                        <Button variant="outline">Masuk Dashboard</Button>
+                        <CardContent className="p-6 pt-4 flex justify-between items-center border-t border-slate-50 mt-2">
+                            <span className="text-sm text-slate-500 font-medium">Ketuk untuk masuk</span>
+                            <div className="h-8 w-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-[#015a97] group-hover:text-white text-slate-400 transition-colors">
+                                <ArrowRight className="h-4 w-4" />
+                            </div>
                         </CardContent>
                     </Card>
                     ))}
@@ -490,7 +513,7 @@ const DashboardPage = () => {
         return <UserDashboard userId={userProfile.id} />;
       default:
         return (
-          <Alert variant="destructive">
+          <Alert variant="destructive" className="max-w-md mx-auto mt-10 rounded-xl">
             <RocketIcon className="h-4 w-4" />
             <AlertTitle>Akses Dibatasi</AlertTitle>
             <AlertDescription>
@@ -503,17 +526,17 @@ const DashboardPage = () => {
 
   if (loading || dataLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
       </div>
     );
   }
 
   if (!session || !userProfile) {
     return (
-      <Alert variant="destructive">
+      <Alert variant="destructive" className="max-w-md mx-auto mt-10 rounded-xl">
         <RocketIcon className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
+        <AlertTitle>Autentikasi Gagal</AlertTitle>
         <AlertDescription>
           Gagal memuat sesi atau profil pengguna. Silakan coba login kembali.
         </AlertDescription>
@@ -522,7 +545,7 @@ const DashboardPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-8">
+    <div className="w-full bg-slate-50/30 min-h-screen">
       {renderDashboardComponent()} 
     </div>
   );

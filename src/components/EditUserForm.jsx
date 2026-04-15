@@ -151,7 +151,7 @@ const EditUserForm = ({ open, onOpenChange, user, onUserUpdated }) => {
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Batal
             </Button>
-            <Button type="submit" disabled={loading} className="bg-[#10182b] text-white">
+            <Button type="submit" disabled={loading} className="bg-[#011e4b] text-white">
               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Simpan Perubahan
             </Button>

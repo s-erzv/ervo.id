@@ -14,7 +14,7 @@ const FinancialTransactionList = ({ transactions, loading }) => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-40">
-        <Loader2 className="h-6 w-6 animate-spin text-[#10182b]" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#011e4b]" />
       </div>
     );
   }
@@ -44,7 +44,7 @@ const FinancialTransactionList = ({ transactions, loading }) => {
               </TableCell>
               <TableCell>
                 <div className="flex flex-col">
-                  <span className="font-semibold text-xs text-[#10182b] flex items-center gap-1">
+                  <span className="font-semibold text-xs text-[#011e4b] flex items-center gap-1">
                     {t.type === 'income' ? 
                       <ArrowUpRight className="h-3 w-3 text-green-600" /> : 
                       <ArrowDownLeft className="h-3 w-3 text-red-600" />

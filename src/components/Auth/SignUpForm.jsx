@@ -14,7 +14,7 @@ const AccordionItem = ({ title, children, isOpen, onToggle }) => {
             <button 
                 type="button" 
                 onClick={onToggle} 
-                className="flex justify-between items-center w-full p-4 text-sm font-semibold text-[#10182b] bg-gray-50 hover:bg-gray-100 transition-colors"
+                className="flex justify-between items-center w-full p-4 text-sm font-semibold text-[#011e4b] bg-gray-50 hover:bg-gray-100 transition-colors"
             >
                 {title}
                 <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${isOpen ? 'rotate-180' : 'rotate-0'}`} />
@@ -126,7 +126,7 @@ const SignUpForm = ({ onSignUpSuccess }) => {
  
       const anonKey = supabase.supabaseKey; 
  
-      const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/create-user', {
+      const response = await fetch('https://eyfjudhnkxvsdqusqnoy.supabase.co/functions/v1/create-user', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -275,7 +275,7 @@ const SignUpForm = ({ onSignUpSuccess }) => {
           </div>
       </AccordionItem>
 
-      <Button type="submit" className="w-full bg-[#10182b] text-white hover:bg-[#20283b]" disabled={loading}>
+      <Button type="submit" className="w-full bg-[#011e4b] text-white hover:bg-[#00376a]" disabled={loading}>
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Daftar Admin & Perusahaan'}
       </Button>
       {message && (

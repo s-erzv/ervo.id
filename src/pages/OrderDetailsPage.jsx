@@ -30,14 +30,14 @@ const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY || 'fallback-key-proy
 const getDeliveryStatusBadge = (status) => {
   switch ((status || '').toLowerCase()) {
     case 'draft':
-      return <Badge className="bg-gray-200 text-[#10182b] gap-1"><Clock className="h-3 w-3" /> Menunggu</Badge>;
+      return <Badge className="bg-gray-200 text-[#011e4b] gap-1"><Clock className="h-3 w-3" /> Menunggu</Badge>;
     case 'sent':
-      return <Badge className="bg-[#10182b] text-white gap-1"><TruckIcon className="h-3 w-3" /> Dikirim</Badge>;
+      return <Badge className="bg-[#011e4b] text-white gap-1"><TruckIcon className="h-3 w-3" /> Dikirim</Badge>;
     case 'delivered':
     case 'completed':
       return <Badge className="bg-green-500 text-white gap-1"><CheckCircle2 className="h-3 w-3" /> Selesai</Badge>;
     default:
-      return <Badge className="bg-gray-200 text-[#10182b] capitalize">{status || 'unknown'}</Badge>;
+      return <Badge className="bg-gray-200 text-[#011e4b] capitalize">{status || 'unknown'}</Badge>;
   }
 };
 
@@ -53,7 +53,7 @@ const getPaymentStatusBadge = (status) => {
     case 'partial':
       return <Badge className={`bg-yellow-400 text-black ${badgeClass}`}><AlertCircle className="h-3.5 w-3.5" /> Sebagian</Badge>;
     default:
-      return <Badge className={`bg-gray-200 text-[#10182b] capitalize ${badgeClass}`}>{status || 'unknown'}</Badge>;
+      return <Badge className={`bg-gray-200 text-[#011e4b] capitalize ${badgeClass}`}>{status || 'unknown'}</Badge>;
   }
 };
 
@@ -692,13 +692,13 @@ const [paymentsRes, methodsRes] = await Promise.all([
         order_id: order.id,
         orderData: { ...order, payments: payments, grand_total: calculatedGrandTotal, remaining_due: remainingDue, order_galon_items: order.order_galon_items, total_discount: currentDiscount }
       };
-      const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/create-invoice-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-        body: JSON.stringify(payload),
+      const { data, error: invokeError } = await supabase.functions.invoke('create-invoice-pdf', {
+        body: payload,
       });
-      if (!response.ok) throw new Error('Gagal membuat PDF.');
-      const { pdfUrl } = await response.json();
+
+      if (invokeError) throw new Error(invokeError.message || 'Gagal membuat PDF.');
+      
+      const { pdfUrl } = data;
       const uniquePdfUrl = `${pdfUrl}?t=${new Date().getTime()}`;
       setInvoiceData(prev => ({ ...prev, public_link: uniquePdfUrl }));
       window.open(uniquePdfUrl, '_blank');
@@ -720,7 +720,7 @@ const [paymentsRes, methodsRes] = await Promise.all([
     setIsPaymentModalOpen(true);
   };
 
-  if (loading) return <div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-[#10182b]" /></div>;
+  if (loading) return <div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-[#011e4b]" /></div>;
   
   if (error) return (
     <div className="container mx-auto p-4 md:p-8 max-w-7xl">
@@ -744,19 +744,19 @@ const [paymentsRes, methodsRes] = await Promise.all([
       <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 px-0"><ArrowLeft className="mr-2 h-4 w-4" /> Kembali</Button>
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h1 className="text-3xl font-bold text-[#10182b] flex items-center gap-3"><ListOrdered className="h-8 w-8" /> Detail Pesanan</h1>
+        <h1 className="text-3xl font-bold text-[#011e4b] flex items-center gap-3"><ListOrdered className="h-8 w-8" /> Detail Pesanan</h1>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" onClick={handleViewRoute} className="text-blue-600 hover:bg-blue-50 border-blue-200"><Navigation className="mr-2 h-4 w-4" /> Lihat Rute</Button>
           
           {/* TOMBOL PENGATURAN WA */}
-          <Button variant="outline" onClick={() => setIsTemplateModalOpen(true)} className="text-[#10182b] hover:bg-gray-100">
+          <Button variant="outline" onClick={() => setIsTemplateModalOpen(true)} className="text-[#011e4b] hover:bg-gray-100">
             <Settings className="mr-2 h-4 w-4" /> Atur Pesan WA
           </Button>
 
-          {!isPaid && <Button variant="outline" onClick={() => navigate(`/orders/edit/${order.id}`)} className="text-[#10182b] hover:bg-gray-100"><Pencil className="mr-2 h-4 w-4" /> Edit Pesanan</Button>}
-          <Button variant="outline" onClick={() => fetchData(true)} className="text-[#10182b] hover:bg-gray-100"><RefreshCcw className="mr-2 h-4 w-4" /> Refresh</Button>
+          {!isPaid && <Button variant="outline" onClick={() => navigate(`/orders/edit/${order.id}`)} className="text-[#011e4b] hover:bg-gray-100"><Pencil className="mr-2 h-4 w-4" /> Edit Pesanan</Button>}
+          <Button variant="outline" onClick={() => fetchData(true)} className="text-[#011e4b] hover:bg-gray-100"><RefreshCcw className="mr-2 h-4 w-4" /> Refresh</Button>
           {(order.status === 'sent' || order.status === 'completed') && !isPaid && <Button onClick={() => handleOpenPaymentModal(order)} className="bg-green-500 hover:bg-green-600 text-white"><CreditCard className="mr-2 h-4 w-4" /> Tambah Pembayaran</Button>}
-          <Button variant="outline" onClick={handleGeneratePrintInvoice} disabled={isSendingInvoice} className="text-[#10182b] hover:bg-gray-100">{isSendingInvoice ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ReceiptText className="mr-2 h-4 w-4" />} Cetak Invoice</Button>
+          <Button variant="outline" onClick={handleGeneratePrintInvoice} disabled={isSendingInvoice} className="text-[#011e4b] hover:bg-gray-100">{isSendingInvoice ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ReceiptText className="mr-2 h-4 w-4" />} Cetak Invoice</Button>
           <Button 
               variant="outline" 
               onClick={handleShareInvoice} 
@@ -770,7 +770,7 @@ const [paymentsRes, methodsRes] = await Promise.all([
             variant="outline" 
             onClick={handleConfirmOrder} 
             disabled={processingWA}
-            className="text-[#10182b] hover:bg-gray-100"
+            className="text-[#011e4b] hover:bg-gray-100"
         >
             {processingWA ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquareText className="mr-2 h-4 w-4" />} 
             Konfirmasi
@@ -781,17 +781,17 @@ const [paymentsRes, methodsRes] = await Promise.all([
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
             <Card className="border border-gray-200 shadow-sm transition-all hover:shadow-md">
-                <CardHeader className="p-4"><CardTitle className="text-[#10182b]">Pesanan #{order.invoice_number || order.id.slice(0, 8)}</CardTitle><CardDescription>Rincian lengkap pesanan.</CardDescription></CardHeader>
+                <CardHeader className="p-4"><CardTitle className="text-[#011e4b]">Pesanan #{order.invoice_number || order.id.slice(0, 8)}</CardTitle><CardDescription>Rincian lengkap pesanan.</CardDescription></CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 pt-0">
-                <div className="space-y-1"><p className="text-sm font-medium text-gray-500">Pelanggan</p><p className="font-semibold text-base text-[#10182b]">{order.customers?.name}</p></div>
+                <div className="space-y-1"><p className="text-sm font-medium text-gray-500">Pelanggan</p><p className="font-semibold text-base text-[#011e4b]">{order.customers?.name}</p></div>
                 <div className="space-y-1"><p className="text-sm font-medium text-gray-500">Status Pengiriman</p>{getDeliveryStatusBadge(order.status)}</div>
                 <div className="space-y-1"><p className="text-sm font-medium text-gray-500">Status Pembayaran</p><Badge variant={currentPaymentStatus.variant} className={`flex items-center gap-1 font-semibold ${derivedPaymentStatus === 'unpaid' ? 'bg-red-500 hover:bg-red-500' : derivedPaymentStatus === 'paid' ? 'bg-green-500 hover:bg-green-500' : 'bg-yellow-400 hover:bg-yellow-400 text-black'}`}>{getPaymentStatusBadge(derivedPaymentStatus)}</Badge></div>
-                <div className="space-y-1"><p className="text-sm font-medium text-gray-500">Total</p><p className="font-bold text-lg text-[#10182b]">{formatCurrency(calculatedGrandTotal)}</p></div>
+                <div className="space-y-1"><p className="text-sm font-medium text-gray-500">Total</p><p className="font-bold text-lg text-[#011e4b]">{formatCurrency(calculatedGrandTotal)}</p></div>
                 </CardContent>
             </Card>
 
             <Card className="border border-gray-200 shadow-sm transition-all hover:shadow-md">
-                <CardHeader className="p-4"><CardTitle className="text-[#10182b]">Item Pesanan</CardTitle></CardHeader>
+                <CardHeader className="p-4"><CardTitle className="text-[#011e4b]">Item Pesanan</CardTitle></CardHeader>
                 <CardContent className="space-y-4 p-4 pt-0">
                     <div className="space-y-2">
                       {allItems.map((it, index) => (
@@ -809,32 +809,32 @@ const [paymentsRes, methodsRes] = await Promise.all([
                             {/* ---------------------------------- */}
 
                             <div className="space-y-0.5">
-                              <p className="font-medium text-[#10182b]">{it.products?.name || 'Produk'}</p>
+                              <p className="font-medium text-[#011e4b]">{it.products?.name || 'Produk'}</p>
                               <p className="text-xs text-gray-500">
                                 {it.item_type !== 'biaya' && it.item_type !== 'pembelian' && it.item_type !== 'pengembalian' && it.item_type !== 'pinjam' && `${Number(it.qty)} × `}
                                 {formatCurrency(Number(it.price))} {it.item_type ? `• ${it.item_type}` : ''}
                               </p>
                             </div>
                           </div>
-                          <div className="font-semibold mt-2 sm:mt-0 text-[#10182b] pl-15 sm:pl-0">
+                          <div className="font-semibold mt-2 sm:mt-0 text-[#011e4b] pl-15 sm:pl-0">
                             {formatCurrency(Number(it.qty) * Number(it.price))}
                           </div>
                         </div>
                       ))}
                     </div>
                     {currentDiscount > 0 && <><Separator className='!mt-4'/><div className="flex items-center justify-between"><p className="font-medium text-red-600">Diskon Diterapkan</p><div className="font-bold text-base text-red-600">- {formatCurrency(currentDiscount)}</div></div></>}
-                    <div className="flex items-center justify-between pt-2 border-t mt-2"><p className="text-lg font-bold text-[#10182b]">Grand Total</p><p className="font-bold text-lg text-green-600">{formatCurrency(calculatedGrandTotal)}</p></div>
-                    <div className="grid grid-cols-2 gap-4 border-t pt-4"><div><p className="text-sm text-gray-500">Total Dibayar</p><p className="font-semibold text-base text-[#10182b]">{formatCurrency(totalPaid)}</p></div><div><p className="text-sm text-gray-500">Sisa Tagihan</p><p className="font-bold text-base text-red-500">{formatCurrency(remainingDue)}</p></div></div>
+                    <div className="flex items-center justify-between pt-2 border-t mt-2"><p className="text-lg font-bold text-[#011e4b]">Grand Total</p><p className="font-bold text-lg text-green-600">{formatCurrency(calculatedGrandTotal)}</p></div>
+                    <div className="grid grid-cols-2 gap-4 border-t pt-4"><div><p className="text-sm text-gray-500">Total Dibayar</p><p className="font-semibold text-base text-[#011e4b]">{formatCurrency(totalPaid)}</p></div><div><p className="text-sm text-gray-500">Sisa Tagihan</p><p className="font-bold text-base text-red-500">{formatCurrency(remainingDue)}</p></div></div>
                 </CardContent>
             </Card>
 
             <Card className="border border-gray-200 shadow-sm transition-all hover:shadow-md">
-                <CardHeader className="p-4"><CardTitle className="text-[#10182b]">Riwayat Pembayaran</CardTitle><CardDescription>Pembayaran tercatat.</CardDescription></CardHeader>
+                <CardHeader className="p-4"><CardTitle className="text-[#011e4b]">Riwayat Pembayaran</CardTitle><CardDescription>Pembayaran tercatat.</CardDescription></CardHeader>
                 <CardContent className="space-y-3 p-4 pt-0">
                     {payments.filter(p => p.amount > 0).length === 0 && <p className="text-sm text-gray-500">Belum ada pembayaran.</p>}
                     {payments.filter(p => p.amount > 0).map((p) => (
                         <div key={p.id} className="flex items-start justify-between border rounded-lg p-3 hover:bg-gray-50 transition-colors">
-                        <div className="space-y-0.5 flex-1 pr-2"><p className="font-medium text-[#10182b]">{formatCurrency(Number(p.amount))}</p><p className="text-xs text-gray-500">{new Date(p.paid_at || p.created_at).toLocaleString('id-ID')}</p><p className="text-xs text-gray-500 font-medium">Metode: {p.payment_method?.method_name}</p><p className="text-xs text-gray-500">Diterima oleh: {p.received_by?.full_name || p.received_by_name}</p>{p.proof_public_url && <a href={p.proof_public_url} target="_blank" rel="noreferrer" className="block mt-2"><img src={p.proof_public_url} alt="Bukti" className="w-24 h-auto rounded-md border hover:opacity-75 transition-opacity" /></a>}</div>
+                        <div className="space-y-0.5 flex-1 pr-2"><p className="font-medium text-[#011e4b]">{formatCurrency(Number(p.amount))}</p><p className="text-xs text-gray-500">{new Date(p.paid_at || p.created_at).toLocaleString('id-ID')}</p><p className="text-xs text-gray-500 font-medium">Metode: {p.payment_method?.method_name}</p><p className="text-xs text-gray-500">Diterima oleh: {p.received_by?.full_name || p.received_by_name}</p>{p.proof_public_url && <a href={p.proof_public_url} target="_blank" rel="noreferrer" className="block mt-2"><img src={p.proof_public_url} alt="Bukti" className="w-24 h-auto rounded-md border hover:opacity-75 transition-opacity" /></a>}</div>
                         <div className="flex flex-col gap-1"><Button variant="ghost" size="icon" onClick={() => handleOpenEditDialog(p)} disabled={opLoading} className="h-8 w-8"><Pencil className="h-4 w-4" /></Button><Button variant="destructive" size="icon" onClick={() => handleDeletePayment(p.id)} disabled={opLoading} className="bg-red-500 hover:bg-red-600 h-8 w-8"><Trash2 className="h-4 w-4" /></Button></div>
                         </div>
                     ))}
@@ -844,7 +844,7 @@ const [paymentsRes, methodsRes] = await Promise.all([
         <Card className="border border-gray-200 shadow-sm transition-all hover:shadow-md">
             <CardHeader className="p-4 flex flex-row items-center justify-between">
                 <div>
-                    <CardTitle className="text-[#10182b] text-base">Audit Log (Histori)</CardTitle>
+                    <CardTitle className="text-[#011e4b] text-base">Audit Log (Histori)</CardTitle>
                     <CardDescription className="text-[10px]">Jejak digital pengeditan pesanan.</CardDescription>
                 </div>
                 <Clock className="h-4 w-4 text-gray-400" />
@@ -900,7 +900,7 @@ const [paymentsRes, methodsRes] = await Promise.all([
                             <div className="divide-y">{nearbyCustomers.map((nc) => (
                               <div key={nc.id} className="p-3 hover:bg-gray-50 flex justify-between items-center group transition-colors">
                                 <div>
-                                  <p className="text-sm font-semibold text-[#10182b]">{nc.name}</p>
+                                  <p className="text-sm font-semibold text-[#011e4b]">{nc.name}</p>
                                   <div className="flex items-center gap-1 text-xs text-orange-600 font-medium">
                                     <Navigation className="h-3 w-3" />
                                     {nc.distance_km.toFixed(2)} km
@@ -927,7 +927,7 @@ const [paymentsRes, methodsRes] = await Promise.all([
                     </div>
                 </CardContent>
             </Card>
-            {order.proof_public_url && (<Card className="border border-gray-200 shadow-sm transition-all hover:shadow-md"><CardHeader className="p-4"><CardTitle className="text-[#10182b]">Bukti Pengiriman</CardTitle></CardHeader><CardContent className="p-4 pt-0"><a href={order.proof_public_url} target="_blank" rel="noreferrer"><img src={order.proof_public_url} alt="Bukti" className="w-48 h-auto rounded-md border" /></a></CardContent></Card>)}
+            {order.proof_public_url && (<Card className="border border-gray-200 shadow-sm transition-all hover:shadow-md"><CardHeader className="p-4"><CardTitle className="text-[#011e4b]">Bukti Pengiriman</CardTitle></CardHeader><CardContent className="p-4 pt-0"><a href={order.proof_public_url} target="_blank" rel="noreferrer"><img src={order.proof_public_url} alt="Bukti" className="w-48 h-auto rounded-md border" /></a></CardContent></Card>)}
         </div>
       </div>
       

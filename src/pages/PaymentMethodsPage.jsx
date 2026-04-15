@@ -314,7 +314,7 @@ const PaymentMethodsPage = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-white">
-        <Loader2 className="h-8 w-8 animate-spin text-[#10182b]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#011e4b]" />
       </div>
     );
   }
@@ -327,14 +327,14 @@ const PaymentMethodsPage = () => {
     <div className="container mx-auto p-4 md:p-8 max-w-7xl">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <h1 className="text-2xl font-bold">Manajemen Metode Pembayaran</h1>
-        <Button onClick={() => handleOpenMethodModal()} className="w-full sm:w-auto bg-[#10182b] text-white hover:bg-[#10182b]/90">
+        <Button onClick={() => handleOpenMethodModal()} className="w-full sm:w-auto bg-[#011e4b] text-white hover:bg-[#011e4b]/90">
           <PlusCircle className="h-4 w-4 mr-2" />
           Tambah Metode
         </Button>
       </div>
 
       <Card className="border-0 shadow-lg bg-white">
-        <CardHeader className="bg-[#10182b] text-white rounded-t-lg">
+        <CardHeader className="bg-[#011e4b] text-white rounded-t-lg">
           <CardTitle>Daftar Metode Pembayaran</CardTitle>
           <CardDescription className="text-gray-200">
             Kelola metode pembayaran yang tersedia dan izin akses Laporan Keuangan.
@@ -468,7 +468,7 @@ const PaymentMethodsPage = () => {
               </>
             )}
             <DialogFooter className="mt-4">
-              <Button type="submit" disabled={isSubmitting} className="w-full bg-[#10182b] text-white hover:bg-[#10182b]/90">
+              <Button type="submit" disabled={isSubmitting} className="w-full bg-[#011e4b] text-white hover:bg-[#011e4b]/90">
                 {isSubmitting ? (
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 ) : (

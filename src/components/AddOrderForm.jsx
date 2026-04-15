@@ -211,7 +211,7 @@ const handleProductSelectChange = async (val) => {
         })),
       };
 
-      const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/create-order', {
+      const response = await fetch('https://eyfjudhnkxvsdqusqnoy.supabase.co/functions/v1/create-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -301,7 +301,7 @@ const handleProductSelectChange = async (val) => {
       </div>
 
       <Card className="border-none shadow-xl bg-white overflow-hidden">
-        <CardHeader className="bg-[#10182b] text-white pb-6">
+        <CardHeader className="bg-[#011e4b] text-white pb-6">
           <CardTitle className="text-lg font-medium">Formulir Tambah Pesanan</CardTitle>
         </CardHeader>
 
@@ -460,7 +460,7 @@ const handleProductSelectChange = async (val) => {
                         value={newItem.qty} 
                         onChange={(e) => setNewItem({...newItem, qty: e.target.value})} 
                       />
-                      <Button onClick={handleItemAdd} disabled={!newItem.product_id || !newItem.qty} size="icon" className="bg-[#10182b] hover:bg-slate-800 shrink-0 text-white h-14 w-14">
+                      <Button onClick={handleItemAdd} disabled={!newItem.product_id || !newItem.qty} size="icon" className="bg-[#011e4b] hover:bg-slate-800 shrink-0 text-white h-14 w-14">
                         <Plus className="h-6 w-6" />
                       </Button>
                   </div>
@@ -510,7 +510,7 @@ const handleProductSelectChange = async (val) => {
                            </div>
                         </div>
                         <div className="flex items-center justify-between w-full sm:w-auto gap-4 pl-16 sm:pl-0">
-                            <span className="font-bold text-base text-[#10182b]">{formatCurrency(item.qty * item.price)}</span>
+                            <span className="font-bold text-base text-[#011e4b]">{formatCurrency(item.qty * item.price)}</span>
                             <div className="flex gap-1">
                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500" onClick={() => handleEditClick(idx)}>
                                     <Pencil className="h-3.5 w-3.5" />
@@ -549,14 +549,14 @@ const handleProductSelectChange = async (val) => {
                     <p className="text-[11px] text-slate-400">Total belanja: {formatCurrency(orderItems.reduce((a, b) => a + (b.qty * b.price), 0))}</p>
                     <h3 className="text-xs font-semibold text-slate-500  tracking-widest">Total Bayar</h3>
                 </div>
-                <h3 className="text-2xl font-semibold text-[#10182b]">{formatCurrency(calculateTotal())}</h3>
+                <h3 className="text-2xl font-semibold text-[#011e4b]">{formatCurrency(calculateTotal())}</h3>
               </div>
 
               <div className="grid gap-3">
                 <Button 
                   className={cn(
                     "w-full py-7 text-base font-semibold shadow-lg transition-all active:scale-[0.98] text-white", 
-                    isQuickOrderMode ? "bg-orange-600 hover:bg-orange-700" : "bg-[#10182b] hover:bg-slate-800"
+                    isQuickOrderMode ? "bg-orange-600 hover:bg-orange-700" : "bg-[#011e4b] hover:bg-slate-800"
                   )}
                   onClick={(e) => handlePreSubmit(e, isQuickOrderMode ? 'quick' : 'normal')}
                   disabled={loading || orderItems.length === 0 || !selectedCustomerId}

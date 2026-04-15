@@ -39,13 +39,8 @@ const AddUserForm = ({ open, onOpenChange, onUserAdded }) => {
       // Format gaji pokok sebagai angka
       const salaryValue = baseSalary ? parseFloat(baseSalary) : null;
       
-      const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/create-user', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify({ 
+      const { data, error: invokeError } = await supabase.functions.invoke('create-user', {
+        body: { 
           email, 
           password, 
           role: 'user', 
@@ -53,13 +48,11 @@ const AddUserForm = ({ open, onOpenChange, onUserAdded }) => {
           full_name: fullName,
           rekening: rekening,
           base_salary: salaryValue, // KIRIM GAJI POKOK KE EDGE FUNCTION
-        }),
+        },
       });
-      
-      const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create user');
+      if (invokeError) {
+        throw new Error(invokeError.message || 'Failed to create user');
       }
 
       toast.success('Pengguna berhasil ditambahkan!');

@@ -266,12 +266,12 @@ const CustomerStatusSettings = () => {
 
   return (
     <Card className="border-0 shadow-lg bg-white">
-      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#10182b] text-white rounded-t-lg p-6">
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#011e4b] text-white rounded-t-lg p-6">
         <CardTitle>Manajemen Status Pelanggan</CardTitle>
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogTrigger asChild>
             <Button
-              className="bg-white text-[#10182b] hover:bg-gray-200"
+              className="bg-white text-[#011e4b] hover:bg-gray-200"
               onClick={() => { resetForm(); setIsModalOpen(true); }}>
               <PlusCircle className="h-4 w-4 mr-2" /> Tambah Status
             </Button>
@@ -310,7 +310,7 @@ const CustomerStatusSettings = () => {
                 </div>
                 <p className='text-xs text-gray-500'>Digunakan untuk kalkulasi otomatis harga produk.</p>
               </div>
-              <Button type="submit" className="w-full bg-[#10182b] text-white hover:bg-[#10182b]/90" disabled={processing}>
+              <Button type="submit" className="w-full bg-[#011e4b] text-white hover:bg-[#011e4b]/90" disabled={processing}>
                 {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : (currentStatus ? 'Simpan Perubahan' : 'Simpan')}
               </Button>
             </form>
@@ -415,7 +415,7 @@ const CustomerStatusSettings = () => {
                 </div>
                 <DialogFooter>
                     <Button type="button" variant="outline" onClick={() => setIsDuplicateModalOpen(false)}>Batal</Button>
-                    <Button type="submit" className="bg-[#10182b] text-white" disabled={processing}>
+                    <Button type="submit" className="bg-[#011e4b] text-white" disabled={processing}>
                         {processing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
                         Duplikat Sekarang
                     </Button>

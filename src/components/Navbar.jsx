@@ -319,8 +319,8 @@ const Sidebar = () => {
             to={item.path}
             className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 py-2 transition-all duration-150 ease-in-out
               ${location.pathname === item.path
-                ? 'bg-gray-200 text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'bg-[#afcddd] text-[#011e4b] shadow-sm font-bold'
+                : 'text-gray-600 hover:bg-[#afcddd]/30'
               } ${isMobile ? '' : 'group'}`}
             onClick={onLinkClick}
           >

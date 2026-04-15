@@ -391,19 +391,12 @@ Tolong diproses ya bang, dan konfirmasi kalau udah ditransfer. Makasih 🙏`;
         })),
       };
 
-      const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/manage-expense-report', {
+      const { data, error } = await supabase.functions.invoke('manage-expense-report', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify(payload),
+        body: payload,
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error('Server returned an error: ' + errorText);
-      }
+      if (error) throw error;
       
       const { error: updateStatusError } = await supabase
           .from('expense_reports')
@@ -435,19 +428,12 @@ Tolong diproses ya bang, dan konfirmasi kalau udah ditransfer. Makasih 🙏`;
         companyId: companyId
       };
       
-      const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/manage-expense-report', {
+      const { data, error } = await supabase.functions.invoke('manage-expense-report', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify(payload),
+        body: payload,
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error('Server returned an error: ' + errorText);
-      }
+      if (error) throw error;
       
       toast.success('Laporan berhasil dihapus dan transaksi dibatalkan!');
       fetchData();
@@ -498,19 +484,11 @@ Tolong diproses ya bang, dan konfirmasi kalau udah ditransfer. Makasih 🙏`;
     };
 
     try {
-      const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/submit-expense-report', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify(payload),
+      const { data, error } = await supabase.functions.invoke('submit-expense-report', {
+        body: payload,
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error('Server returned an error: ' + errorText);
-      }
+      if (error) throw error;
 
       toast.success('Laporan pengeluaran berhasil disubmit!');
       setExpenseItems([{ type: 'bensin', description: '', amount: '' }]);
@@ -530,7 +508,7 @@ Tolong diproses ya bang, dan konfirmasi kalau udah ditransfer. Makasih 🙏`;
     return (
       <div className="flex justify-center items-center min-h-screen bg-white">
         <div className="text-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin text-[#10182b] mx-auto" />
+          <Loader2 className="h-12 w-12 animate-spin text-[#011e4b] mx-auto" />
           <p className="text-gray-600 text-lg">Memuat data...</p>
         </div>
       </div>
@@ -546,7 +524,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
     <div className="min-h-screen">
       <div className="container mx-auto p-4 lg:p-8 max-w-7xl space-y-6"> 
         <div className="text-left mb-4 pt-4">
-          <h1 className="text-2xl lg:text-4xl font-bold text-[#10182b] mb-1 flex items-center justify-start gap-2"> 
+          <h1 className="text-2xl lg:text-4xl font-bold text-[#011e4b] mb-1 flex items-center justify-start gap-2"> 
             <FileText className="h-6 w-6 lg:h-10 lg:w-10" />
             Laporan Pengeluaran
           </h1>
@@ -555,7 +533,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
 
         {/* Form Pengajuan */}
         <Card className="mb-6 border-0 shadow-lg bg-white"> 
-          <CardHeader className="bg-[#10182b] text-white rounded-t-lg p-4"> 
+          <CardHeader className="bg-[#011e4b] text-white rounded-t-lg p-4"> 
             <CardTitle className="text-lg lg:text-2xl flex items-center gap-2">
               <Plus className="h-5 w-5" />
               Buat Laporan Baru
@@ -568,7 +546,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Expense Items */}
               <div className="space-y-4">
-                <Label className="text-base font-semibold text-[#10182b] flex items-center gap-2">
+                <Label className="text-base font-semibold text-[#011e4b] flex items-center gap-2">
                   <FileText className="h-4 w-4" /> 
                   Daftar Pengeluaran
                 </Label>
@@ -588,7 +566,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                                 value={item.type}
                                 onValueChange={(value) => handleItemChange(index, 'type', value)}
                               >
-                                <SelectTrigger className="bg-white border-gray-300 focus:border-[#10182b] h-9 text-sm">
+                                <SelectTrigger className="bg-white border-gray-300 focus:border-[#011e4b] h-9 text-sm">
                                   <SelectValue placeholder="Pilih jenis" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -611,7 +589,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                                   placeholder="Harap gunakan deskripsi yang konsisten (cth: Uang minum)"
                                   value={item.description}
                                   onChange={(e) => handleItemChange(index, 'description', e.target.value)}
-                                  className="bg-white border-gray-300 focus:border-[#10182b] h-9 text-sm"
+                                  className="bg-white border-gray-300 focus:border-[#011e4b] h-9 text-sm"
                                   required={requiresDescription}
                                   list={`description-history-${index}`} // Datalist ID
                                 />
@@ -632,7 +610,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                                   placeholder="0"
                                   value={item.amount}
                                   onChange={(e) => handleItemChange(index, 'amount', e.target.value)}
-                                  className="bg-white border-gray-300 focus:border-[#10182b] h-9 text-sm"
+                                  className="bg-white border-gray-300 focus:border-[#011e4b] h-9 text-sm"
                                   required
                                 />
                                 {expenseItems.length > 1 && (
@@ -657,7 +635,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                 <Button 
                   type="button" 
                   variant="outline" 
-                  className="w-full border-[#10182b] text-[#10182b] hover:bg-[#10182b] hover:text-white transition-colors h-9 text-sm" 
+                  className="w-full border-[#011e4b] text-[#011e4b] hover:bg-[#011e4b] hover:text-white transition-colors h-9 text-sm" 
                   onClick={handleAddItem}
                 >
                   <Plus className="h-4 w-4 mr-2" /> Tambah Item
@@ -665,7 +643,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
               </div>
               
               {/* Total */}
-              <Card className="border-[#10182b] bg-gradient-to-r from-[#10182b] to-[#1a2542] text-white">
+              <Card className="border-[#011e4b] bg-gradient-to-r from-[#011e4b] to-[#00376a] text-white">
                 <CardContent className="p-4"> 
                   <div className="flex justify-between items-center">
                     <span className="text-base font-semibold">Total Pengeluaran:</span>
@@ -679,7 +657,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
               {/* Payment Details */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4"> 
                 <div className="space-y-2">
-                  <Label className="text-base font-semibold text-[#10182b] flex items-center gap-2">
+                  <Label className="text-base font-semibold text-[#011e4b] flex items-center gap-2">
                     <User className="h-4 w-4" />
                     Karyawan Pengaju
                   </Label>
@@ -688,7 +666,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                     onValueChange={setSubmitterId}
                     required
                   >
-                    <SelectTrigger className="bg-white border-gray-300 focus:border-[#10182b] h-10 text-sm">
+                    <SelectTrigger className="bg-white border-gray-300 focus:border-[#011e4b] h-10 text-sm">
                       <SelectValue placeholder="Pilih nama karyawan" />
                     </SelectTrigger>
                     <SelectContent>
@@ -701,7 +679,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-base font-semibold text-[#10182b] flex items-center gap-2">
+                  <Label className="text-base font-semibold text-[#011e4b] flex items-center gap-2">
                     <CreditCard className="h-4 w-4" />
                     Metode Pembayaran
                   </Label>
@@ -711,7 +689,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                     disabled={!submitterId}
                     required
                   >
-                    <SelectTrigger className="bg-white border-gray-300 focus:border-[#10182b] h-10 text-sm">
+                    <SelectTrigger className="bg-white border-gray-300 focus:border-[#011e4b] h-10 text-sm">
                       <SelectValue placeholder="Pilih metode pembayaran" />
                     </SelectTrigger>
                     <SelectContent>
@@ -726,7 +704,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
 
               <Button 
                 type="submit" 
-                className="w-full bg-[#10182b] text-white hover:bg-[#1a2542] h-10 text-base font-semibold transition-all duration-200 shadow-lg hover:shadow-xl" 
+                className="w-full bg-[#011e4b] text-white hover:bg-[#00376a] h-10 text-base font-semibold transition-all duration-200 shadow-lg hover:shadow-xl" 
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -748,7 +726,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
         {/* History Section with Tabs */}
         <Card className="border-0 shadow-lg bg-white">
           <CardHeader className="bg-gradient-to-r from-gray-100 to-gray-50 rounded-t-lg border-b p-4">
-            <CardTitle className="text-lg lg:text-2xl text-[#10182b] flex items-center gap-2">
+            <CardTitle className="text-lg lg:text-2xl text-[#011e4b] flex items-center gap-2">
               <Calendar className="h-5 w-5" />
               Riwayat Laporan
             </CardTitle>
@@ -785,7 +763,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                         <CardHeader className="pb-3 p-4"> 
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
-                              <CardTitle className="text-lg text-[#10182b] mb-1">
+                              <CardTitle className="text-lg text-[#011e4b] mb-1">
                                 Rp{report.total_amount.toLocaleString('id-ID')}
                               </CardTitle>
                               <div className="flex items-center gap-2 text-xs text-gray-600">
@@ -833,7 +811,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                               <Button 
                                 variant="ghost" 
                                 size="sm" 
-                                className="text-[#10182b] hover:bg-[#10182b] hover:text-white text-xs px-2"
+                                className="text-[#011e4b] hover:bg-[#011e4b] hover:text-white text-xs px-2"
                                 onClick={(e) => { e.stopPropagation(); setSelectedReport(report); setIsDetailModalOpen(true); }}
                               >
                                 <Eye className="h-4 w-4 mr-1" />
@@ -883,7 +861,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                         <CardHeader className="pb-3 p-4">
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
-                              <CardTitle className="text-lg text-[#10182b] mb-1">
+                              <CardTitle className="text-lg text-[#011e4b] mb-1">
                                 Rp{report.total_amount.toLocaleString('id-ID')}
                               </CardTitle>
                               <div className="flex items-center gap-2 text-xs text-gray-600">
@@ -920,7 +898,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                               <Button 
                                 variant="ghost" 
                                 size="sm" 
-                                className="text-[#10182b] hover:bg-[#10182b] hover:text-white text-xs px-2"
+                                className="text-[#011e4b] hover:bg-[#011e4b] hover:text-white text-xs px-2"
                                 onClick={(e) => { e.stopPropagation(); setSelectedReport(report); setIsDetailModalOpen(true); }}
                               >
                                 <Eye className="h-4 w-4 mr-1" />
@@ -952,7 +930,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
         <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
           <DialogContent className="sm:max-w-4xl max-h-[95vh] overflow-y-auto p-4 sm:p-6">
             <DialogHeader className="border-b pb-3">
-              <DialogTitle className="text-lg lg:text-2xl text-[#10182b] flex items-center gap-2">
+              <DialogTitle className="text-lg lg:text-2xl text-[#011e4b] flex items-center gap-2">
                 <FileText className="h-5 w-5" />
                 Detail Laporan
               </DialogTitle>
@@ -964,7 +942,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
             <div className="space-y-4 py-4"> 
               {/* Summary Cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <Card className="border-[#10182b] bg-gradient-to-br from-[#10182b] to-[#1a2542] text-white col-span-2 lg:col-span-1">
+                <Card className="border-[#011e4b] bg-gradient-to-br from-[#011e4b] to-[#00376a] text-white col-span-2 lg:col-span-1">
                   <CardContent className="p-3 text-center">
                     <div className="text-xs opacity-90 mb-1">Total Nominal</div>
                     <div className="text-lg lg:text-2xl font-bold">
@@ -974,18 +952,18 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                 </Card>
                 <Card className="border-gray-200">
                   <CardContent className="p-3 text-center">
-                    <User className="h-5 w-5 text-[#10182b] mx-auto mb-1" />
+                    <User className="h-5 w-5 text-[#011e4b] mx-auto mb-1" />
                     <div className="text-xs text-gray-600 mb-1">Pengaju</div>
-                    <div className="font-semibold text-sm text-[#10182b] truncate">
+                    <div className="font-semibold text-sm text-[#011e4b] truncate">
                       {selectedReport.user?.full_name || '-'}
                     </div>
                   </CardContent>
                 </Card>
                 <Card className="border-gray-200">
                   <CardContent className="p-3 text-center">
-                    <Calendar className="h-5 w-5 text-[#10182b] mx-auto mb-1" />
+                    <Calendar className="h-5 w-5 text-[#011e4b] mx-auto mb-1" />
                     <div className="text-xs text-gray-600 mb-1">Tanggal</div>
-                    <div className="font-semibold text-sm text-[#10182b]">
+                    <div className="font-semibold text-sm text-[#011e4b]">
                       {new Date(selectedReport.report_date).toLocaleDateString('id-ID')}
                     </div>
                   </CardContent>
@@ -1012,7 +990,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
               
               {/* Items Detail */}
               <div className="space-y-3">
-                <h3 className="text-base font-semibold text-[#10182b] flex items-center gap-2">
+                <h3 className="text-base font-semibold text-[#011e4b] flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Rincian Pengeluaran
                 </h3>
@@ -1023,10 +1001,10 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                     <Card key={index} className="border-gray-200">
                       <CardContent className="p-3">
                         <div className="flex justify-between items-start mb-1">
-                          <span className="text-xs font-medium text-[#10182b] uppercase">
+                          <span className="text-xs font-medium text-[#011e4b] uppercase">
                             {item.type}
                           </span>
-                          <span className="text-base font-bold text-[#10182b]">
+                          <span className="text-base font-bold text-[#011e4b]">
                             Rp{item.amount.toLocaleString('id-ID')}
                           </span>
                         </div>
@@ -1043,26 +1021,26 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                   <Table>
                     <TableHeader className="bg-gray-50">
                       <TableRow className="text-sm">
-                        <TableHead className="font-semibold text-[#10182b] w-[120px]">Jenis</TableHead>
-                        <TableHead className="font-semibold text-[#10182b]">Deskripsi</TableHead>
-                        <TableHead className="font-semibold text-[#10182b] text-right w-[120px]">Nominal</TableHead>
+                        <TableHead className="font-semibold text-[#011e4b] w-[120px]">Jenis</TableHead>
+                        <TableHead className="font-semibold text-[#011e4b]">Deskripsi</TableHead>
+                        <TableHead className="font-semibold text-[#011e4b] text-right w-[120px]">Nominal</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody className="text-sm">
                       {selectedReport.items.map((item, index) => (
                         <TableRow key={index} className="hover:bg-gray-50">
-                          <TableCell className="font-medium text-[#10182b] uppercase">
+                          <TableCell className="font-medium text-[#011e4b] uppercase">
                             {item.type}
                           </TableCell>
                           <TableCell className="text-gray-700">
                             {item.description || '-'}
                           </TableCell>
-                          <TableCell className="text-right font-semibold text-[#10182b]">
+                          <TableCell className="text-right font-semibold text-[#011e4b]">
                             Rp{item.amount.toLocaleString('id-ID')}
                           </TableCell>
                         </TableRow>
                       ))}
-                      <TableRow className="bg-[#10182b] text-white font-semibold hover:bg-[#1a2542] text-base">
+                      <TableRow className="bg-[#011e4b] text-white font-semibold hover:bg-[#00376a] text-base">
                         <TableCell colSpan={2} className="text-right py-3">
                           Total Keseluruhan:
                         </TableCell>
@@ -1077,7 +1055,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
               
               {/* Payment History and Actions */}
               <div className="space-y-3">
-                  <h3 className="text-base font-semibold text-[#10182b] flex items-center gap-2">
+                  <h3 className="text-base font-semibold text-[#011e4b] flex items-center gap-2">
                       <CreditCard className="h-4 w-4" />
                       Riwayat Pembayaran & Status
                   </h3>
@@ -1122,7 +1100,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                               </Button>
                               <Button 
                                   variant="outline" 
-                                  className="border-[#10182b] text-[#10182b] hover:bg-[#10182b] hover:text-white flex-1 h-9 text-sm"
+                                  className="border-[#011e4b] text-[#011e4b] hover:bg-[#011e4b] hover:text-white flex-1 h-9 text-sm"
                                   onClick={() => handleOpenPaymentModal(selectedReport)} // Buka modal pembayaran baru
                               >
                                   <CheckCircle className="h-4 w-4 mr-2" />
@@ -1185,7 +1163,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                       
                       <div className="space-y-1">
                           <Label className="text-sm">Total Keluar (Pokok + Fee):</Label>
-                          <p className="text-xl font-bold text-[#10182b]">
+                          <p className="text-xl font-bold text-[#011e4b]">
                               {formatCurrency(parseFloat(newPaymentAmount) + parseFloat(adminFee))}
                           </p>
                       </div>
@@ -1236,7 +1214,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                   </DialogHeader>
                   <form onSubmit={handleUpdateReport} className="space-y-4">
                       <div className="space-y-3">
-                          <Label className="text-base font-semibold text-[#10182b] flex items-center gap-2">
+                          <Label className="text-base font-semibold text-[#011e4b] flex items-center gap-2">
                               <FileText className="h-4 w-4" />
                               Daftar Pengeluaran
                           </Label>
@@ -1255,7 +1233,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                                                       value={item.type}
                                                       onValueChange={(value) => handleItemChange(index, 'type', value)}
                                                   >
-                                                      <SelectTrigger className="bg-white border-gray-300 focus:border-[#10182b] h-9 text-sm">
+                                                      <SelectTrigger className="bg-white border-gray-300 focus:border-[#011e4b] h-9 text-sm">
                                                           <SelectValue placeholder="Pilih jenis" />
                                                       </SelectTrigger>
                                                       <SelectContent>
@@ -1275,7 +1253,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                                                         placeholder="Deskripsi..."
                                                         value={item.description}
                                                         onChange={(e) => handleItemChange(index, 'description', e.target.value)}
-                                                        className="bg-white border-gray-300 focus:border-[#10182b] h-9 text-sm"
+                                                        className="bg-white border-gray-300 focus:border-[#011e4b] h-9 text-sm"
                                                         required={requiresDescription}
                                                         list={`description-history-edit-${index}`} // Datalist ID
                                                     />
@@ -1296,7 +1274,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                                                           placeholder="0"
                                                           value={item.amount}
                                                           onChange={(e) => handleItemChange(index, 'amount', e.target.value)}
-                                                          className="bg-white border-gray-300 focus:border-[#10182b] h-9 text-sm"
+                                                          className="bg-white border-gray-300 focus:border-[#011e4b] h-9 text-sm"
                                                           required
                                                       />
                                                       {expenseItems.length > 1 && (
@@ -1321,13 +1299,13 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                           <Button 
                               type="button" 
                               variant="outline" 
-                              className="w-full border-[#10182b] text-[#10182b] hover:bg-[#10182b] hover:text-white transition-colors h-9 text-sm" 
+                              className="w-full border-[#011e4b] text-[#011e4b] hover:bg-[#011e4b] hover:text-white transition-colors h-9 text-sm" 
                               onClick={handleAddItem}
                           >
                               <Plus className="h-4 w-4 mr-2" /> Tambah Item
                           </Button>
                       </div>
-                      <Card className="border-[#10182b] bg-gradient-to-r from-[#10182b] to-[#1a2542] text-white">
+                      <Card className="border-[#011e4b] bg-gradient-to-r from-[#011e4b] to-[#00376a] text-white">
                           <CardContent className="p-4">
                               <div className="flex justify-between items-center">
                                   <span className="text-base font-semibold">Total Pengeluaran:</span>
@@ -1339,7 +1317,7 @@ const paidReports = reports.filter(r => r.payment_status === 'paid');
                       </Card>
                       <Button 
                           type="submit" 
-                          className="w-full bg-[#10182b] text-white hover:bg-[#1a2542] h-10 text-base font-semibold" 
+                          className="w-full bg-[#011e4b] text-white hover:bg-[#00376a] h-10 text-base font-semibold" 
                           disabled={isSubmitting}
                       >
                           {isSubmitting ? (

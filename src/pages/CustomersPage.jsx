@@ -573,7 +573,7 @@ const CustomersPage = () => {
       {/* HEADER */}
       {/* HEADER */}
         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-4 gap-3">
-        <h1 className="text-2xl font-bold text-[#10182b] flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-[#011e4b] flex items-center gap-2">
             <Users className="h-6 w-6" /> Manajemen Pelanggan
         </h1>
         <div className="flex flex-wrap gap-2 w-full xl:w-auto">
@@ -597,7 +597,7 @@ const CustomersPage = () => {
                 </>
             )}
 
-            <Button onClick={() => { resetForm(); setIsModalOpen(true); }} className="bg-[#10182b] text-white">
+            <Button onClick={() => { resetForm(); setIsModalOpen(true); }} className="bg-[#011e4b] text-white">
                 <Plus className="h-4 w-4 mr-2" /> Tambah Pelanggan
             </Button>
         </div>
@@ -642,7 +642,7 @@ const CustomersPage = () => {
                      <TableRow key={customer.id} className="hover:bg-blue-50/30">
                     <TableCell className="text-center text-gray-500">{idx + 1}</TableCell>
                     <TableCell>
-                        <div className="font-semibold text-[#10182b] flex items-center gap-2">{customer.name} {customer.latitude && <MapPin className="h-3 w-3 text-blue-500" />}</div>
+                        <div className="font-semibold text-[#011e4b] flex items-center gap-2">{customer.name} {customer.latitude && <MapPin className="h-3 w-3 text-blue-500" />}</div>
                         <Badge variant="secondary" className="mt-1 text-[10px] h-5">{customer.customer_status || 'Umum'}</Badge>
                     </TableCell>
                     <TableCell>
@@ -830,7 +830,7 @@ const CustomersPage = () => {
             </form>
           </div>
           <DialogFooter className="p-6 pt-2 border-t bg-gray-50/50">
-            <Button type="submit" form="customer-form" className="w-full bg-[#10182b] text-white">{currentCustomer ? 'Perbarui' : 'Simpan'}</Button>
+            <Button type="submit" form="customer-form" className="w-full bg-[#011e4b] text-white">{currentCustomer ? 'Perbarui' : 'Simpan'}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

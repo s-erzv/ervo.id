@@ -18,7 +18,7 @@ const QuickCompleteOrderPage = () => {
   };
   return (
     <div className="container mx-auto p-4 md:p-8 max-w-2xl space-y-6"> 
-      <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 text-[#10182b] hover:bg-gray-100 px-0">
+      <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 text-[#011e4b] hover:bg-gray-100 px-0">
         <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
       </Button>
       

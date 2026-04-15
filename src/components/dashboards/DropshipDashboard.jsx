@@ -168,7 +168,7 @@ const DropshipDashboard = () => {
   if (loading && dashboardData.recentOrders.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-        <Loader2 className="h-8 w-8 animate-spin text-[#10182b]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#011e4b]" />
         <p className="text-muted-foreground text-sm italic">Memuat data dompet...</p>
       </div>
     );
@@ -293,7 +293,7 @@ const DropshipDashboard = () => {
                   contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
                 />
                 <Legend iconType="circle" />
-                <Bar dataKey="Revenue" name="Omzet" fill="#1e293b" radius={[4, 4, 0, 0]} barSize={20} />
+                <Bar dataKey="Revenue" name="Omzet" fill="#00376a" radius={[4, 4, 0, 0]} barSize={20} />
                 <Line type="monotone" dataKey="Commission" name="Komisi" stroke="#10b981" strokeWidth={3} dot={{ r: 4, fill: '#10b981' }} />
               </ComposedChart>
             </ResponsiveContainer>

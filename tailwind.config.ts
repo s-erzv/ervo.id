@@ -7,6 +7,39 @@ export default {
   ],
   theme: {
   	extend: {
+        colors: {
+            border: "hsl(var(--border))",
+            input: "hsl(var(--input))",
+            ring: "hsl(var(--ring))",
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            primary: {
+                DEFAULT: "#011e4b",
+                foreground: "#ffffff",
+                '50': '#f0f5fa',
+                '100': '#afcddd',
+                '200': '#6496b0',
+                '300': '#015a97',
+                '400': '#00376a',
+                '500': '#011e4b',
+            },
+            secondary: {
+                DEFAULT: "#00376a",
+                foreground: "#ffffff",
+            },
+            accent: {
+                DEFAULT: "#015a97",
+                foreground: "#ffffff",
+            },
+            muted: {
+                DEFAULT: "#6496b0",
+                foreground: "#ffffff",
+            },
+            pale: {
+                DEFAULT: "#afcddd",
+                foreground: "#011e4b",
+            },
+        },
         fontFamily: {
             sans: ['Poppins', 'sans-serif'],
         },

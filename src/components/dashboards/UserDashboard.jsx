@@ -59,7 +59,7 @@ const ImageProof = ({ orderId, status, proofUrl }) => {
   const H = 'min-h-[6rem] h-32';
 
   if (loadingProof)
-    return <div className={`flex items-center justify-center w-full bg-gray-100 rounded-lg ${H}`}><Loader2 className="h-6 w-6 animate-spin text-[#10182b]" /></div>;
+    return <div className={`flex items-center justify-center w-full bg-gray-100 rounded-lg ${H}`}><Loader2 className="h-6 w-6 animate-spin text-[#011e4b]" /></div>;
 
   if (publicUrl)
     return (
@@ -388,7 +388,7 @@ const UserDashboard = ({ userId: propUserId, isAllOrdersMode = false }) => {
     if (!window.confirm('Apakah Anda yakin ingin menghapus pesanan ini?')) return;
     setLoading(true);
     try {
-      const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/delete-order', {
+      const response = await fetch('https://eyfjudhnkxvsdqusqnoy.supabase.co/functions/v1/delete-order', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -486,7 +486,7 @@ const UserDashboard = ({ userId: propUserId, isAllOrdersMode = false }) => {
         }
       };
 
-      const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/create-invoice-pdf', {
+      const response = await fetch('https://eyfjudhnkxvsdqusqnoy.supabase.co/functions/v1/create-invoice-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
         body: JSON.stringify(payload),
@@ -608,8 +608,8 @@ const UserDashboard = ({ userId: propUserId, isAllOrdersMode = false }) => {
 
   const getStatusBadge = (status) => {
     const cfg = {
-      draft:     { label: 'Menunggu', icon: Clock,        className: 'bg-gray-200 text-[#10182b]' },
-      sent:      { label: 'Dikirim',  icon: TruckIcon,    className: 'bg-[#10182b] text-white' },
+      draft:     { label: 'Menunggu', icon: Clock,        className: 'bg-gray-200 text-[#011e4b]' },
+      sent:      { label: 'Dikirim',  icon: TruckIcon,    className: 'bg-[#011e4b] text-white' },
       completed: { label: 'Selesai',  icon: CheckCircle2, className: 'bg-green-500 text-white' },
     };
     const c = cfg[status] || cfg.draft;
@@ -624,7 +624,7 @@ const UserDashboard = ({ userId: propUserId, isAllOrdersMode = false }) => {
       case 'unpaid':
       case 'pending': return <Badge className={`bg-red-500 text-white ${cls}`}><AlertCircle className="h-2.5 w-2.5" /> Pending</Badge>;
       case 'partial': return <Badge className={`bg-yellow-400 text-black ${cls}`}><AlertCircle className="h-2.5 w-2.5" /> Sebagian</Badge>;
-      default:        return <Badge className={`bg-gray-200 text-[#10182b] capitalize ${cls}`}>{status || 'unknown'}</Badge>;
+      default:        return <Badge className={`bg-gray-200 text-[#011e4b] capitalize ${cls}`}>{status || 'unknown'}</Badge>;
     }
   };
 
@@ -636,8 +636,8 @@ const UserDashboard = ({ userId: propUserId, isAllOrdersMode = false }) => {
     return (
       <div className="flex items-center justify-between px-2 py-4 border-t mt-4">
         <p className="text-xs text-slate-500">
-          Halaman <span className="font-semibold text-[#10182b]">{currentPage}</span> dari{' '}
-          <span className="font-semibold text-[#10182b]">{totalPages}</span>
+          Halaman <span className="font-semibold text-[#011e4b]">{currentPage}</span> dari{' '}
+          <span className="font-semibold text-[#011e4b]">{totalPages}</span>
           <span className="ml-2 text-slate-400">({totalCount} total)</span>
         </p>
         <div className="flex items-center gap-1">
@@ -658,7 +658,7 @@ const UserDashboard = ({ userId: propUserId, isAllOrdersMode = false }) => {
             return (
               <Button
                 key={page} variant={currentPage === page ? 'default' : 'outline'}
-                size="sm" className={`h-8 w-8 p-0 text-xs ${currentPage === page ? 'bg-[#10182b] text-white' : ''}`}
+                size="sm" className={`h-8 w-8 p-0 text-xs ${currentPage === page ? 'bg-[#011e4b] text-white' : ''}`}
                 disabled={loading} onClick={() => onPageChange(page)}
               >{page}</Button>
             );
@@ -687,7 +687,7 @@ const UserDashboard = ({ userId: propUserId, isAllOrdersMode = false }) => {
     return (
       <Card
         id={cardId}
-        className={`border-2 shadow-lg transition-all ${isCompleted ? 'opacity-75' : 'cursor-pointer hover:border-[#10182b]'} border-gray-200 hover:shadow-xl`}
+        className={`border-2 shadow-lg transition-all ${isCompleted ? 'opacity-75' : 'cursor-pointer hover:border-[#011e4b]'} border-gray-200 hover:shadow-xl`}
         onClick={() => {
           navigate(location.pathname + `#${cardId}`);
           navigate(`/orders/${task.id}#${cardId}`);
@@ -696,8 +696,8 @@ const UserDashboard = ({ userId: propUserId, isAllOrdersMode = false }) => {
         <CardHeader className="p-4 pb-3 relative">
           <div className="flex justify-between items-start gap-2">
             <div className="space-y-1">
-              <CardTitle className="text-lg flex items-center gap-2 text-[#10182b] font-bold">
-                <Package className="h-5 w-5 text-[#10182b]" />
+              <CardTitle className="text-lg flex items-center gap-2 text-[#011e4b] font-bold">
+                <Package className="h-5 w-5 text-[#011e4b]" />
                 Pesanan #{String(task.id).slice(0, 8)}
               </CardTitle>
               <CardDescription className="flex items-center gap-2 mt-1">
@@ -748,7 +748,7 @@ const UserDashboard = ({ userId: propUserId, isAllOrdersMode = false }) => {
 
           {task.notes && (
             <div className="space-y-1 mt-4">
-              <p className="text-sm font-medium flex items-center gap-2 text-[#10182b]">
+              <p className="text-sm font-medium flex items-center gap-2 text-[#011e4b]">
                 <Info className="h-4 w-4 text-yellow-600" /> Catatan Petugas
               </p>
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
@@ -760,11 +760,11 @@ const UserDashboard = ({ userId: propUserId, isAllOrdersMode = false }) => {
           <Separator className="my-4" />
 
           <div className="flex items-center justify-between">
-            <span className="text-base font-bold flex items-center gap-1 text-[#10182b]">
+            <span className="text-base font-bold flex items-center gap-1 text-[#011e4b]">
               <Banknote className="h-5 w-5" /> Total
             </span>
             <div className="text-right">
-              <span className="font-bold text-xl text-[#10182b]">{formatCurrency(task.total)}</span>
+              <span className="font-bold text-xl text-[#011e4b]">{formatCurrency(task.total)}</span>
               {task.remaining_due > 0.0001 && (
                 <p className="text-sm font-semibold text-red-600 mt-0.5">(Sisa: {formatCurrency(task.remaining_due)})</p>
               )}
@@ -774,7 +774,7 @@ const UserDashboard = ({ userId: propUserId, isAllOrdersMode = false }) => {
           <div className="pt-4 flex flex-col gap-3 border-t mt-4">
             <div className="grid grid-cols-2 gap-3">
               {task.status === 'draft' && (
-                <Button onClick={e => { e.stopPropagation(); updateOrderStatus(task, 'sent'); }} disabled={loading} className="w-full h-10 bg-[#10182b] text-white hover:bg-[#20283b] text-sm font-semibold">
+                <Button onClick={e => { e.stopPropagation(); updateOrderStatus(task, 'sent'); }} disabled={loading} className="w-full h-10 bg-[#011e4b] text-white hover:bg-[#00376a] text-sm font-semibold">
                   <TruckIcon className="mr-2 h-4 w-4" /> Kirim
                 </Button>
               )}
@@ -824,7 +824,7 @@ const UserDashboard = ({ userId: propUserId, isAllOrdersMode = false }) => {
     <div className="container mx-auto md:p-8 max-w-7xl space-y-8">
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <h1 className="text-3xl font-bold text-[#10182b] flex items-center gap-3">
+        <h1 className="text-3xl font-bold text-[#011e4b] flex items-center gap-3">
           {isAllOrdersMode ? <ListOrdered className="h-8 w-8" /> : <TruckIcon className="h-8 w-8" />}
           {dashboardTitle}
         </h1>
@@ -832,7 +832,7 @@ const UserDashboard = ({ userId: propUserId, isAllOrdersMode = false }) => {
           <Button onClick={() => navigate('/quick-order')} className="w-full sm:w-auto bg-yellow-600 text-white hover:bg-yellow-700 font-semibold">
             <Zap className="h-4 w-4 mr-2" /> Pesan Langsung
           </Button>
-          <Button onClick={() => navigate('/orders/add')} className="w-full sm:w-auto bg-[#10182b] text-white hover:bg-[#20283b] font-semibold">
+          <Button onClick={() => navigate('/orders/add')} className="w-full sm:w-auto bg-[#011e4b] text-white hover:bg-[#00376a] font-semibold">
             <Plus className="h-4 w-4 mr-2" /> Tambah Pesanan
           </Button>
           <Button onClick={() => setIsTemplateModalOpen(true)} variant="outline" className="w-full sm:w-auto">
@@ -893,17 +893,17 @@ const UserDashboard = ({ userId: propUserId, isAllOrdersMode = false }) => {
       {loading ? (
         <Card className="p-12 border-0 shadow-sm bg-white">
           <div className="flex flex-col justify-center items-center gap-3">
-            <Loader2 className="h-10 w-10 animate-spin text-[#10182b]" />
+            <Loader2 className="h-10 w-10 animate-spin text-[#011e4b]" />
             <p className="text-lg text-muted-foreground font-medium">Memuat data pesanan...</p>
           </div>
         </Card>
       ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:w-[400px] bg-gray-100 p-1 rounded-xl text-[#10182b]">
-            <TabsTrigger value="active" className="gap-2 p-2 data-[state=active]:bg-[#10182b] data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg font-semibold transition-all">
+          <TabsList className="grid w-full grid-cols-2 md:w-[400px] bg-gray-100 p-1 rounded-xl text-[#011e4b]">
+            <TabsTrigger value="active" className="gap-2 p-2 data-[state=active]:bg-[#011e4b] data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg font-semibold transition-all">
               <Clock className="h-4 w-4" /> Tugas Aktif ({countActive})
             </TabsTrigger>
-            <TabsTrigger value="history" className="gap-2 p-2 data-[state=active]:bg-[#10182b] data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg font-semibold transition-all">
+            <TabsTrigger value="history" className="gap-2 p-2 data-[state=active]:bg-[#011e4b] data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg font-semibold transition-all">
               <History className="h-4 w-4" /> Riwayat ({countHistory})
             </TabsTrigger>
           </TabsList>
@@ -920,8 +920,8 @@ const UserDashboard = ({ userId: propUserId, isAllOrdersMode = false }) => {
             ) : (
               <Card className="p-12 border-0 shadow-sm bg-white">
                 <div className="flex flex-col items-center justify-center text-center space-y-3">
-                  <Package className="h-12 w-12 text-[#10182b]" />
-                  <h3 className="text-lg font-semibold text-[#10182b]">Tidak Ada Pesanan Aktif</h3>
+                  <Package className="h-12 w-12 text-[#011e4b]" />
+                  <h3 className="text-lg font-semibold text-[#011e4b]">Tidak Ada Pesanan Aktif</h3>
                   <p className="text-sm text-muted-foreground max-w-sm">
                     Semua pesanan yang difilter saat ini telah selesai atau belum dibuat.
                   </p>
@@ -942,8 +942,8 @@ const UserDashboard = ({ userId: propUserId, isAllOrdersMode = false }) => {
             ) : (
               <Card className="p-12 border-0 shadow-sm bg-white">
                 <div className="flex flex-col items-center justify-center text-center space-y-3">
-                  <History className="h-12 w-12 text-[#10182b]" />
-                  <h3 className="text-lg font-semibold text-[#10182b]">Belum Ada Riwayat</h3>
+                  <History className="h-12 w-12 text-[#011e4b]" />
+                  <h3 className="text-lg font-semibold text-[#011e4b]">Belum Ada Riwayat</h3>
                   <p className="text-sm text-muted-foreground max-w-sm">
                     Riwayat pesanan yang telah diselesaikan akan muncul di sini.
                   </p>

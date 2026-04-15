@@ -171,13 +171,11 @@ const FinalReportsPage = () => {
                 manualItems 
             };
 
-            const response = await fetch(`https://wzmgcainyratlwxttdau.supabase.co/functions/v1/generate-final-report-pdf`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-                body: JSON.stringify(payload),
+            const { data: resData, error: invokeError } = await supabase.functions.invoke('generate-final-report-pdf', {
+                body: payload,
             });
-            const resData = await response.json();
-            if (!response.ok) throw new Error(resData.error);
+            
+            if (invokeError) throw new Error(invokeError.message || 'Gagal memproses');
 
             const { error: upsertError } = await supabase.from('final_report_history').upsert({
                 ...(editingHistoryId ? { id: editingHistoryId } : {}),

@@ -308,7 +308,7 @@ const FinancialCategorySettings = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h3 className="text-lg font-semibold text-[#10182b]">Daftar Akun Keuangan (Chart of Accounts)</h3>
+          <h3 className="text-lg font-semibold text-[#011e4b]">Daftar Akun Keuangan (Chart of Accounts)</h3>
           <p className="text-sm text-gray-500">Gunakan kategori ini untuk mencatat setiap transaksi bisnis Anda.</p>
         </div>
 

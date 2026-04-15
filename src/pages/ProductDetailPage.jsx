@@ -52,7 +52,7 @@ const ProductDetailPage = () => {
     if (loading) {
         return (
             <div className="flex flex-col justify-center items-center h-60 gap-3">
-                <Loader2 className="h-10 w-10 animate-spin text-[#10182b]" />
+                <Loader2 className="h-10 w-10 animate-spin text-[#011e4b]" />
                 <p className="text-sm text-slate-500 italic">Memuat informasi produk...</p>
             </div>
         );
@@ -75,7 +75,7 @@ const ProductDetailPage = () => {
 
             <Card className="shadow-xl border-none overflow-hidden bg-white">
                 {/* Header Section with Image & Basic Info */}
-                <div className="flex flex-col md:flex-row bg-[#10182b] text-white p-6 md:p-8 gap-6 md:gap-8 items-center md:items-start">
+                <div className="flex flex-col md:flex-row bg-[#011e4b] text-white p-6 md:p-8 gap-6 md:gap-8 items-center md:items-start">
                     {/* Product Image */}
                     <div className="relative w-40 h-40 md:w-48 md:h-48 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 overflow-hidden flex items-center justify-center shrink-0 shadow-2xl">
                         {product.image_url ? (
@@ -102,7 +102,7 @@ const ProductDetailPage = () => {
                     </div>
 
                     <Button
-                        className="bg-white text-[#10182b] hover:bg-slate-100 font-bold"
+                        className="bg-white text-[#011e4b] hover:bg-slate-100 font-bold"
                         onClick={() => navigate(`/products/edit/${product.id}`)}
                     >
                         <Pencil className="h-4 w-4 mr-2" /> Edit
@@ -112,7 +112,7 @@ const ProductDetailPage = () => {
                 <CardContent className="p-6 md:p-8 space-y-8">
                     {/* General Information */}
                     <section className="space-y-4">
-                        <div className="flex items-center gap-2 text-[#10182b]">
+                        <div className="flex items-center gap-2 text-[#011e4b]">
                             <Info className="h-5 w-5" />
                             <h2 className="text-lg font-bold uppercase tracking-wider">Spesifikasi Produk</h2>
                         </div>
@@ -134,14 +134,14 @@ const ProductDetailPage = () => {
 
                     {/* Stock & Finance */}
                     <section className="space-y-4">
-                        <div className="flex items-center gap-2 text-[#10182b]">
+                        <div className="flex items-center gap-2 text-[#011e4b]">
                             <Package className="h-5 w-5" />
                             <h2 className="text-lg font-bold uppercase tracking-wider">Stok & Inventori</h2>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div className="p-4 rounded-xl border bg-white shadow-sm space-y-1">
                                 <p className="text-xs text-slate-500 uppercase font-bold">Stok Isi</p>
-                                <p className="text-2xl font-black text-[#10182b]">{product.stock} <span className="text-sm font-normal text-slate-400">Unit</span></p>
+                                <p className="text-2xl font-black text-[#011e4b]">{product.stock} <span className="text-sm font-normal text-slate-400">Unit</span></p>
                             </div>
                             <div className="p-4 rounded-xl border bg-white shadow-sm space-y-1">
                                 <p className="text-xs text-slate-500 uppercase font-bold">Stok Kosongan</p>
@@ -156,7 +156,7 @@ const ProductDetailPage = () => {
 
                     {/* Pricing per Status */}
                     <section className="space-y-4">
-                        <div className="flex items-center gap-2 text-[#10182b]">
+                        <div className="flex items-center gap-2 text-[#011e4b]">
                             <DollarSign className="h-5 w-5" />
                             <h2 className="text-lg font-bold uppercase tracking-wider">Skema Harga Jual</h2>
                         </div>

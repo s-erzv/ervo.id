@@ -159,19 +159,13 @@ const UserManagementPage = () => {
 
     setLoadingUsers(true);
     try {
-      const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/delete-user', {
+      const { data, error: invokeError } = await supabase.functions.invoke('delete-user', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`, 
-        },
-        body: JSON.stringify({ userId }),
+        body: { userId },
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to delete user');
+      if (invokeError) {
+        throw new Error(invokeError.message || 'Failed to delete user');
       }
 
       toast.success('Pengguna berhasil dihapus.');
@@ -298,14 +292,14 @@ const UserManagementPage = () => {
         {isSuperAdmin ? (
           <Button 
             onClick={() => setIsAddModalOpen(true)}
-            className="w-full sm:w-auto bg-[#10182b] text-white hover:bg-[#10182b]/90"
+            className="w-full sm:w-auto bg-[#011e4b] text-white hover:bg-[#011e4b]/90"
           >
             + Tambah Admin
           </Button>
         ) : userRole === 'admin' ? (
           <Button 
             onClick={() => setIsAddModalOpen(true)}
-            className="w-full sm:w-auto bg-[#10182b] text-white hover:bg-[#10182b]/90"
+            className="w-full sm:w-auto bg-[#011e4b] text-white hover:bg-[#011e4b]/90"
           >
             + Tambah Pengguna
           </Button>
@@ -336,7 +330,7 @@ const UserManagementPage = () => {
       )}
 
       <Card className="mb-8 border-0 shadow-lg bg-white">
-        <CardHeader className="bg-[#10182b] text-white rounded-t-lg">
+        <CardHeader className="bg-[#011e4b] text-white rounded-t-lg">
           <CardTitle className='flex items-center gap-2'>
             <Users className="h-5 w-5" /> Daftar Pengguna
           </CardTitle>

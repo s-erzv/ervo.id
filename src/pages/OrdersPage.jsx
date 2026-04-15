@@ -57,13 +57,13 @@ const PAGE_SIZE = 20; // Jumlah baris per halaman
 const getStatusBadge = (status) => {
   switch (status) {
     case 'draft':
-      return <Badge className="bg-gray-200 text-[#10182b] flex items-center gap-1 h-4 px-1.5 py-0.5 text-[10px] whitespace-nowrap"><Loader2 className="h-2.5 w-2.5 animate-spin" /> Menunggu</Badge>;
+      return <Badge className="bg-gray-200 text-[#011e4b] flex items-center gap-1 h-4 px-1.5 py-0.5 text-[10px] whitespace-nowrap"><Loader2 className="h-2.5 w-2.5 animate-spin" /> Menunggu</Badge>;
     case 'sent':
-      return <Badge className="bg-[#10182b] text-white flex items-center gap-1 h-4 px-1.5 py-0.5 text-[10px] whitespace-nowrap"><TruckIcon className="h-2.5 w-2.5" /> Dalam Pengiriman</Badge>;
+      return <Badge className="bg-[#011e4b] text-white flex items-center gap-1 h-4 px-1.5 py-0.5 text-[10px] whitespace-nowrap"><TruckIcon className="h-2.5 w-2.5" /> Dalam Pengiriman</Badge>;
     case 'completed':
       return <Badge className="bg-green-500 text-white flex items-center gap-1 h-4 px-1.5 py-0.5 text-[10px] whitespace-nowrap"><CheckCircle2 className="h-2.5 w-2.5" /> Selesai</Badge>;
     default:
-      return <Badge className="bg-gray-200 text-[#10182b] capitalize h-4 px-1.5 py-0.5 text-[10px] whitespace-nowrap">{status}</Badge>;
+      return <Badge className="bg-gray-200 text-[#011e4b] capitalize h-4 px-1.5 py-0.5 text-[10px] whitespace-nowrap">{status}</Badge>;
   }
 };
 
@@ -77,7 +77,7 @@ const getPaymentStatusBadge = (status) => {
     case 'partial':
       return <Badge className="bg-yellow-400 text-black flex items-center gap-1 h-4 px-1.5 py-0.5 text-[10px] whitespace-nowrap"><AlertCircle className="h-2.5 w-2.5" /> Sebagian</Badge>;
     default:
-      return <Badge className="bg-gray-200 text-[#10182b] capitalize h-4 px-1.5 py-0.5 text-[10px] whitespace-nowrap">{status || 'unknown'}</Badge>;
+      return <Badge className="bg-gray-200 text-[#011e4b] capitalize h-4 px-1.5 py-0.5 text-[10px] whitespace-nowrap">{status || 'unknown'}</Badge>;
   }
 };
 
@@ -521,17 +521,12 @@ const OrdersPage = () => {
         }
       };
 
-      const response = await fetch('https://wzmgcainyratlwxttdau.supabase.co/functions/v1/create-invoice-pdf', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify(payload),
+      const { data, error } = await supabase.functions.invoke('create-invoice-pdf', {
+        body: payload,
       });
 
-      if (!response.ok) throw new Error('Gagal membuat invoice PDF.');
-      const { pdfUrl } = await response.json();
+      if (error) throw error;
+      const { pdfUrl } = data;
       window.open(pdfUrl, '_blank');
       toast.success('Invoice berhasil dibuka!', { id: tid });
       fetchOrdersAndCustomers();
@@ -731,12 +726,13 @@ const OrdersPage = () => {
     if (!window.confirm(confirmMsg)) return;
 
     try {
-      await supabase.functions.invoke('delete-order', {
+      const { data, error } = await supabase.functions.invoke('delete-order', {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${session?.access_token}` },
         body: { orderId, companyId },
       });
       
+      if (error) throw error;
+
       toast.success('Pesanan dihapus & saldo dropshipper telah disesuaikan.');
       fetchOrdersAndCustomers();
     } catch (error) {
@@ -808,9 +804,9 @@ const OrdersPage = () => {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4 w-full">
           {/* SISI KIRI: JUDUL & INFORMASI */}
           <div className="space-y-1 w-full lg:w-auto">
-            <h1 className="text-2xl md:text-3xl font-extrabold text-[#10182b] flex items-center gap-3 tracking-tight">
-              <div className="p-2 bg-[#10182b]/5 rounded-xl">
-                <ListOrdered className="h-6 w-6 md:h-8 md:w-8 text-[#10182b]" />
+            <h1 className="text-2xl md:text-3xl font-extrabold text-[#011e4b] flex items-center gap-3 tracking-tight">
+              <div className="p-2 bg-[#011e4b]/5 rounded-xl">
+                <ListOrdered className="h-6 w-6 md:h-8 md:w-8 text-[#011e4b]" />
               </div>
               Manajemen Pesanan
             </h1>
@@ -832,7 +828,7 @@ const OrdersPage = () => {
                 <Filter className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2 shrink-0" /> 
                 <span>Filter</span>
                 {activeFilterCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-[#10182b] text-white text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                  <span className="absolute -top-1.5 -right-1.5 bg-[#011e4b] text-white text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                     {activeFilterCount}
                   </span>
                 )}
@@ -879,7 +875,7 @@ const OrdersPage = () => {
               
               <Button 
                 onClick={() => navigate('/orders/add')} 
-                className="flex-1 sm:flex-none h-10 px-2 sm:px-4 bg-[#10182b] hover:bg-[#1d2b4d] text-white font-bold shadow-md shadow-slate-200 transition-all active:scale-95 text-xs sm:text-sm"
+                className="flex-1 sm:flex-none h-10 px-2 sm:px-4 bg-[#011e4b] hover:bg-[#00376a] text-white font-bold shadow-md shadow-slate-200 transition-all active:scale-95 text-xs sm:text-sm"
               >
                 <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2 shrink-0" /> 
                 Tambah <span className="hidden sm:inline">&nbsp;Pesanan</span>
@@ -892,7 +888,7 @@ const OrdersPage = () => {
         <CardHeader className="p-4 md:p-6 border-b">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
-              <CardTitle className="text-lg font-semibold text-[#10182b]">Daftar Pesanan</CardTitle>
+              <CardTitle className="text-lg font-semibold text-[#011e4b]">Daftar Pesanan</CardTitle>
               {/* ── INFO TOTAL DATA ── */}
               {!loading && (
                 <p className="text-xs text-slate-400">
@@ -908,7 +904,7 @@ const OrdersPage = () => {
                 placeholder="Cari invoice atau nama pelanggan..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="pl-9 pr-8 h-10 text-sm border-slate-200 focus-visible:ring-1 focus-visible:ring-[#10182b] w-full"
+                className="pl-9 pr-8 h-10 text-sm border-slate-200 focus-visible:ring-1 focus-visible:ring-[#011e4b] w-full"
               />
               {searchQuery && (
                 <button
@@ -974,7 +970,7 @@ const OrdersPage = () => {
                       onClick={() => navigate(`/orders/${order.id}`)}
                     >
                       <TableCell className="font-medium py-3 px-3">{order.invoice_number}</TableCell>
-                      <TableCell className="font-medium text-[#10182b] py-3 px-3">
+                      <TableCell className="font-medium text-[#011e4b] py-3 px-3">
                         <div className="flex items-center gap-2">
                           <span className="whitespace-nowrap">{order.customers?.name || 'N/A'}</span>
                           {order.notes && (
@@ -1159,8 +1155,8 @@ const OrdersPage = () => {
           {totalPages > 1 && (
             <div className="flex flex-col sm:flex-row justify-between items-center p-4 border-t gap-4 bg-gray-50/50 rounded-b-xl">
               <p className="text-xs text-slate-500 font-medium">
-                Halaman <span className="font-semibold text-[#10182b]">{currentPage}</span> dari{' '}
-                <span className="font-semibold text-[#10182b]">{totalPages}</span>
+                Halaman <span className="font-semibold text-[#011e4b]">{currentPage}</span> dari{' '}
+                <span className="font-semibold text-[#011e4b]">{totalPages}</span>
               </p>
               <div className="flex items-center gap-1">
                 <Button
@@ -1192,7 +1188,7 @@ const OrdersPage = () => {
                         key={page}
                         variant={currentPage === page ? 'default' : 'outline'}
                         size="sm"
-                        className={`h-8 w-8 p-0 text-xs shrink-0 ${currentPage === page ? 'bg-[#10182b] text-white' : ''}`}
+                        className={`h-8 w-8 p-0 text-xs shrink-0 ${currentPage === page ? 'bg-[#011e4b] text-white' : ''}`}
                         disabled={loading}
                         onClick={() => setCurrentPage(page)}
                       >
@@ -1331,7 +1327,7 @@ const OrdersPage = () => {
                             }}
                           >
                             <div className="flex items-center gap-2 w-full">
-                              <div className={`h-4 w-4 border rounded-sm flex items-center justify-center ${customerFilter.includes(customer.id) ? 'bg-[#10182b] border-[#10182b]' : 'border-gray-300'}`}>
+                              <div className={`h-4 w-4 border rounded-sm flex items-center justify-center ${customerFilter.includes(customer.id) ? 'bg-[#011e4b] border-[#011e4b]' : 'border-gray-300'}`}>
                                 {customerFilter.includes(customer.id) && <CheckCircle2 className="h-3 w-3 text-white" />}
                               </div>
                               {customer.name}

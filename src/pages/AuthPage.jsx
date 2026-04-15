@@ -16,7 +16,7 @@ const AuthPage = () => {
   
   return (
     // CONTAINER UTAMA: Menggunakan layout dua kolom penuh (h-screen)
-    <div className="w-full flex h-screen p-0 md:p-2 bg-[#10182b] overflow-hidden gap-2">
+    <div className="w-full flex h-screen p-0 md:p-2 bg-[#011e4b] overflow-hidden gap-2">
 
         {/* KOLOM KIRI (SLIDER) - Tersembunyi di mobile, muncul 5/12 di md+ */}
         <div className='w-0 md:w-5/12 hidden md:block h-full'>
@@ -35,7 +35,7 @@ const AuthPage = () => {
                   height={80}
                   className="mx-auto mb-4"
                 />
-                <CardTitle className="text-4xl font-bold text-[#10182b]">
+                <CardTitle className="text-4xl font-bold text-[#011e4b]">
                   ervo.id
                 </CardTitle>
                 <CardDescription>
@@ -53,7 +53,7 @@ const AuthPage = () => {
                 <div className="mt-1 text-center">
                   <Button
                     variant="link"
-                    className="text-[#10182b]"
+                    className="text-[#011e4b]"
                     onClick={() => setIsLoginForm(!isLoginForm)}
                   >
                     {isLoginForm 
@@ -71,7 +71,7 @@ const AuthPage = () => {
                 href="https://api.whatsapp.com/send?phone=6285117677245"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 font-medium text-[#10182b] hover:underline"
+                className="flex items-center justify-center gap-2 font-medium text-[#011e4b] hover:underline"
               >
                 <Phone className="h-4 w-4" />
                 Hubungi Kami

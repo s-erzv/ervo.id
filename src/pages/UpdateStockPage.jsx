@@ -110,7 +110,7 @@ const DailyStockMovementModal = ({ isOpen, onClose, record, productMap }) => {
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-4xl p-6 w-[95vw] md:w-full">
                 <DialogHeader>
-                    <DialogTitle className="text-xl font-bold text-[#10182b]">
+                    <DialogTitle className="text-xl font-bold text-[#011e4b]">
                         Detail Pergerakan Stok Tanggal {new Date(record?.date).toLocaleDateString('id-ID')}
                     </DialogTitle>
                 </DialogHeader>
@@ -546,24 +546,13 @@ const UpdateStockPage = () => {
                 reconciliationItems: stockDifferences,
                 companyId: companyId,
                 userId: userProfile.id,
-                // Hapus hardcode stockType: 'product_stock', karena jenis stok sekarang ada di setiap item
             };
 
-            const SUPABASE_FUNCTION_URL = 'https://wzmgcainyratlwxttdau.supabase.co/functions/v1/adjust-stock-reconciliation';
-            
-            const response = await fetch(SUPABASE_FUNCTION_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session.access_token}`,
-                },
-                body: JSON.stringify(payload),
+            const { data, error } = await supabase.functions.invoke('adjust-stock-reconciliation', {
+                body: payload,
             });
 
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to perform automatic adjustment.');
-            }
+            if (error) throw error;
 
             toast.success('Penyesuaian stok otomatis berhasil!');
             setStockDifferences([]);
@@ -599,7 +588,7 @@ const UpdateStockPage = () => {
                 productMap={productMapForModal}
             />
 
-            <h1 className="text-xl font-bold mb-3 text-[#10182b]">
+            <h1 className="text-xl font-bold mb-3 text-[#011e4b]">
                 <Package className="h-5 w-5 mr-2 inline-block" />
                 Update Stok Fisik
             </h1>
@@ -611,7 +600,7 @@ const UpdateStockPage = () => {
             <form onSubmit={handleReconcile}>
                 <Card className="shadow-sm bg-white">
                     <CardHeader className="p-4 md:p-6">
-                        <CardTitle className="text-base text-[#10182b]">Input Stok Fisik</CardTitle>
+                        <CardTitle className="text-base text-[#011e4b]">Input Stok Fisik</CardTitle>
                         <CardDescription className="text-sm">
                             Masukkan jumlah stok yang ada di gudang untuk setiap produk.
                         </CardDescription>
@@ -677,7 +666,7 @@ const UpdateStockPage = () => {
                             <Table className="table-auto min-w-max text-xs">
                                 <TableHeader>
                                     <TableRow className="bg-gray-50">
-                                        <TableHead className="min-w-[100px] text-[#10182b] font-semibold p-2">Metrik</TableHead>
+                                        <TableHead className="min-w-[100px] text-[#011e4b] font-semibold p-2">Metrik</TableHead>
                                         {displayProducts.map(product => (
                                             <TableHead
                                                 className="text-center font-semibold min-w-[80px] max-w-[120px] whitespace-normal p-2"
@@ -805,7 +794,7 @@ const UpdateStockPage = () => {
 
                         {/* Tombol Aksi */}
                         <div className="flex flex-col sm:flex-row gap-2 mt-6">
-                            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[#10182b] text-white hover:bg-[#10182b]/90 text-sm">
+                            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-[#011e4b] text-white hover:bg-[#011e4b]/90 text-sm">
                                 <Box className="h-4 w-4 mr-2" /> Bandingkan Stok
                             </Button>
                             {stockDifferences.length > 0 && canAdjustStock && (
@@ -819,11 +808,11 @@ const UpdateStockPage = () => {
             </form>
              
             <div className="mt-8">
-                <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-[#10182b]"><History className="h-4 w-4" /> Rekaman Nilai Inventori Harian (COGS)</h2>
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-[#011e4b]"><History className="h-4 w-4" /> Rekaman Nilai Inventori Harian (COGS)</h2>
 
                 <Card className="shadow-sm bg-white">
                     <CardHeader className="p-4 md:p-6">
-                        <CardTitle className="text-base text-[#10182b]">Filter Laporan Harian</CardTitle>
+                        <CardTitle className="text-base text-[#011e4b]">Filter Laporan Harian</CardTitle>
                         <CardDescription className="text-sm">
                             Menampilkan Stok Akhir dan Nilai Inventori (Stok Akhir * Harga Beli) per tanggal. Data diambil dari snapshot harian yang otomatis direkam setiap jam 00:00. Klik baris untuk melihat detail pergerakan.
                         </CardDescription>
@@ -913,7 +902,7 @@ const UpdateStockPage = () => {
                                     <TableHeader>
                                         <TableRow className="bg-gray-50">
                                             {/* Kolom Tanggal: Non-sticky */}
-                                            <TableHead className="min-w-[100px] text-[#10182b] font-semibold p-2">Tanggal</TableHead>
+                                            <TableHead className="min-w-[100px] text-[#011e4b] font-semibold p-2">Tanggal</TableHead>
                                             
                                             {dailyStockRecords[0].products.map(p => (
                                                 <TableHead className="text-center font-semibold min-w-[150px] whitespace-normal p-2" key={p.id}>
@@ -968,7 +957,7 @@ const UpdateStockPage = () => {
 
  
             <div className="mt-8"> 
-                <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-[#10182b]"><History className="h-4 w-4" /> Riwayat Update Stok (Penuh & Galon Kosong)</h2>
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-[#011e4b]"><History className="h-4 w-4" /> Riwayat Update Stok (Penuh & Galon Kosong)</h2>
                 <Card className="shadow-sm bg-white">
                     <CardHeader className="p-4 md:p-6">
                         <CardTitle className="text-base">Riwayat Update Stok</CardTitle>

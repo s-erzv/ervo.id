@@ -134,14 +134,14 @@ const ProductsPage = () => {
         </h1>
         <div className="flex gap-2 flex-wrap">
             <Button
-                className="bg-white text-[#10182b] hover:bg-gray-200"
+                className="bg-white text-[#011e4b] hover:bg-gray-200"
                 onClick={() => setIsCategoryModalOpen(true)}
                 type="button"
             >
                 <Tags className="h-4 w-4 mr-2" /> Kelola Kategori
             </Button>
             <Button
-              className="bg-white text-[#10182b] hover:bg-gray-200"
+              className="bg-white text-[#011e4b] hover:bg-gray-200"
               onClick={() => navigate('/products/add')}
             >
               <PlusCircle className="h-4 w-4 mr-2" /> Tambah Produk
@@ -150,7 +150,7 @@ const ProductsPage = () => {
       </div>
       
       <Card className="border-0 shadow-lg bg-white">
-        <CardHeader className="bg-[#10182b] text-white rounded-t-lg">
+        <CardHeader className="bg-[#011e4b] text-white rounded-t-lg">
           <CardTitle>Daftar Produk</CardTitle>
         </CardHeader>
         <CardContent>

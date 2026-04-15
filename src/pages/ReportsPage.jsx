@@ -302,7 +302,7 @@ const ReportsPage = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-white">
-        <Loader2 className="h-8 w-8 animate-spin text-[#10182b]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#011e4b]" />
       </div>
     );
   }
@@ -313,14 +313,14 @@ const ReportsPage = () => {
   return (
     <div className="container mx-auto p-4 md:p-8 space-y-4 max-w-7xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
-        <h1 className="text-xl md:text-2xl font-bold text-[#10182b] flex items-center gap-2">
+        <h1 className="text-xl md:text-2xl font-bold text-[#011e4b] flex items-center gap-2">
           <BarIcon className="h-5 w-5 md:h-6 md:w-6" />
           Laporan & Analisis
         </h1>
         <Button 
           variant="outline"
           onClick={handleExportToCsv}
-          className="w-full sm:w-auto text-[#10182b] hover:bg-gray-100 text-sm"
+          className="w-full sm:w-auto text-[#011e4b] hover:bg-gray-100 text-sm"
           disabled={loading || reportData.diff.length === 0}
         >
           <FileDown className="mr-2 h-4 w-4" /> Export Excel
@@ -385,7 +385,7 @@ const ReportsPage = () => {
       </Card>
        
       <Card className="border-0 shadow-lg bg-white">
-        <CardHeader className="bg-[#10182b] text-white rounded-t-lg p-3 sm:p-4">
+        <CardHeader className="bg-[#011e4b] text-white rounded-t-lg p-3 sm:p-4">
           <CardTitle className="text-base sm:text-lg flex items-center gap-2">
             <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5" /> Stok Produk vs Permintaan
           </CardTitle>
@@ -403,7 +403,7 @@ const ReportsPage = () => {
                   <YAxis allowDecimals={false} style={{ fontSize: '10px' }} />
                   <Tooltip cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
                   <Legend verticalAlign="top" align="center" height={70} iconType="circle" />
-                  <Line type="monotone" dataKey="stock" name="Stok Saat Ini" stroke="#10182b" strokeWidth={2} dot={{ r: 3 }} />
+                  <Line type="monotone" dataKey="stock" name="Stok Saat Ini" stroke="#011e4b" strokeWidth={2} dot={{ r: 3 }} />
                   <Line type="step" dataKey="incoming_qty" name="Pesanan ke Pusat" stroke="#f39c12" strokeWidth={2} strokeDasharray="5 5" dot={{ r: 3 }} />
                   <Line type="monotone" dataKey="future_stock" name="Stok + akan datang" stroke="#00b894" strokeWidth={3} dot={{ r: 4 }} />
                   <Line type="monotone" dataKey="demand" name="Permintaan" stroke="#ff6b6b" strokeWidth={2} dot={{ r: 3 }} />
@@ -419,7 +419,7 @@ const ReportsPage = () => {
       </Card>
  
       <Card className="border-0 shadow-lg bg-white">
-        <CardHeader className="bg-[#10182b] text-white rounded-t-lg p-3 sm:p-4">
+        <CardHeader className="bg-[#011e4b] text-white rounded-t-lg p-3 sm:p-4">
           <CardTitle className="text-base sm:text-lg flex items-center gap-2">
             <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5" /> Stok Kemasan & Prediksi Penukaran
           </CardTitle>
@@ -437,7 +437,7 @@ const ReportsPage = () => {
                   <YAxis allowDecimals={false} style={{ fontSize: '10px' }} />
                   <Tooltip cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
                   <Legend verticalAlign="top" align="center" height={50} iconType="circle" />
-                  <Line type="monotone" dataKey="stock" name="Stok Kemasan Kosong" stroke="#10182b" strokeWidth={2} dot={{ r: 3 }} />
+                  <Line type="monotone" dataKey="stock" name="Stok Kemasan Kosong" stroke="#011e4b" strokeWidth={2} dot={{ r: 3 }} />
                   <Line type="monotone" dataKey="future_empty_stock" name="Stok - akan datang" stroke="#e74c3c" strokeWidth={2} strokeDasharray="5 5" dot={{ r: 3 }}/>
                 </ComposedChart>
               </ResponsiveContainer>
@@ -494,7 +494,7 @@ const ReportsPage = () => {
 
       <div className="grid grid-cols-1 gap-4">
         <Card className="border-0 shadow-lg bg-white">
-          <CardHeader className="bg-[#10182b] text-white rounded-t-lg p-3 sm:p-4">
+          <CardHeader className="bg-[#011e4b] text-white rounded-t-lg p-3 sm:p-4">
             <CardTitle className="text-base sm:text-lg flex items-center gap-2">
               <History className="h-4 w-4 sm:h-5 sm:w-5" /> Riwayat Update Stok
             </CardTitle>

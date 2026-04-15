@@ -26,12 +26,12 @@ const IC = {
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 const FEATURES = [
-  { icon:'truck', tag:'Operasional', title:'Manajemen Pengiriman Presisi', desc:'Pantau status pengiriman dari persiapan hingga diterima pelanggan secara real-time. Hilangkan risiko pesanan terselip.' },
-  { icon:'box',   tag:'Logistik',    title:'Inventaris & Stok Akurat',     desc:'Pantau mutasi stok di berbagai lokasi secara otomatis. Notifikasi instan saat stok menipis.' },
-  { icon:'chart', tag:'Akuntansi',   title:'Laporan Keuangan Otomatis',    desc:'Generate laporan laba rugi, neraca, dan arus kas dalam hitungan detik. Semua transaksi tersinkronisasi.' },
-  { icon:'users', tag:'CRM',         title:'Database Pelanggan Terpadu',   desc:'Kelola riwayat pesanan dan limit piutang pelanggan dengan mudah. Bangun loyalitas berbasis data akurat.' },
-  { icon:'cpu',   tag:'Efisien',     title:'Otomasi Alur Kerja',           desc:'Kurangi beban admin dengan sistem serba otomatis. Dari penagihan hingga perhitungan komisi driver.' },
-  { icon:'trend', tag:'Strategi',    title:'Analisis Bisnis Mendalam',     desc:'Pahami produk terlaris dan tren penjualan melalui dashboard intuitif. Keputusan berbasis data nyata.' },
+  { icon:'truck', tag:'Operasional', title:'Manajemen Pengiriman Presisi', desc:'Pantau status pengiriman hingga diterima pelanggan. Hilangkan risiko pesanan terselip dan pantau performa kurir.' },
+  { icon:'box',   tag:'Logistik',    title:'Inventaris & Stok Akurat',     desc:'Pantau mutasi barang dan rekonsiliasi harian.' },
+  { icon:'chart', tag:'Akuntansi',   title:'Laporan Keuangan Otomatis',    desc:'Generate laporan laba rugi dan arus kas operasional dalam hitungan detik. Semua transaksi tersinkronisasi.' },
+  { icon:'users', tag:'CRM',         title:'Database Pelanggan Terpadu',   desc:'Kelola riwayat pesanan, pantau tagihan pelanggan, dan atur komisi jaringan dropshipper Anda secara otomatis.' },
+  { icon:'cpu',   tag:'Efisien',     title:'Otomasi Alur Kerja',           desc:'Kurangi beban admin dengan sistem serba otomatis. Dari penagihan via WhatsApp terintegrasi hingga manajemen penggajian (payroll).' },
+  //  { icon:'trend', tag:'Strategi',    title:'Analisis Bisnis Mendalam',     desc:'Pahami produk terlaris dan tren penjualan melalui dashboard intuitif. Keputusan berbasis data nyata.' },
 ];
 
 const WHY = [
@@ -101,7 +101,7 @@ const CSS_RULES = `
     .dash-sidebar { display: none !important; }
   }
 
-  .nav-link:hover { color: #0f172a !important; }
+  .nav-link:hover { color: #011e4b !important; }
   .btn-primary-hover:hover { opacity: 0.85; transform: translateY(-1px); }
   .btn-hero-primary-hover:hover { transform: translateY(-2px); box-shadow: 0 22px 35px -5px rgba(15,23,42,0.35) !important; }
   .btn-hero-secondary-hover:hover { background: #f8fafc !important; }
@@ -110,7 +110,7 @@ const CSS_RULES = `
   .plan-btn:hover { opacity: 0.85; }
   .btn-cta-white-hover:hover { opacity: 0.9; }
   .btn-cta-ghost-hover:hover { background: rgba(255,255,255,0.18) !important; }
-  .footer-link:hover { color: #0f172a !important; }
+  .footer-link:hover { color: #011e4b !important; }
   .wa-fab-hover:hover { transform: scale(1.1) translateY(-4px); background: #1fba59 !important; }
   .icon-btn:hover { opacity: 0.7; }
 `;
@@ -201,7 +201,7 @@ export default function LandingPage() {
       <section id="hero" style={S.heroSection}>
         <div {...fadeIn('hero-badge')} style={S.heroBadge}>
           <span style={S.greenDot} />
-          Software Manajemen Distribusi & Akuntansi All-in-One
+          Solusi Bisnis yang Lebih Efisien
         </div>
 
         <h1 {...fadeIn('hero-h1', 0.1)} style={S.heroH1}>
@@ -245,7 +245,7 @@ export default function LandingPage() {
               <div style={S.dashSidebar} className="dash-sidebar">
                 <div style={S.sidebarLogo}>
                   <div style={{ ...S.logoMark, width:'24px', height:'24px', fontSize:'12px' }}>e</div>
-                  <span style={{ fontSize:'13px', fontWeight:600 }}>ervo.id</span>
+                  <span style={{ fontSize:'13px', fontWeight:500 }}>ervo.id</span>
                 </div>
                 {[
                   { label:'Dashboard', active:true },
@@ -288,7 +288,7 @@ export default function LandingPage() {
                       <div key={i} style={{
                         ...S.bar,
                         height: `${h}%`,
-                        background: i === 5 ? '#0f172a' : i === 6 ? '#94a3b8' : '#e2e8f0',
+                        background: i === 5 ? '#011e4b' : i === 6 ? '#94a3b8' : '#e2e8f0',
                       }} />
                     ))}
                   </div>
@@ -450,7 +450,7 @@ function SectionTag({ children, light }) {
   return (
     <span style={{
       display: 'inline-block',
-      fontSize: '12px', fontWeight: 700,
+      fontSize: '12px', fontWeight: 600,
       letterSpacing: '0.06em', textTransform: 'uppercase',
       padding: '5px 14px', borderRadius: '100px',
       background: light ? 'white' : '#f1f5f9',
@@ -488,7 +488,7 @@ function FeatCard({ f, visible, fadeId, delay }) {
       className="feat-card"
     >
       <span style={{
-        fontSize: '11px', fontWeight: 700, letterSpacing: '0.04em',
+        fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em',
         background: '#f1f5f9', color: '#64748b',
         padding: '3px 10px', borderRadius: '100px', display: 'inline-block', marginBottom: '14px',
       }}>{f.tag}</span>
@@ -500,7 +500,7 @@ function FeatCard({ f, visible, fadeId, delay }) {
       }}>
         <Ico d={IC[f.icon]} size={18} />
       </div>
-      <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>{f.title}</h3>
+      <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#011e4b', marginBottom: '8px' }}>{f.title}</h3>
       <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.6' }}>{f.desc}</p>
     </div>
   );
@@ -512,10 +512,10 @@ function PlanCard({ plan, delay, visible, fadeId, onCta }) {
       borderRadius: '20px',
       padding: '32px 28px',
       display: 'flex', flexDirection: 'column', gap: '20px',
-      background: plan.popular ? '#0f172a' : 'white',
+      background: plan.popular ? '#011e4b' : 'white',
       border: plan.popular ? 'none' : '1px solid #e2e8f0',
       boxShadow: plan.popular ? '0 25px 50px -12px rgba(15,23,42,0.35)' : '0 1px 3px rgba(0,0,0,0.04)',
-      color: plan.popular ? 'white' : '#1e293b',
+      color: plan.popular ? 'white' : '#00376a',
       position: 'relative',
       opacity: visible[fadeId] ? 1 : 0,
       transform: visible[fadeId] ? 'translateY(0)' : 'translateY(24px)',
@@ -525,16 +525,16 @@ function PlanCard({ plan, delay, visible, fadeId, onCta }) {
         <span style={{
           position: 'absolute', top: '24px', right: '24px',
           background: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.9)',
-          fontSize: '11px', fontWeight: 700, padding: '4px 12px', borderRadius: '100px',
+          fontSize: '11px', fontWeight: 600, padding: '4px 12px', borderRadius: '100px',
         }}>TERPOPULER</span>
       )}
       <div>
-        <div style={{ fontSize: '16px', fontWeight: 700 }}>{plan.name}</div>
+        <div style={{ fontSize: '16px', fontWeight: 600 }}>{plan.name}</div>
         <div style={{ fontSize: '13px', marginTop: '6px', color: plan.popular ? 'rgba(255,255,255,0.55)' : '#64748b', lineHeight: '1.5' }}>{plan.desc}</div>
       </div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
         {plan.price !== 'Custom' && <span style={{ fontSize: '14px', color: plan.popular ? 'rgba(255,255,255,0.5)' : '#94a3b8' }}>Rp</span>}
-        <span style={{ fontSize: '38px', fontWeight: 700, letterSpacing: '-0.04em' }}>{plan.price}</span>
+        <span style={{ fontSize: '38px', fontWeight: 600, letterSpacing: '-0.04em' }}>{plan.price}</span>
         <span style={{ fontSize: '14px', color: plan.popular ? 'rgba(255,255,255,0.5)' : '#94a3b8' }}>{plan.period}</span>
       </div>
       <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
@@ -544,7 +544,7 @@ function PlanCard({ plan, delay, visible, fadeId, onCta }) {
               width: '18px', height: '18px', borderRadius: '50%', flexShrink: 0,
               background: plan.popular ? 'rgba(255,255,255,0.15)' : '#f1f5f9',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: plan.popular ? 'rgba(255,255,255,0.9)' : '#0f172a',
+              color: plan.popular ? 'rgba(255,255,255,0.9)' : '#011e4b',
             }}>
               <Ico d={IC.check} size={10} sw={3} />
             </span>
@@ -553,10 +553,10 @@ function PlanCard({ plan, delay, visible, fadeId, onCta }) {
         ))}
       </ul>
       <button onClick={onCta} style={{
-        padding: '12px', borderRadius: '10px', fontSize: '14px', fontWeight: 700,
+        padding: '12px', borderRadius: '10px', fontSize: '14px', fontWeight: 600,
         cursor: 'pointer', border: plan.popular ? 'none' : '1px solid #e2e8f0',
         background: plan.popular ? 'white' : '#f8fafc',
-        color: plan.popular ? '#0f172a' : '#0f172a',
+        color: plan.popular ? '#011e4b' : '#011e4b',
         transition: 'opacity 0.2s',
       }}
         className="plan-btn"
@@ -570,7 +570,7 @@ const S = {
   root: {
     minHeight: '100vh',
     background: '#f8fafc',
-    color: '#1e293b',
+    color: '#00376a',
     fontFamily: "'Poppins', sans-serif",
     overflowX: 'hidden',
   },
@@ -596,30 +596,30 @@ const S = {
   logo: { display:'flex', alignItems:'center', gap:'10px', cursor:'pointer', userSelect:'none' },
   logoMark: {
     width:'34px', height:'34px', borderRadius:'9px',
-    background:'#0f172a',
+    background:'#011e4b',
     display:'flex', alignItems:'center', justifyContent:'center',
-    fontWeight:'800', fontSize:'17px', color:'white',
+    fontWeight:'600', fontSize:'17px', color:'white',
   },
-  logoText: { fontSize:'1.35rem', fontWeight:'800', color:'#0f172a', letterSpacing:'-0.02em' },
+  logoText: { fontSize:'1.35rem', fontWeight:'600', color:'#011e4b', letterSpacing:'-0.02em' },
   navLinks: { display:'flex', alignItems:'center', gap:'2rem' },
   navLink: {
     background:'none', border:'none',
-    color:'#475569', fontSize:'0.9rem', fontWeight:'600',
+    color:'#475569', fontSize:'0.9rem', fontWeight:'500',
     cursor:'pointer', transition:'color 0.2s', padding:'4px 0',
   },
   navActions: { display:'flex', alignItems:'center', gap:'12px' },
   btnGhost: {
     background:'none', border:'none', color:'#475569',
-    fontSize:'0.9rem', fontWeight:'700', cursor:'pointer',
+    fontSize:'0.9rem', fontWeight:'600', cursor:'pointer',
     padding:'8px 14px', borderRadius:'8px', transition:'all 0.2s',
   },
   btnPrimary: {
-    background:'#0f172a', border:'none', color:'white',
+    background:'#011e4b', border:'none', color:'white',
     padding:'9px 20px', borderRadius:'9px',
-    fontSize:'0.9rem', fontWeight:'700', cursor:'pointer',
+    fontSize:'0.9rem', fontWeight:'600', cursor:'pointer',
     transition:'all 0.2s',
   },
-  iconBtn: { background:'none', border:'none', color:'#0f172a', cursor:'pointer', padding:'4px' },
+  iconBtn: { background:'none', border:'none', color:'#011e4b', cursor:'pointer', padding:'4px' },
   mobileMenu: {
     background:'white',
     borderTop:'1px solid #f1f5f9',
@@ -628,8 +628,8 @@ const S = {
   },
   mobileLink: {
     display:'block', width:'100%', textAlign:'left',
-    background:'none', border:'none', color:'#1e293b',
-    padding:'14px 0', fontSize:'1.05rem', fontWeight:'600',
+    background:'none', border:'none', color:'#00376a',
+    padding:'14px 0', fontSize:'1.05rem', fontWeight:'500',
     cursor:'pointer', borderBottom:'1px solid #f8fafc',
   },
 
@@ -646,7 +646,7 @@ const S = {
     display:'inline-flex', alignItems:'center', gap:'8px',
     padding:'7px 18px', borderRadius:'100px',
     background:'white', border:'1px solid #e2e8f0',
-    fontSize:'0.82rem', fontWeight:'700', color:'#334155',
+    fontSize:'0.82rem', fontWeight:'600', color:'#334155',
     boxShadow:'0 2px 8px rgba(0,0,0,0.06)',
     marginBottom:'2.5rem',
   },
@@ -655,9 +655,9 @@ const S = {
   },
   heroH1: {
     fontSize:'clamp(2.4rem, 6.5vw, 4.2rem)',
-    fontWeight:'900', lineHeight:'1.08',
+    fontWeight:'600', lineHeight:'1.08',
     letterSpacing:'-0.04em',
-    color:'#0f172a',
+    color:'#011e4b',
     marginBottom:'1.5rem',
     maxWidth:'960px',
   },
@@ -672,9 +672,9 @@ const S = {
     justifyContent:'center', marginBottom:'5rem',
   },
   btnHeroPrimary: {
-    background:'#0f172a', border:'none', color:'white',
+    background:'#011e4b', border:'none', color:'white',
     padding:'1rem 2.2rem', borderRadius:'13px',
-    fontSize:'1.05rem', fontWeight:'700',
+    fontSize:'1.05rem', fontWeight:'600',
     cursor:'pointer', transition:'all 0.2s',
     display:'flex', alignItems:'center', gap:'10px',
     boxShadow:'0 16px 30px -5px rgba(15,23,42,0.25)',
@@ -682,7 +682,7 @@ const S = {
   btnHeroSecondary: {
     background:'white', border:'1px solid #e2e8f0', color:'#334155',
     padding:'1rem 2.2rem', borderRadius:'13px',
-    fontSize:'1.05rem', fontWeight:'700',
+    fontSize:'1.05rem', fontWeight:'600',
     cursor:'pointer', transition:'all 0.2s',
     display:'flex', alignItems:'center', gap:'10px',
     boxShadow:'0 4px 6px rgba(0,0,0,0.04)',
@@ -728,7 +728,7 @@ const S = {
   },
   sidebarLogo: {
     display:'flex', alignItems:'center', gap:'8px',
-    padding:'8px 10px 16px', color:'#0f172a', fontWeight:'700',
+    padding:'8px 10px 16px', color:'#011e4b', fontWeight:'600',
   },
   sideItem: {
     padding:'8px 12px', borderRadius:'7px',
@@ -736,7 +736,7 @@ const S = {
     cursor:'pointer', fontWeight:'500',
   },
   sideItemActive: {
-    background:'#f1f5f9', color:'#0f172a', fontWeight:'700',
+    background:'#f1f5f9', color:'#011e4b', fontWeight:'600',
   },
   dashContent: {
     flex:1, padding:'20px', overflow:'hidden', background:'#f8fafc',
@@ -745,7 +745,7 @@ const S = {
     display:'flex', justifyContent:'space-between', alignItems:'center',
     marginBottom:'16px',
   },
-  dashTitle: { fontSize:'16px', fontWeight:'800', color:'#0f172a' },
+  dashTitle: { fontSize:'16px', fontWeight:'600', color:'#011e4b' },
   dashDate:  { fontSize:'12px', color:'#94a3b8' },
   statsGrid: {
     display:'grid', gridTemplateColumns:'repeat(4,1fr)',
@@ -757,14 +757,14 @@ const S = {
     padding:'12px 14px',
   },
   statLabel: { fontSize:'11px', color:'#94a3b8', marginBottom:'5px', fontWeight:'500' },
-  statVal:   { fontSize:'18px', fontWeight:'800', color:'#0f172a', letterSpacing:'-0.02em' },
-  statDelta: { fontSize:'11px', marginTop:'3px', fontWeight:'600' },
+  statVal:   { fontSize:'18px', fontWeight:'600', color:'#011e4b', letterSpacing:'-0.02em' },
+  statDelta: { fontSize:'11px', marginTop:'3px', fontWeight:'500' },
   chartCard: {
     background:'white', borderRadius:'10px',
     border:'1px solid #f1f5f9', padding:'14px',
     height:'165px',
   },
-  chartTitle: { fontSize:'12px', fontWeight:'700', color:'#94a3b8', marginBottom:'12px' },
+  chartTitle: { fontSize:'12px', fontWeight:'600', color:'#94a3b8', marginBottom:'12px' },
   chartBars: {
     display:'flex', alignItems:'flex-end', gap:'6px',
     height:'110px',
@@ -780,8 +780,8 @@ const S = {
     borderBottom:'1px solid #f1f5f9',
   },
   statItem:     { textAlign:'center', minWidth:'160px' },
-  statBigNum:   { fontSize:'2.4rem', fontWeight:'900', color:'#0f172a', letterSpacing:'-0.04em' },
-  statBigLabel: { fontSize:'0.9rem', color:'#64748b', marginTop:'4px', fontWeight:'600' },
+  statBigNum:   { fontSize:'2.4rem', fontWeight:'600', color:'#011e4b', letterSpacing:'-0.04em' },
+  statBigLabel: { fontSize:'0.9rem', color:'#64748b', marginTop:'4px', fontWeight:'500' },
 
   // SECTIONS
   section: {
@@ -795,7 +795,7 @@ const S = {
   sectionHead:  { marginBottom:'3.5rem' },
   sectionH2: {
     fontSize:'clamp(1.9rem, 4.5vw, 3rem)',
-    fontWeight:'900', color:'#0f172a',
+    fontWeight:'600', color:'#011e4b',
     letterSpacing:'-0.04em', lineHeight:'1.15',
     marginBottom:'1rem',
   },
@@ -833,7 +833,7 @@ const S = {
     background:'#f8fafc', border:'1px solid #e2e8f0',
     display:'flex', alignItems:'center', justifyContent:'center', color:'#334155',
   },
-  whyTitle: { fontSize:'1.1rem', fontWeight:'800', color:'#0f172a', letterSpacing:'-0.01em' },
+  whyTitle: { fontSize:'1.1rem', fontWeight:'600', color:'#011e4b', letterSpacing:'-0.01em' },
   whyDesc:  { fontSize:'0.9rem', color:'#64748b', lineHeight:'1.65', fontWeight:'500' },
 
   // PRICING
@@ -858,12 +858,12 @@ const S = {
   testiAuthor: { display:'flex', alignItems:'center', gap:'12px' },
   avatar: {
     width:'42px', height:'42px', borderRadius:'50%',
-    background:'#0f172a', color:'white',
+    background:'#011e4b', color:'white',
     display:'flex', alignItems:'center', justifyContent:'center',
-    fontSize:'13px', fontWeight:'800', flexShrink:0,
+    fontSize:'13px', fontWeight:'600', flexShrink:0,
   },
-  testiName: { fontSize:'0.95rem', fontWeight:'800', color:'#0f172a' },
-  testiRole: { fontSize:'0.82rem', color:'#64748b', fontWeight:'600', marginTop:'2px' },
+  testiName: { fontSize:'0.95rem', fontWeight:'600', color:'#011e4b' },
+  testiRole: { fontSize:'0.82rem', color:'#64748b', fontWeight:'500', marginTop:'2px' },
 
   // CTA
   ctaWrapper: { padding:'4rem 1.5rem 7rem' },
@@ -871,7 +871,7 @@ const S = {
     maxWidth:'1000px', margin:'0 auto',
     borderRadius:'28px', padding:'5rem 2rem',
     textAlign:'center',
-    background:'#0f172a', color:'white',
+    background:'#011e4b', color:'white',
     position:'relative', overflow:'hidden',
   },
   ctaDots: {
@@ -881,7 +881,7 @@ const S = {
   },
   ctaH2: {
     fontSize:'clamp(2rem, 5.5vw, 3.2rem)',
-    fontWeight:'900', letterSpacing:'-0.04em',
+    fontWeight:'600', letterSpacing:'-0.04em',
     lineHeight:'1.1', marginBottom:'1rem',
   },
   ctaP: {
@@ -891,16 +891,16 @@ const S = {
   },
   ctaActions: { display:'flex', flexWrap:'wrap', gap:'1rem', justifyContent:'center' },
   btnCtaWhite: {
-    background:'white', border:'none', color:'#0f172a',
+    background:'white', border:'none', color:'#011e4b',
     padding:'1.1rem 2.5rem', borderRadius:'13px',
-    fontSize:'1.05rem', fontWeight:'800', cursor:'pointer',
+    fontSize:'1.05rem', fontWeight:'600', cursor:'pointer',
     transition:'opacity 0.2s',
   },
   btnCtaGhost: {
     background:'rgba(255,255,255,0.1)',
     border:'1px solid rgba(255,255,255,0.2)', color:'white',
     padding:'1.1rem 2.5rem', borderRadius:'13px',
-    fontSize:'1.05rem', fontWeight:'800', cursor:'pointer',
+    fontSize:'1.05rem', fontWeight:'600', cursor:'pointer',
     transition:'background 0.2s',
   },
 
@@ -920,7 +920,7 @@ const S = {
   },
   footerCol: {},
   footerColTitle: {
-    fontSize:'0.8rem', fontWeight:'800', color:'#0f172a',
+    fontSize:'0.8rem', fontWeight:'600', color:'#011e4b',
     textTransform:'uppercase', letterSpacing:'0.07em',
     marginBottom:'1.25rem',
   },

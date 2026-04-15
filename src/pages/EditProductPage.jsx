@@ -367,7 +367,7 @@ const EditProductPage = () => {
             </div>
 
             <Card className="border-0 shadow-lg bg-white">
-                <CardHeader className="bg-[#10182b] text-white rounded-t-lg">
+                <CardHeader className="bg-[#011e4b] text-white rounded-t-lg">
                     <CardTitle>Formulir Edit Produk</CardTitle>
                     <CardDescription className="text-gray-200">Perbarui detail produk, SKU, dan foto.</CardDescription>
                 </CardHeader>
@@ -472,7 +472,7 @@ const EditProductPage = () => {
 
                         {/* HARGA JUAL SECTION */}
                         <div className="space-y-4">
-                            <Label className="font-bold text-[#10182b]">Penetapan Harga Jual</Label>
+                            <Label className="font-bold text-[#011e4b]">Penetapan Harga Jual</Label>
                             <Select value={pricingMode} onValueChange={handlePricingModeChange}>
                                 <SelectTrigger className="bg-white"><SelectValue placeholder="Pilih Mode Harga" /></SelectTrigger>
                                 <SelectContent>
@@ -519,7 +519,7 @@ const EditProductPage = () => {
                             )}
                         </div>
 
-                        <Button type="submit" className="w-full bg-[#10182b] text-white font-bold h-11" disabled={loading || !isFormValid}>
+                        <Button type="submit" className="w-full bg-[#011e4b] text-white font-bold h-11" disabled={loading || !isFormValid}>
                             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Pencil className="h-4 w-4 mr-2" />} 
                             Simpan Perubahan
                         </Button>

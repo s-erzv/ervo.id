@@ -418,7 +418,7 @@ const FinancialManagementPage = () => {
     XLSX.writeFile(wb, `Keuangan_${startDate}_sd_${endDate}.xlsx`);
   };
 
-  if (pageLoading) return <div className="flex justify-center items-center h-screen"><Loader2 className="h-8 w-8 animate-spin text-[#10182b]" /></div>;
+  if (pageLoading) return <div className="flex justify-center items-center h-screen"><Loader2 className="h-8 w-8 animate-spin text-[#011e4b]" /></div>;
   if (!isAllowed) return <div className="container mx-auto p-8 text-center text-red-500">Akses ditolak.</div>;
 
   const filteredFinCategories = finCategories.filter(c => c.type === activeTab);
@@ -436,7 +436,7 @@ const FinancialManagementPage = () => {
         
         <TabsContent value="management" className="mt-6 space-y-8">
             <Card className="border-0 shadow-lg bg-white overflow-hidden">
-              <CardHeader className="bg-[#10182b] text-white">
+              <CardHeader className="bg-[#011e4b] text-white">
                 <CardTitle className="text-xl flex items-center gap-2"><Plus className="h-5 w-5" /> Catat Transaksi Manual</CardTitle>
               </CardHeader>
               <CardContent className="p-4 lg:p-6">
@@ -591,7 +591,7 @@ const FinancialManagementPage = () => {
                     <Input type="text" placeholder="Detail transaksi..." value={newTransaction.description} onChange={(e) => handleFormChange('description', e.target.value)} required />
                   </div>
 
-                  <Button type="submit" className="w-full bg-[#10182b] text-white" disabled={isSubmitting}>
+                  <Button type="submit" className="w-full bg-[#011e4b] text-white" disabled={isSubmitting}>
                     {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Catat Transaksi'}
                   </Button>
                 </form>

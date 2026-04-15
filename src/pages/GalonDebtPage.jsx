@@ -324,22 +324,22 @@ const GalonDebtPage = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-white">
-        <Loader2 className="h-8 w-8 animate-spin text-[#10182b]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#011e4b]" />
       </div>
     );
   }
 
   return (
     <div className="container mx-auto p-4 md:p-8 max-w-7xl space-y-8">
-      <h1 className="text-3xl font-bold text-[#10182b] flex items-center gap-3">
+      <h1 className="text-3xl font-bold text-[#011e4b] flex items-center gap-3">
         <Package className="h-8 w-8" />
         Manajemen Hutang Product Returnable
       </h1>
 
       <Card className="border-0 shadow-sm bg-white">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-          <CardTitle className="text-[#10182b]">Daftar Hutang Product Returnable Pelanggan</CardTitle>
-          <Button onClick={fetchGalonDebts} disabled={loading || refreshing} variant="outline" className="text-[#10182b] hover:bg-gray-100">
+          <CardTitle className="text-[#011e4b]">Daftar Hutang Product Returnable Pelanggan</CardTitle>
+          <Button onClick={fetchGalonDebts} disabled={loading || refreshing} variant="outline" className="text-[#011e4b] hover:bg-gray-100">
             {refreshing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <RefreshCw className="h-4 w-4 mr-2" />}
             <span className="ml-2">Refresh Data</span>
           </Button>
@@ -349,10 +349,10 @@ const GalonDebtPage = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="min-w-[150px] text-[#10182b]">Pelanggan</TableHead>
-                  <TableHead className="min-w-[150px] text-[#10182b]">Nomor Telepon</TableHead>
-                  <TableHead className="min-w-[150px] text-[#10182b]">Total Hutang Product Returnable</TableHead>
-                  <TableHead className="min-w-[120px] text-[#10182b]">Aksi</TableHead>
+                  <TableHead className="min-w-[150px] text-[#011e4b]">Pelanggan</TableHead>
+                  <TableHead className="min-w-[150px] text-[#011e4b]">Nomor Telepon</TableHead>
+                  <TableHead className="min-w-[150px] text-[#011e4b]">Total Hutang Product Returnable</TableHead>
+                  <TableHead className="min-w-[120px] text-[#011e4b]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -360,7 +360,7 @@ const GalonDebtPage = () => {
                   debts.map((debt) => (
                     <>
                       <TableRow key={debt.id} className="cursor-pointer hover:bg-gray-50" onClick={() => toggleRow(debt.id)}>
-                        <TableCell className="font-medium text-[#10182b] flex items-center gap-2">
+                        <TableCell className="font-medium text-[#011e4b] flex items-center gap-2">
                           {expandedCustomerId === debt.id ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                           {debt.name}
                         </TableCell>
@@ -385,8 +385,8 @@ const GalonDebtPage = () => {
                       </TableRow>
                       {expandedCustomerId === debt.id && (
                         <TableRow>
-                          <TableCell colSpan={4} className="p-4 bg-gray-100 border-l-2 border-l-[#10182b]">
-                            <h4 className="font-semibold text-[#10182b] mb-2">Rincian Hutang</h4>
+                          <TableCell colSpan={4} className="p-4 bg-gray-100 border-l-2 border-l-[#011e4b]">
+                            <h4 className="font-semibold text-[#011e4b] mb-2">Rincian Hutang</h4>
                             <div className="space-y-1 text-sm">
                               {/* Tampilkan hanya produk dengan Hutang > 0 */}
                               {Object.values(debt.products_debt).filter(pd => pd.outstanding > 0).map(productDebt => (
