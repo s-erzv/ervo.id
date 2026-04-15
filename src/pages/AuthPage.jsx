@@ -29,15 +29,11 @@ const AuthPage = () => {
             <Card className="w-full max-w-sm sm:max-w-md border-0 shadow-none">
               <CardHeader className="text-center"> 
                 <img
-                  src="/favicon.png"
+                  src="/header.svg"
                   alt="Logo"
-                  width={80}
-                  height={80}
+                  width={200}
                   className="mx-auto mb-4"
                 />
-                <CardTitle className="text-4xl font-bold text-[#011e4b]">
-                  ervo.id
-                </CardTitle>
                 <CardDescription>
                   {isLoginForm ? 'Akses Dashboard Distribusi Anda' : 'Registrasi Perusahaan Baru'}
                 </CardDescription>

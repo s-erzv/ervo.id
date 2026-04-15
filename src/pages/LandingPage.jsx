@@ -105,14 +105,100 @@ const CSS_RULES = `
   .btn-primary-hover:hover { opacity: 0.85; transform: translateY(-1px); }
   .btn-hero-primary-hover:hover { transform: translateY(-2px); box-shadow: 0 22px 35px -5px rgba(15,23,42,0.35) !important; }
   .btn-hero-secondary-hover:hover { background: #f8fafc !important; }
+  .feat-card {
+    background: #ffffff;
+    padding: 28px;
+    border: 1px solid #f1f5f9;
+    transition: all 0.2s;
+  }
   .feat-card:hover { background: #fafafa !important; }
-  .why-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.07); }
-  .plan-btn:hover { opacity: 0.85; }
-  .btn-cta-white-hover:hover { opacity: 0.9; }
-  .btn-cta-ghost-hover:hover { background: rgba(255,255,255,0.18) !important; }
-  .footer-link:hover { color: #011e4b !important; }
-  .wa-fab-hover:hover { transform: scale(1.1) translateY(-4px); background: #1fba59 !important; }
-  .icon-btn:hover { opacity: 0.7; }
+
+  @media (min-width: 768px) {
+    .feat-card {
+      border: none;
+      border-right: 0.5px solid #f1f5f9;
+      border-bottom: 0.5px solid #f1f5f9;
+    }
+  }
+
+  /* Dashboard Mockup Responsive */
+  .dash-body-resp {
+    display: flex;
+    flex-direction: column;
+    height: auto !important;
+    min-height: 400px;
+  }
+  .stats-grid-resp {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  .dash-content-resp {
+    padding: 12px !important;
+  }
+  .stat-card-resp {
+    padding: 8px 10px !important;
+  }
+  .stat-val-resp {
+    font-size: 14px !important;
+  }
+  .stat-label-resp {
+    font-size: 10px !important;
+  }
+
+  /* Mobile-first Layout Adjustments */
+  .footer-top-resp {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .feat-grid-resp {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .testi-grid-resp {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .section-padding-resp {
+    padding: 4rem 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .dash-body-resp {
+      flex-direction: row;
+      height: 360px !important;
+    }
+    .stats-grid-resp {
+      grid-template-columns: repeat(4, 1fr) !important;
+      gap: 10px !important;
+    }
+    .dash-content-resp {
+      padding: 20px !important;
+    }
+    .stat-card-resp {
+      padding: 12px 14px !important;
+    }
+    .stat-val-resp {
+      font-size: 18px !important;
+    }
+    .stat-label-resp {
+      font-size: 11px !important;
+    }
+    .footer-top-resp {
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+    }
+    .feat-grid-resp {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    .testi-grid-resp {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    .section-padding-resp {
+      padding: 7rem 1.5rem;
+    }
+  }
 `;
 
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
@@ -164,8 +250,7 @@ export default function LandingPage() {
       <header style={{ ...S.nav, ...(scrolled ? S.navScrolled : {}) }}>
         <div style={S.navInner}>
           <div onClick={() => scrollTo('hero')} style={S.logo}>
-            <div style={S.logoMark}>e</div>
-            <span style={S.logoText}>ervo.id</span>
+            <img src="/header.svg" alt="Logo" style={{ height: '55px' }} />
           </div>
 
           <nav style={S.navLinks} className="desktop-only">
@@ -240,12 +325,11 @@ export default function LandingPage() {
             </div>
 
             {/* Dashboard body */}
-            <div style={S.dashBody}>
+            <div style={S.dashBody} className="dash-body-resp">
               {/* Sidebar */}
               <div style={S.dashSidebar} className="dash-sidebar">
                 <div style={S.sidebarLogo}>
-                  <div style={{ ...S.logoMark, width:'24px', height:'24px', fontSize:'12px' }}>e</div>
-                  <span style={{ fontSize:'13px', fontWeight:500 }}>ervo.id</span>
+                  <img src="/favicon.png" alt="Logo" style={{ width: '24px', height: '24px' }} />
                 </div>
                 {[
                   { label:'Dashboard', active:true },
@@ -260,22 +344,22 @@ export default function LandingPage() {
               </div>
 
               {/* Content */}
-              <div style={S.dashContent}>
+              <div style={S.dashContent} className="dash-content-resp">
                 <div style={S.dashTopRow}>
                   <span style={S.dashTitle}>Dashboard</span>
                   <span style={S.dashDate}>Kamis, 10 Apr 2026</span>
                 </div>
 
-                <div style={S.statsGrid}>
+                <div style={S.statsGrid} className="stats-grid-resp">
                   {[
                     { label:'Pengiriman hari ini', val:'148', delta:'↑ 12%', good:true },
                     { label:'Pendapatan bulan ini', val:'Rp 248jt', delta:'↑ 8.4%', good:true },
                     { label:'Pesanan aktif', val:'37', delta:'3 perlu perhatian', good:false },
                     { label:'Stok hampir habis', val:'5', delta:'Perlu restock', warn:true },
                   ].map(({ label, val, delta, good, warn }) => (
-                    <div key={label} style={S.statCard}>
-                      <div style={S.statLabel}>{label}</div>
-                      <div style={S.statVal}>{val}</div>
+                    <div key={label} style={S.statCard} className="stat-card-resp">
+                      <div style={S.statLabel} className="stat-label-resp">{label}</div>
+                      <div style={S.statVal} className="stat-val-resp">{val}</div>
                       <div style={{ ...S.statDelta, color: good ? '#22c55e' : warn ? '#f59e0b' : '#94a3b8' }}>{delta}</div>
                     </div>
                   ))}
@@ -310,7 +394,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── FEATURES ── */}
-      <section id="fitur" style={S.section}>
+      <section id="fitur" style={S.section} className="section-padding-resp">
         <div style={S.sectionHead} {...fadeIn('feat-head')}>
           <SectionTag>Fitur Utama</SectionTag>
           <h2 style={S.sectionH2}>Satu Platform, Segala Kebutuhan</h2>
@@ -319,7 +403,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div style={S.featGrid}>
+        <div style={S.featGrid} className="feat-grid-resp">
           {FEATURES.map((f, i) => (
             <FeatCard key={i} f={f} visible={visible} fadeId={`feat-${i}`} delay={i * 0.07} />
           ))}
@@ -328,7 +412,7 @@ export default function LandingPage() {
 
       {/* ── WHY US ── */}
       <section id="keunggulan" style={S.whySection}>
-        <div style={S.sectionInner}>
+        <div style={S.sectionInner} className="section-padding-resp">
           <div style={S.sectionHead} {...fadeIn('why-head')}>
             <SectionTag light>Keunggulan</SectionTag>
             <h2 style={S.sectionH2}>Kenapa Berpindah ke ervo.id?</h2>
@@ -349,7 +433,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── PRICING ── */}
-      <section id="harga" style={S.section}>
+      <section id="harga" style={S.section} className="section-padding-resp">
         <div style={S.sectionHead} {...fadeIn('price-head')}>
           <SectionTag>Harga Transparan</SectionTag>
           <h2 style={S.sectionH2}>Investasi Cerdas untuk Bisnis Anda</h2>
@@ -364,13 +448,13 @@ export default function LandingPage() {
       </section>
 
       {/* ── TESTIMONIALS ── */}
-      <section id="testimoni" style={{ ...S.section, background:'#f8fafc' }}>
-        <div style={S.sectionInner}>
+      <section id="testimoni" style={{ ...S.section, background:'#f8fafc' }} className="section-padding-resp">
+        <div style={S.sectionInner} style={{ padding: 0 }}>
           <div style={S.sectionHead} {...fadeIn('testi-head')}>
             <SectionTag>Testimoni</SectionTag>
             <h2 style={S.sectionH2}>Dipercaya Pemimpin Bisnis</h2>
           </div>
-          <div style={S.testiGrid}>
+          <div style={S.testiGrid} className="testi-grid-resp">
             {TESTIMONIALS.map((t, i) => (
               <div key={i} {...fadeIn(`testi-${i}`, i * 0.1)} style={S.testiCard}>
                 <Stars />
@@ -408,11 +492,10 @@ export default function LandingPage() {
       {/* ── FOOTER ── */}
       <footer style={S.footer}>
         <div style={S.footerInner}>
-          <div style={S.footerTop}>
+          <div style={S.footerTop} className="footer-top-resp">
             <div style={S.footerBrand}>
               <div style={S.logo}>
-                <div style={S.logoMark}>e</div>
-                <span style={S.logoText}>ervo.id</span>
+                <img src="/header.svg" alt="Logo" style={{ height: '55px' }} />
               </div>
               <p style={S.footerTagline}>
                 Solusi Mini ERP & Sistem Informasi Akuntansi untuk bisnis distribusi modern di Indonesia.
@@ -476,11 +559,7 @@ function Stars() {
 function FeatCard({ f, visible, fadeId, delay }) {
   return (
     <div data-id={fadeId} style={{
-      background: '#ffffff',
-      padding: '28px',
-      borderRight: '0.5px solid #f1f5f9',
-      borderBottom: '0.5px solid #f1f5f9',
-      transition: `opacity 0.55s ease ${delay}s, transform 0.55s ease ${delay}s, background 0.2s`,
+      transition: `opacity 0.55s ease ${delay}s, transform 0.55s ease ${delay}s`,
       opacity: visible[fadeId] ? 1 : 0,
       transform: visible[fadeId] ? 'translateY(0)' : 'translateY(20px)',
       cursor: 'default',
@@ -909,7 +988,6 @@ const S = {
   footerInner: { maxWidth:'1280px', margin:'0 auto', padding:'5rem 2rem 2.5rem' },
   footerTop: {
     display:'grid',
-    gridTemplateColumns:'2fr 1fr 1fr 1fr',
     gap:'3rem', marginBottom:'4rem',
   },
   footerBrand: {},
