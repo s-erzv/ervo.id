@@ -34,8 +34,13 @@ const AuthPage = () => {
                   width={200}
                   className="mx-auto mb-4"
                 />
-                <CardDescription>
-                  {isLoginForm ? 'Akses Dashboard Distribusi Anda' : 'Registrasi Perusahaan Baru'}
+                <CardTitle className="text-2xl font-bold text-[#011e4b]">
+                  {isLoginForm ? 'Selamat Datang Kembali' : 'Mulai Sekarang'}
+                </CardTitle>
+                <CardDescription className="text-sm text-gray-500 mt-2">
+                  {isLoginForm 
+                    ? 'Silakan masuk untuk mengelola operasional distribusi Anda.' 
+                    : 'Daftarkan perusahaan Anda dan optimalkan manajemen distribusi dalam satu platform.'}
                 </CardDescription>
               </CardHeader>
               <CardContent>

@@ -162,9 +162,6 @@ const SignUpForm = ({ onSignUpSuccess }) => {
 
   return (
     <form onSubmit={handleSignUp} className="space-y-4 pb-2 px-6"> 
-      <p className="text-center text-sm font-medium text-gray-700">
-        Registrasi Akun Admin dan Perusahaan Baru
-      </p>
        
       {/* 1. Accordion: Informasi Perusahaan */}
       <AccordionItem
