@@ -33,11 +33,13 @@ import {
   Building2, 
   CheckCircle2, 
   Lock, 
-  Settings 
+  Settings,
+  Package
 } from 'lucide-react';
 
 import CompanyExtensionForm from '../components/CompanyExtensionForm'; 
 import SubscriptionPaymentList from '../components/SubscriptionPaymentList';
+import SubscriptionPlanList from '../components/SubscriptionPlanList';
 
 // Date formatter
 const formatDate = (dateString) => {
@@ -72,7 +74,7 @@ const BillingAccountPage = () => {
         setLoading(true);
         const { data, error } = await supabase
             .from('companies')
-            .select('id, name, address, subscription_end_date, is_manually_locked') 
+            .select('id, name, address, subscription_end_date, is_manually_locked, subscription_plans(name)') 
             .order('name', { ascending: true });
 
         if (error) {
@@ -168,8 +170,7 @@ const BillingAccountPage = () => {
             </div>
 
             <Tabs defaultValue="companies" className="space-y-8">
-                {/* Fixed TabsList colors to ensure inactive tabs are visible */}
-                <TabsList className="bg-slate-100 p-1.5 rounded-xl w-full md:w-auto border border-slate-200">
+                <TabsList className="bg-slate-100 p-1.5 rounded-xl w-full md:w-auto border border-slate-200 flex flex-wrap h-auto">
                     <TabsTrigger 
                         value="companies" 
                         className="rounded-lg px-6 py-2 font-medium text-slate-500 hover:text-slate-900 data-[state=active]:bg-[#011e4b] data-[state=active]:text-white transition-all"
@@ -181,6 +182,12 @@ const BillingAccountPage = () => {
                         className="rounded-lg px-6 py-2 font-medium text-slate-500 hover:text-slate-900 data-[state=active]:bg-[#011e4b] data-[state=active]:text-white transition-all"
                     >
                         <CreditCard className="w-4 h-4 mr-2" /> Konfirmasi Pembayaran
+                    </TabsTrigger>
+                    <TabsTrigger 
+                        value="plans" 
+                        className="rounded-lg px-6 py-2 font-medium text-slate-500 hover:text-slate-900 data-[state=active]:bg-[#011e4b] data-[state=active]:text-white transition-all"
+                    >
+                        <Package className="w-4 h-4 mr-2" /> Manajemen Paket
                     </TabsTrigger>
                 </TabsList>
 
@@ -265,6 +272,7 @@ const BillingAccountPage = () => {
                             <TableHeader className="bg-slate-50">
                                 <TableRow className="hover:bg-transparent border-b-slate-200">
                                     <TableHead className="py-4 px-6 font-medium text-[#011e4b]">Perusahaan</TableHead>
+                                    <TableHead className="py-4 font-medium text-[#011e4b]">Paket</TableHead>
                                     <TableHead className="py-4 font-medium text-[#011e4b]">Status Akses</TableHead>
                                     <TableHead className="py-4 font-medium text-[#011e4b] text-center">Masa Aktif</TableHead>
                                     <TableHead className="py-4 font-medium text-[#011e4b] text-center">Master Lock</TableHead>
@@ -283,6 +291,11 @@ const BillingAccountPage = () => {
                                                     <span className="font-medium text-slate-800 text-base">{c.name}</span>
                                                     <span className="text-sm text-slate-500 truncate max-w-[250px]">{c.address || 'No address registered'}</span>
                                                 </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge variant="outline" className="text-[10px] font-bold border-slate-200 text-slate-600 bg-slate-50">
+                                                    {c.subscription_plans?.name || 'CUSTOM'}
+                                                </Badge>
                                             </TableCell>
                                             <TableCell>
                                                 <Badge className={`px-3 py-1 rounded-full text-[11px] font-medium tracking-wide border-0
@@ -344,6 +357,25 @@ const BillingAccountPage = () => {
                         </CardHeader>
                         <CardContent className="p-0">
                             <SubscriptionPaymentList />
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                <TabsContent value="plans" className="animate-in fade-in slide-in-from-bottom-2">
+                    <Card className="border border-slate-200 shadow-md bg-white rounded-2xl overflow-hidden">
+                        <CardHeader className="bg-gradient-to-r from-[#0f172a] to-[#1e293b] text-white p-8">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-white/10 rounded-xl backdrop-blur-md">
+                                    <Package className="h-8 w-8" />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-2xl font-medium">Manajemen Paket Langganan</CardTitle>
+                                    <CardDescription className="text-slate-300 mt-1">Buat, edit, dan kelola daftar paket yang bisa dipilih oleh tenant.</CardDescription>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            <SubscriptionPlanList />
                         </CardContent>
                     </Card>
                 </TabsContent>

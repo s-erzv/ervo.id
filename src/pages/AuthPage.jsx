@@ -69,7 +69,7 @@ const AuthPage = () => {
             <div className="mt-8 text-center text-sm text-muted-foreground">
               <p>Butuh bantuan?</p>
               <a
-                href="https://api.whatsapp.com/send?phone=6285117677245"
+                href="https://api.whatsapp.com/send?phone=6285770002355"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 font-medium text-[#011e4b] hover:underline"

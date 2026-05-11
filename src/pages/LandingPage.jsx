@@ -43,13 +43,13 @@ const WHY = [
 
 const PLANS = [
   {
-    name:'Starter', price:'1.500', period:'/bulan',
+    name:'Starter', price:'1.5 juta', period:'/bulan',
     desc:'Esensial untuk depot tunggal atau bisnis rintisan.',
     features:['Hingga 2 pengguna','Laporan dasar otomatis','Dashboard ringkasan harian','Support via WhatsApp'],
     cta:'Coba Gratis Sekarang', popular:false,
   },
   {
-    name:'Growth', price:'3.000', period:'/bulan',
+    name:'Growth', price:'3 juta', period:'/bulan',
     desc:'Pilihan tepat untuk distributor skala menengah.',
     features:['Hingga 10 pengguna','Laporan lengkap & ekspor Excel/PDF','Multi-gudang & stok barang','Pelacakan konsumen (Maps)','Audit trail lengkap','Support prioritas'],
     cta:'Mulai Gratis 14 Hari', popular:true,
@@ -84,7 +84,7 @@ const FOOTER_LINKS = [
 const BAR_HEIGHTS = [55, 72, 60, 85, 68, 96, 78];
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
-const WA_URL = 'https://api.whatsapp.com/send?phone=6285117677245';
+const WA_URL = 'https://api.whatsapp.com/send?phone=6285770002355';
 
 const CSS_RULES = `
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');

@@ -26,10 +26,13 @@ import {
   MessageSquareText,
   Settings,
   ClipboardList,
-  Users
+  Users,
+  Building,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react'; 
 import { toast } from 'react-hot-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -59,6 +62,7 @@ const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY || 'fallback-key-proy
 const MAX_FILE_SIZE = 1 * 1024 * 1024;
 const TARGET_SIZE_MB = 0.5;
 
+// === UTILITY FUNCTIONS ===
 const compressImage = (file, targetMB) => {
   return new Promise((resolve, reject) => {
     if (!file.type.startsWith('image/')) return resolve(file);
@@ -118,31 +122,40 @@ const fetchAllData = async (queryFn) => {
   return allData;
 };
 
+// === MAIN COMPONENT ===
 const FinancialReportPage = () => {
   const { companyId, userId, userRole, companyName } = useAuth();
   const [loading, setLoading] = useState(true);
   const [allMethods, setAllMethods] = useState([]);
   const [reportData, setReportData] = useState({ totalBalance: 0, balances: [] });
   const [paymentMethods, setPaymentMethods] = useState([]);
+  
+  // Pending Orders (Piutang)
   const [pendingOrders, setPendingOrders] = useState([]);
   const [totalPending, setTotalPending] = useState(0);
   const [isPendingExpanded, setIsPendingExpanded] = useState(false);
   const [pendingByDate, setPendingByDate] = useState([]);
+  
+  // Draft Orders
   const [draftOrders, setDraftOrders] = useState([]);
   const [totalDraftProjection, setTotalDraftProjection] = useState(0);
   const [isDraftExpanded, setIsDraftExpanded] = useState(false);
+  
+  // Transfers & Modals
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [activeTemplates, setActiveTemplates] = useState({});
   const [processingWA, setProcessingWA] = useState({});
+  
+  // Payouts
   const [payoutRequests, setPayoutRequests] = useState([]);
   const [isPayoutExpanded, setIsPayoutExpanded] = useState(false);
   const [totalPayoutPending, setTotalPayoutPending] = useState(0);
   const [isAddPaymentOpen, setIsAddPaymentOpen] = useState(false);
   const [selectedPayoutRequest, setSelectedPayoutRequest] = useState(null);
 
-  // --- DROPSHIP COMMISSION STATE ---
+  // Dropship Commission
   const [dropshipOrders, setDropshipOrders] = useState([]);
   const [isDropshipExpanded, setIsDropshipExpanded] = useState(false);
   const [selectedDropshipperId, setSelectedDropshipperId] = useState('all');
@@ -210,11 +223,12 @@ const FinancialReportPage = () => {
     const sisaTagihan = formatCurrency(order.grand_total);
     if (!phone) { toast.error('Nomor WhatsApp pelanggan tidak ditemukan.'); return; }
     if (processingWA[order.id]) return;
+    
     setProcessingWA(prev => ({ ...prev, [order.id]: true }));
     const tid = toast.loading(`Menyiapkan pengingat untuk ${customerName}...`);
     try {
       let paymentMethodDisplay = 'Transfer Bank / Tunai';
-      const transferMethod = allMethods.find(m => m.type === 'transfer' && m.is_active) || allMethods;
+      const transferMethod = allMethods.find(m => m.type === 'transfer' && m.is_active) || allMethods[0];
       if (transferMethod && transferMethod.type === 'transfer') {
         paymentMethodDisplay = `${transferMethod.method_name} ${transferMethod.account_number} a.n ${transferMethod.account_name || ''}`;
       }
@@ -226,6 +240,7 @@ const FinancialReportPage = () => {
         .replace(/{{sisaTagihan}}/g, sisaTagihan)
         .replace(/{{paymentMethod}}/g, paymentMethodDisplay)
         .replace(/{{companyName}}/g, companyName || 'Manajemen Toko');
+        
       const isAutoSent = await sendViaFonnte(phone, whatsappMessage);
       if (isAutoSent) {
         toast.success(`Pesan Terkirim ke ${customerName}!`, { id: tid });
@@ -530,12 +545,9 @@ const FinancialReportPage = () => {
     });
   }, [methodTransactions, dailyRecordStartDate, dailyRecordEndDate]);
 
-  // --- DROPSHIP DATA FILTER LOGIC (REMOVED DATE FILTER) ---
   const filteredDropshipData = useMemo(() => {
     if (!dropshipOrders || dropshipOrders.length === 0) return [];
     let data = dropshipOrders;
-    
-    // Filter Dropshipper ID
     if (selectedDropshipperId !== 'all') {
       data = data.filter(o => o.dropshipper?.id === selectedDropshipperId);
     }
@@ -764,83 +776,137 @@ const FinancialReportPage = () => {
   };
 
   const isAllowedToView = paymentMethods.length > 0 || userRole === 'admin' || userRole === 'super_admin';
-  if (loading) return <div className="flex justify-center items-center h-screen bg-white"><Loader2 className="h-8 w-8 animate-spin text-[#011e4b]" /></div>;
+  
+  if (loading) return <div className="flex justify-center items-center h-screen bg-slate-50"><Loader2 className="h-8 w-8 animate-spin text-slate-800" /></div>;
   if (!isAllowedToView) return (
-    <div className="container mx-auto p-4 md:p-8 max-w-7xl space-y-6">
-      <Card className="mt-10 border-red-500 border-2">
-        <CardHeader><CardTitle className="text-red-600">Akses Dibatasi</CardTitle><CardDescription>Bapak/Ibu tidak memiliki izin untuk melihat data keuangan manapun. Mohon hubungi Administrator Perusahaan Anda.</CardDescription></CardHeader>
+    <div className="container mx-auto p-4 md:p-8 max-w-7xl h-screen flex items-center justify-center">
+      <Card className="border border-red-200 shadow-sm max-w-md w-full">
+        <CardHeader className="text-center">
+          <div className="mx-auto bg-red-50 w-12 h-12 flex items-center justify-center rounded-full mb-3">
+             <AlertCircle className="h-6 w-6 text-red-600" />
+          </div>
+          <CardTitle className="text-red-700">Akses Dibatasi</CardTitle>
+          <CardDescription className="mt-2 text-slate-600 text-sm">
+            Bapak/Ibu tidak memiliki izin untuk melihat data keuangan manapun. Mohon hubungi Administrator.
+          </CardDescription>
+        </CardHeader>
       </Card>
     </div>
   );
 
   return (
-    <div className="container mx-auto p-3 md:p-8 max-w-7xl space-y-4 md:space-y-6">
-      {/* HEADER */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-2 md:mb-4 gap-3">
-        <h1 className="text-xl md:text-2xl font-bold text-[#011e4b] flex items-center gap-2"><PiggyBank className="h-5 w-5 md:h-6 md:w-6" /> Laporan Keuangan</h1>
-        <div className="flex flex-wrap w-full lg:w-auto gap-2">
-          <Button onClick={fetchFinancialData} variant="outline" className="flex-1 md:flex-none text-[#011e4b] hover:bg-gray-100 text-xs md:text-sm h-9 md:h-10"><RefreshCcw className="h-4 w-4 mr-1 md:mr-2" /> Refresh</Button>
-          <Button onClick={() => setIsTransferModalOpen(true)} className="flex-1 md:flex-none bg-[#011e4b] text-white hover:bg-[#00376a] text-xs md:text-sm h-9 md:h-10"><ArrowRightLeft className="h-4 w-4 mr-1 md:mr-2" /> Transfer</Button>
-          <Button variant="outline" onClick={() => setIsTemplateModalOpen(true)} className="w-full md:w-auto text-xs md:text-sm h-9 md:h-10"><Settings className="mr-1 md:mr-2 h-4 w-4" /> Atur WA</Button>
+    <div className="min-h-screen bg-slate-50/50 p-4 md:p-8 animate-in fade-in slide-in-from-bottom-2 space-y-6"> 
+      
+      {/* HEADER SECTION - Premium Layout */}
+      <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm">
+        <div className="space-y-1">
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+            <div className="p-2 bg-slate-100 rounded-lg"><PiggyBank className="h-6 w-6 text-slate-700" /></div>
+            Laporan Keuangan
+          </h2>
+          <p className="text-slate-500 font-medium ml-12">
+            Kelola arus kas, pantau tagihan, dan rekonsiliasi saldo secara terpusat.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3">
+          <Button onClick={fetchFinancialData} variant="outline" className="h-11 bg-white hover:bg-slate-50 text-slate-700 border-slate-200 shadow-sm font-medium w-full sm:w-auto">
+            <RefreshCcw className="h-4 w-4 mr-2 text-slate-500" /> Refresh
+          </Button>
+          <Button onClick={() => setIsTemplateModalOpen(true)} variant="outline" className="h-11 bg-white hover:bg-slate-50 text-slate-700 border-slate-200 shadow-sm font-medium w-full sm:w-auto">
+            <Settings className="h-4 w-4 mr-2 text-slate-500" /> Atur WA
+          </Button>
+          <Button onClick={() => setIsTransferModalOpen(true)} className="h-11 bg-slate-900 text-white hover:bg-slate-800 shadow-sm font-medium w-full sm:w-auto px-6">
+            <ArrowRightLeft className="h-4 w-4 mr-2" /> Transfer Kas
+          </Button>
         </div>
       </div>
 
-      {/* TOP SUMMARY CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
-        <Card className="border-0 shadow-lg bg-[#011e4b] text-white">
-          <CardHeader className="p-4"><CardTitle className="text-xs md:text-sm font-medium opacity-80 flex items-center gap-2"><Banknote className="h-4 w-4" /> Total Saldo Riil</CardTitle></CardHeader>
-          <CardContent className="p-4 pt-0">
-            <p className="text-2xl md:text-3xl font-bold">{formatCurrency(reportData.totalBalance)}</p>
-            <p className="text-[10px] md:text-xs opacity-70 mt-1">Uang fisik/saldo di akun.</p>
-          </CardContent>
-        </Card>
-        <Card className={`border-l-4 border-l-blue-500 shadow-md cursor-pointer transition-all hover:bg-blue-50 ${isPendingExpanded ? 'ring-2 ring-blue-400 bg-blue-50' : 'bg-white'}`} onClick={handlePendingCardClick}>
-          <CardHeader className="p-4"><CardTitle className="text-xs md:text-sm font-medium text-blue-700 flex items-center gap-2"><Clock className="h-4 w-4" /> Estimasi Piutang</CardTitle></CardHeader>
-          <CardContent className="p-4 pt-0">
-            <p className="text-2xl md:text-3xl font-bold text-blue-600">{formatCurrency(totalPending)}</p>
-            <div className="flex justify-between items-center mt-1">
-              <p className="text-[10px] md:text-xs text-gray-500">{pendingOrders.length} Order piutang.</p>
-              <span className="text-[10px] md:text-xs text-blue-600 font-semibold underline flex items-center">Detail <ChevronRight className="h-3 w-3" /></span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* --- DROPSHIP COMMISSION CARD WITH IN-CARD FILTER --- */}
-        <Card className={`border-l-4 border-l-green-500 shadow-md cursor-pointer transition-all hover:bg-green-50 ${isDropshipExpanded ? 'ring-2 ring-green-400 bg-green-50' : 'bg-white'}`} onClick={handleDropshipCardClick}>
-          <CardHeader className="p-4 flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-xs md:text-sm font-medium text-green-700 flex items-center gap-2"><Users className="h-4 w-4" /> Komisi Dropship</CardTitle>
-            <div onClick={(e) => e.stopPropagation()}>
-              <Select value={selectedDropshipperId} onValueChange={setSelectedDropshipperId}>
-                <SelectTrigger className="h-7 w-28 md:w-36 text-[10px] bg-white border-green-200">
-                  <SelectValue placeholder="Pilih Dropshipper" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Dropshipper</SelectItem>
-                  {uniqueDropshippers.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+      {/* TOP SUMMARY CARDS (KPIs) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        
+        {/* Total Balance Card (Hero) */}
+        <Card className="border-0 shadow-md bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl overflow-hidden relative group lg:col-span-1">
+          <div className="absolute -right-4 -top-4 opacity-10 group-hover:scale-105 transition-transform duration-500">
+             <Building size={100} />
+          </div>
+          <CardHeader className="p-5 pb-2 relative z-10">
+            <CardTitle className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+              <Banknote className="h-4 w-4" /> Saldo Riil
+            </CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <p className="text-2xl md:text-3xl font-bold text-green-600">{formatCurrency(currentPeriodDropshipTotal)}</p>
-            <div className="flex justify-between items-center mt-1">
-              <p className="text-[10px] md:text-xs text-gray-500">Total akumulasi keseluruhan.</p>
-              <span className="text-[10px] md:text-xs text-green-600 font-semibold underline flex items-center">Detail <ChevronRight className="h-3 w-3" /></span>
+          <CardContent className="p-5 pt-0 relative z-10">
+            <p className="text-2xl lg:text-3xl font-bold mt-1">{formatCurrency(reportData.totalBalance)}</p>
+            <p className="text-[11px] text-slate-400 mt-2 font-medium">Fisik & digital terkonsolidasi</p>
+          </CardContent>
+        </Card>
+
+        {/* Piutang Card */}
+        <Card className={`border border-slate-200/60 shadow-sm rounded-2xl cursor-pointer transition-all hover:shadow-md group ${isPendingExpanded ? 'ring-2 ring-blue-500 bg-blue-50/30' : 'bg-white'}`} onClick={handlePendingCardClick}>
+          <CardHeader className="p-5 pb-2">
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+              Estimasi Piutang
+              <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                 <Clock className="h-4 w-4" />
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-5 pt-0">
+            <p className="text-2xl font-bold text-slate-900 mt-1">{formatCurrency(totalPending)}</p>
+            <div className="flex justify-between items-center mt-3 border-t border-slate-100 pt-3">
+              <p className="text-xs font-medium text-slate-500">{pendingOrders.length} Order</p>
+              <span className="text-[10px] uppercase font-bold text-blue-600 flex items-center">Detail <ChevronRight className="h-3 w-3 ml-1" /></span>
             </div>
           </CardContent>
         </Card>
 
-        <Card className={`border-l-4 border-l-purple-500 shadow-md cursor-pointer transition-all hover:bg-purple-50 ${isDraftExpanded ? 'ring-2 ring-purple-400 bg-purple-50' : 'bg-white'}`} onClick={handleDraftCardClick}>
-          <CardHeader className="p-4"><CardTitle className="text-xs md:text-sm font-medium text-purple-700 flex items-center gap-2"><ClipboardList className="h-4 w-4" /> Proyeksi Draft</CardTitle></CardHeader>
-          <CardContent className="p-4 pt-0">
-            <p className="text-2xl md:text-3xl font-bold text-purple-600">{formatCurrency(totalDraftProjection)}</p>
-            <div className="flex justify-between items-center mt-1">
-              <p className="text-[10px] md:text-xs text-gray-500">{draftOrders.length} Pesanan draft.</p>
-              <span className="text-[10px] md:text-xs text-purple-600 font-semibold underline flex items-center">Detail <ChevronRight className="h-3 w-3" /></span>
+        {/* Dropship Card */}
+        <Card className={`border border-slate-200/60 shadow-sm rounded-2xl cursor-pointer transition-all hover:shadow-md group relative overflow-visible ${isDropshipExpanded ? 'ring-2 ring-emerald-500 bg-emerald-50/30' : 'bg-white'}`} onClick={handleDropshipCardClick}>
+          <CardHeader className="p-5 pb-2">
+             <div className="flex justify-between items-start">
+               <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1">Komisi Dropship</CardTitle>
+               <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                  <Users className="h-4 w-4" />
+               </div>
+             </div>
+          </CardHeader>
+          <CardContent className="p-5 pt-0">
+            <p className="text-2xl font-bold text-slate-900 mt-1">{formatCurrency(currentPeriodDropshipTotal)}</p>
+            <div className="mt-3 border-t border-slate-100 pt-3" onClick={(e) => e.stopPropagation()}>
+               <Select value={selectedDropshipperId} onValueChange={setSelectedDropshipperId}>
+                  <SelectTrigger className="h-7 text-[10px] font-medium border-slate-200 bg-slate-50 focus:ring-0 shadow-none hover:bg-slate-100 transition-colors w-full">
+                    <SelectValue placeholder="Pilih Dropshipper" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Semua Dropshipper</SelectItem>
+                    {uniqueDropshippers.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
+                  </SelectContent>
+               </Select>
             </div>
           </CardContent>
         </Card>
-        <Card className={`border-l-4 border-l-orange-500 shadow-md cursor-pointer transition-all hover:bg-orange-50 ${isPayoutExpanded ? 'ring-2 ring-orange-400 bg-orange-50' : 'bg-white'}`}
+
+        {/* Draft Card */}
+        <Card className={`border border-slate-200/60 shadow-sm rounded-2xl cursor-pointer transition-all hover:shadow-md group ${isDraftExpanded ? 'ring-2 ring-purple-500 bg-purple-50/30' : 'bg-white'}`} onClick={handleDraftCardClick}>
+          <CardHeader className="p-5 pb-2">
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+              Proyeksi Draft
+              <div className="p-1.5 bg-purple-50 text-purple-600 rounded-lg group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                 <ClipboardList className="h-4 w-4" />
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-5 pt-0">
+            <p className="text-2xl font-bold text-slate-900 mt-1">{formatCurrency(totalDraftProjection)}</p>
+            <div className="flex justify-between items-center mt-3 border-t border-slate-100 pt-3">
+              <p className="text-xs font-medium text-slate-500">{draftOrders.length} Draft</p>
+              <span className="text-[10px] uppercase font-bold text-purple-600 flex items-center">Detail <ChevronRight className="h-3 w-3 ml-1" /></span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Payout Requests Card */}
+        <Card className={`border border-slate-200/60 shadow-sm rounded-2xl cursor-pointer transition-all hover:shadow-md group ${isPayoutExpanded ? 'ring-2 ring-amber-500 bg-amber-50/30' : 'bg-white'}`}
           onClick={() => {
             setIsPayoutExpanded(!isPayoutExpanded);
             if (isPendingExpanded) setIsPendingExpanded(false);
@@ -849,44 +915,82 @@ const FinancialReportPage = () => {
             fetchPayoutRequests();
           }}
         >
-          <CardHeader className="p-4"><CardTitle className="text-xs md:text-sm font-medium text-orange-700 flex items-center gap-2"><ArrowRightLeft className="h-4 w-4" /> Pengajuan Tarik Dana</CardTitle></CardHeader>
-          <CardContent className="p-4 pt-0">
-            <p className="text-2xl md:text-3xl font-bold text-orange-600">{formatCurrency(totalPayoutPending)}</p>
-            <div className="flex justify-between items-center mt-1">
-              <p className="text-[10px] md:text-xs text-gray-500">{payoutRequests.length} Permintaan pending.</p>
-              <span className="text-[10px] md:text-xs text-orange-600 font-semibold underline flex items-center">Perlu Proses <ChevronRight className="h-3 w-3" /></span>
+          <CardHeader className="p-5 pb-2">
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+              Tarik Komisi
+              <div className="p-1.5 bg-amber-50 text-amber-600 rounded-lg group-hover:bg-amber-600 group-hover:text-white transition-colors relative">
+                 <ArrowRightLeft className="h-4 w-4" />
+                 {payoutRequests.length > 0 && <span className="absolute -top-1 -right-1 flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span></span>}
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-5 pt-0">
+            <p className="text-2xl font-bold text-slate-900 mt-1">{formatCurrency(totalPayoutPending)}</p>
+            <div className="flex justify-between items-center mt-3 border-t border-slate-100 pt-3">
+              <p className="text-xs font-medium text-slate-500">{payoutRequests.length} Pending</p>
+              <span className="text-[10px] uppercase font-bold text-amber-600 flex items-center">Proses <ChevronRight className="h-3 w-3 ml-1" /></span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* DETAIL VIEWS */}
+      {/* DETAIL PANELS (Animated Expandable Sections) */}
       {(isPendingExpanded || isDraftExpanded || isDropshipExpanded) && (
-        <div className="space-y-4 mb-6">
+        <div className="mb-8 mt-2 animate-in fade-in slide-in-from-top-4 duration-300">
+          
           {isPendingExpanded && (
-            <Card className="border-blue-200 shadow-sm bg-white animate-in slide-in-from-top-2">
-              <CardHeader className="bg-blue-50 border-b p-4"><CardTitle className="text-sm md:text-base text-blue-800 flex items-center gap-2"><Clock className="h-5 w-5" /> Rincian Piutang</CardTitle></CardHeader>
-              <CardContent className="p-0 md:p-4">
-                <div className="overflow-x-auto">
+            <Card className="border border-blue-200 shadow-md bg-white rounded-2xl overflow-hidden">
+              <CardHeader className="bg-blue-50/50 border-b border-blue-100 p-5 flex flex-row items-center justify-between">
+                 <div className="space-y-1">
+                    <CardTitle className="text-base font-bold text-blue-900 flex items-center gap-2">
+                      <Clock className="h-5 w-5 text-blue-600" /> Rincian Piutang Aktif
+                    </CardTitle>
+                    <CardDescription className="text-blue-700/70 font-medium text-xs">Daftar order yang belum lunas sepenuhnya.</CardDescription>
+                 </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto max-h-[400px]">
                   <Table>
-                    <TableHeader><TableRow className="text-[10px] md:text-xs"><TableHead>Tgl Kirim</TableHead><TableHead>Invoice</TableHead><TableHead>Customer</TableHead><TableHead className="text-right">Nominal</TableHead><TableHead></TableHead></TableRow></TableHeader>
+                    <TableHeader className="bg-slate-50 sticky top-0 z-10">
+                      <TableRow className="text-[11px] uppercase tracking-wider text-slate-500 border-slate-100">
+                        <TableHead className="font-semibold px-5">Tgl Kirim</TableHead>
+                        <TableHead className="font-semibold">No. Invoice</TableHead>
+                        <TableHead className="font-semibold">Pelanggan</TableHead>
+                        <TableHead className="font-semibold text-right">Nominal Tagihan</TableHead>
+                        <TableHead className="text-center font-semibold px-5">Aksi</TableHead>
+                      </TableRow>
+                    </TableHeader>
                     <TableBody>
                       {pendingOrders.map(order => (
-                        <TableRow key={order.id} className="text-[11px] md:text-sm">
-                          <TableCell className="whitespace-nowrap font-medium">{order.delivered_at ? new Date(order.delivered_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) : formatDate(order.planned_date)}</TableCell>
-                          <TableCell className="font-bold">#{order.invoice_number}</TableCell>
-                          <TableCell className="max-w-[100px] truncate">{order.customers?.name}</TableCell>
+                        <TableRow key={order.id} className="text-sm border-slate-100 hover:bg-slate-50/50">
+                          <TableCell className="whitespace-nowrap font-medium text-slate-600 px-5">
+                            {order.delivered_at ? new Date(order.delivered_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year:'numeric' }) : formatDate(order.planned_date)}
+                          </TableCell>
+                          <TableCell className="font-bold text-slate-900">#{order.invoice_number}</TableCell>
+                          <TableCell className="font-medium text-slate-700">{order.customers?.name}</TableCell>
                           <TableCell className="text-right font-bold text-blue-600">{formatCurrency(order.grand_total)}</TableCell>
-                          <TableCell className="text-right p-1 md:p-2">
-                            <div className="flex gap-1 justify-end">
-                              <Link to={`/orders/${order.id}`}><Button variant="ghost" size="icon" className="h-7 w-7"><Eye className="h-4 w-4" /></Button></Link>
-                              <Button variant="ghost" size="icon" className={`h-7 w-7 text-green-600 ${processingWA[order.id] ? 'opacity-50' : ''}`} onClick={() => handleReminderWA(order)} disabled={processingWA[order.id]}>
-                                {processingWA[order.id] ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquareText className="h-4 w-4" />}
+                          <TableCell className="text-right px-5">
+                            <div className="flex gap-2 justify-end">
+                              <Link to={`/orders/${order.id}`}>
+                                <Button variant="outline" size="sm" className="h-8 w-8 p-0 border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-md">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </Link>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className={`h-8 px-3 border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-800 rounded-md font-semibold text-xs transition-colors ${processingWA[order.id] ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                                onClick={() => handleReminderWA(order)} 
+                                disabled={processingWA[order.id]}
+                              >
+                                {processingWA[order.id] ? <Loader2 className="h-3 w-3 animate-spin mr-1.5" /> : <MessageSquareText className="h-3 w-3 mr-1.5" />}
+                                Kirim WA
                               </Button>
                             </div>
                           </TableCell>
                         </TableRow>
                       ))}
+                      {pendingOrders.length === 0 && <TableRow><TableCell colSpan={5} className="text-center py-12 text-slate-400 font-medium">Tidak ada piutang aktif.</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </div>
@@ -894,36 +998,52 @@ const FinancialReportPage = () => {
             </Card>
           )}
 
-          {/* --- DROPSHIP COMMISSION DETAIL --- */}
           {isDropshipExpanded && (
-            <Card className="border-green-200 shadow-sm bg-white animate-in slide-in-from-top-2">
-              <CardHeader className="bg-green-50 border-b p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <Card className="border border-emerald-200 shadow-md bg-white rounded-2xl overflow-hidden">
+              <CardHeader className="bg-emerald-50/50 border-b border-emerald-100 p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="space-y-1">
-                  <CardTitle className="text-sm md:text-base text-green-800 flex items-center gap-2"><Users className="h-5 w-5" /> Rincian Komisi Dropship</CardTitle>
-                  <CardDescription className="text-xs">Total akumulasi keseluruhan: <span className="font-bold text-green-700">{formatCurrency(currentPeriodDropshipTotal)}</span></CardDescription>
+                  <CardTitle className="text-base font-bold text-emerald-900 flex items-center gap-2">
+                    <Users className="h-5 w-5 text-emerald-600" /> Histori Komisi Dropship
+                  </CardTitle>
+                  <CardDescription className="text-emerald-700/70 font-medium text-xs">
+                    Akumulasi komisi yang dihasilkan. Filter aktif: {selectedDropshipperId === 'all' ? 'Semua Dropshipper' : uniqueDropshippers.find(d=>d.id===selectedDropshipperId)?.name}
+                  </CardDescription>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button onClick={handleExportDropshipCommission} variant="outline" size="sm" className="h-8 text-xs bg-white"><Download className="h-3 w-3 mr-2" /> Export Excel</Button>
-                </div>
+                <Button onClick={handleExportDropshipCommission} variant="outline" className="h-9 text-xs font-semibold bg-white border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+                   <Download className="h-3.5 w-3.5 mr-2" /> Export Excel
+                </Button>
               </CardHeader>
-              <CardContent className="p-0 md:p-4">
+              <CardContent className="p-0">
                 <div className="overflow-x-auto max-h-[400px]">
                   <Table>
-                    <TableHeader className="sticky top-0 bg-white z-10">
-                      <TableRow className="text-[10px] md:text-xs"><TableHead>Tgl Order</TableHead><TableHead>Dropshipper</TableHead><TableHead>Invoice</TableHead><TableHead>Customer</TableHead><TableHead className="text-right">Nominal Komisi</TableHead><TableHead className="text-right">Aksi</TableHead></TableRow>
+                    <TableHeader className="bg-slate-50 sticky top-0 z-10">
+                      <TableRow className="text-[11px] uppercase tracking-wider text-slate-500 border-slate-100">
+                        <TableHead className="font-semibold px-5">Tgl Order</TableHead>
+                        <TableHead className="font-semibold">Dropshipper</TableHead>
+                        <TableHead className="font-semibold">Invoice</TableHead>
+                        <TableHead className="font-semibold">Pelanggan</TableHead>
+                        <TableHead className="font-semibold text-right">Nominal Komisi</TableHead>
+                        <TableHead className="text-center font-semibold px-5">Aksi</TableHead>
+                      </TableRow>
                     </TableHeader>
                     <TableBody>
                       {filteredDropshipData.map(order => (
-                        <TableRow key={order.id} className="text-[11px] md:text-sm">
-                          <TableCell className="whitespace-nowrap">{new Date(order.created_at).toLocaleDateString('id-ID')}</TableCell>
-                          <TableCell className="font-bold text-[#011e4b]">{order.dropshipper?.full_name || 'N/A'}</TableCell>
-                          <TableCell>#{order.invoice_number}</TableCell>
-                          <TableCell className="max-w-[100px] truncate">{order.customers?.name}</TableCell>
-                          <TableCell className="text-right font-bold text-green-600">{formatCurrency(order.dropshipper_commission)}</TableCell>
-                          <TableCell className="text-right p-1"><Link to={`/orders/${order.id}`}><Button variant="ghost" size="icon" className="h-7 w-7"><Eye className="h-4 w-4" /></Button></Link></TableCell>
+                        <TableRow key={order.id} className="text-sm border-slate-100 hover:bg-slate-50/50">
+                          <TableCell className="whitespace-nowrap font-medium text-slate-600 px-5">{new Date(order.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year:'numeric'})}</TableCell>
+                          <TableCell className="font-bold text-slate-900">{order.dropshipper?.full_name || 'N/A'}</TableCell>
+                          <TableCell className="text-slate-600">#{order.invoice_number}</TableCell>
+                          <TableCell className="font-medium text-slate-700">{order.customers?.name}</TableCell>
+                          <TableCell className="text-right font-bold text-emerald-600">{formatCurrency(order.dropshipper_commission)}</TableCell>
+                          <TableCell className="text-right px-5">
+                            <Link to={`/orders/${order.id}`}>
+                              <Button variant="outline" size="sm" className="h-8 w-8 p-0 border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-md">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                          </TableCell>
                         </TableRow>
                       ))}
-                      {filteredDropshipData.length === 0 && <TableRow><TableCell colSpan={6} className="text-center py-10 text-gray-400">Tidak ada data komisi ditemukan.</TableCell></TableRow>}
+                      {filteredDropshipData.length === 0 && <TableRow><TableCell colSpan={6} className="text-center py-12 text-slate-400 font-medium">Tidak ada data komisi ditemukan.</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </div>
@@ -932,22 +1052,39 @@ const FinancialReportPage = () => {
           )}
 
           {isDraftExpanded && (
-            <Card className="border-purple-200 shadow-sm bg-white animate-in slide-in-from-top-2">
-              <CardHeader className="bg-purple-50 border-b p-4"><CardTitle className="text-sm md:text-base text-purple-800 flex items-center gap-2"><ClipboardList className="h-5 w-5" /> Rincian Draft</CardTitle></CardHeader>
-              <CardContent className="p-0 md:p-4">
-                <div className="overflow-x-auto">
+            <Card className="border border-purple-200 shadow-md bg-white rounded-2xl overflow-hidden">
+              <CardHeader className="bg-purple-50/50 border-b border-purple-100 p-5">
+                <CardTitle className="text-base font-bold text-purple-900 flex items-center gap-2">
+                   <ClipboardList className="h-5 w-5 text-purple-600" /> Rincian Order Draft
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto max-h-[400px]">
                   <Table>
-                    <TableHeader><TableRow className="text-[10px] md:text-xs"><TableHead>Tgl</TableHead><TableHead>Customer</TableHead><TableHead className="text-right">Nilai</TableHead><TableHead></TableHead></TableRow></TableHeader>
+                    <TableHeader className="bg-slate-50 sticky top-0 z-10">
+                      <TableRow className="text-[11px] uppercase tracking-wider text-slate-500 border-slate-100">
+                        <TableHead className="font-semibold px-5">Tgl Dibuat</TableHead>
+                        <TableHead className="font-semibold">Pelanggan</TableHead>
+                        <TableHead className="font-semibold text-right">Nilai Proyeksi</TableHead>
+                        <TableHead className="text-center font-semibold px-5">Aksi</TableHead>
+                      </TableRow>
+                    </TableHeader>
                     <TableBody>
                       {draftOrders.map(order => (
-                        <TableRow key={order.id} className="text-[11px] md:text-sm">
-                          <TableCell className="whitespace-nowrap">{new Date(order.created_at).toLocaleDateString('id-ID')}</TableCell>
-                          <TableCell className="max-w-[100px] truncate">{order.customers?.name}</TableCell>
+                        <TableRow key={order.id} className="text-sm border-slate-100 hover:bg-slate-50/50">
+                          <TableCell className="whitespace-nowrap font-medium text-slate-600 px-5">{new Date(order.created_at).toLocaleDateString('id-ID', {day: '2-digit', month: 'short', year:'numeric'})}</TableCell>
+                          <TableCell className="font-medium text-slate-700">{order.customers?.name}</TableCell>
                           <TableCell className="text-right font-bold text-purple-600">{formatCurrency(order.grand_total)}</TableCell>
-                          <TableCell className="text-right p-1"><Link to={`/orders/${order.id}`}><Button variant="ghost" size="icon" className="h-7 w-7"><Eye className="h-4 w-4" /></Button></Link></TableCell>
+                          <TableCell className="text-right px-5">
+                            <Link to={`/orders/${order.id}`}>
+                              <Button variant="outline" size="sm" className="h-8 w-8 p-0 border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-md">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                          </TableCell>
                         </TableRow>
                       ))}
-                      {draftOrders.length === 0 && <TableRow><TableCell colSpan={4} className="text-center py-4">Kosong.</TableCell></TableRow>}
+                      {draftOrders.length === 0 && <TableRow><TableCell colSpan={4} className="text-center py-12 text-slate-400 font-medium">Tidak ada order draft saat ini.</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </div>
@@ -957,80 +1094,326 @@ const FinancialReportPage = () => {
         </div>
       )}
 
-      <h2 className="text-base md:text-lg font-bold mb-3 flex items-center gap-2 text-[#011e4b]">Rincian per Metode</h2>
       {/* PAYMENT METHODS GRID */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+      <div className="mt-8 mb-4 flex items-center justify-between">
+         <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            Metode Pembayaran
+         </h2>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {reportData.balances.map(item => (
-          <Card key={item.id} className={`border border-gray-200 shadow-sm transition-all hover:shadow-md hover:cursor-pointer ${expandedMethodId === item.id ? 'border-2 border-[#011e4b] shadow-lg ring-1 ring-[#011e4b]/20' : ''}`} onClick={() => handleCardClick(item.id)}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4"><CardTitle className="text-sm md:text-base font-semibold text-[#011e4b] truncate pr-2">{item.method_name}</CardTitle><div className="p-1.5 rounded-full bg-[#011e4b] text-white flex-shrink-0">{item.type === 'cash' ? <Banknote className="h-3 w-3 md:h-4 md:w-4" /> : <CreditCard className="h-3 w-3 md:h-4 md:w-4" />}</div></CardHeader>
-            <CardContent className="p-4 pt-0">
-              <div className="text-xl md:text-2xl font-bold text-[#011e4b]">{formatCurrency(item.balance)}</div>
-              <div className="text-[10px] md:text-xs text-muted-foreground mt-2 flex justify-between items-center border-t pt-2"><span>Masuk: <span className="font-semibold text-green-600">{formatCurrency(item.income)}</span></span><span>Keluar: <span className="font-semibold text-red-600">{formatCurrency(item.expense)}</span></span></div>
-              {item.type === 'transfer' && <p className="text-[9px] md:text-xs text-muted-foreground mt-2 truncate italic">{item.account_name} - {item.account_number}</p>}
+          <Card 
+             key={item.id} 
+             className={`border transition-all duration-200 cursor-pointer rounded-2xl group ${expandedMethodId === item.id ? 'border-slate-800 shadow-lg ring-1 ring-slate-800 bg-slate-900 text-white' : 'border-slate-200/60 shadow-sm bg-white hover:border-slate-300 hover:shadow-md'}`} 
+             onClick={() => handleCardClick(item.id)}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 p-5 pb-3">
+               <CardTitle className={`text-sm font-semibold truncate pr-2 ${expandedMethodId === item.id ? 'text-slate-200' : 'text-slate-600'}`}>{item.method_name}</CardTitle>
+               <div className={`p-2 rounded-lg ${expandedMethodId === item.id ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-800 group-hover:text-white transition-colors'}`}>
+                  {item.type === 'cash' ? <Banknote className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
+               </div>
+            </CardHeader>
+            <CardContent className="p-5 pt-0">
+              <div className="text-2xl font-bold tracking-tight">{formatCurrency(item.balance)}</div>
+              
+              <div className={`flex justify-between items-center mt-4 pt-3 border-t text-xs font-medium ${expandedMethodId === item.id ? 'border-white/10 text-slate-300' : 'border-slate-100 text-slate-500'}`}>
+                 <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] uppercase tracking-wider opacity-70">Masuk</span>
+                    <span className={expandedMethodId === item.id ? 'text-emerald-400 font-bold' : 'text-emerald-600 font-bold'}>{formatCurrency(item.income)}</span>
+                 </div>
+                 <div className="flex flex-col gap-0.5 text-right">
+                    <span className="text-[10px] uppercase tracking-wider opacity-70">Keluar</span>
+                    <span className={expandedMethodId === item.id ? 'text-rose-400 font-bold' : 'text-rose-600 font-bold'}>{formatCurrency(item.expense)}</span>
+                 </div>
+              </div>
+
+              {item.type === 'transfer' && (
+                 <p className={`text-[10px] mt-3 truncate italic font-medium ${expandedMethodId === item.id ? 'text-slate-400' : 'text-slate-400'}`}>
+                    {item.account_name} - {item.account_number}
+                 </p>
+              )}
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* EXPANDED SECTION */}
+      {/* EXPANDED SECTION (Daily Records & History) */}
       {expandedMethodId && (
-        <div className="space-y-6 mt-6 md:mt-8 animate-in fade-in duration-500">
-          <Card className="border-0 shadow-sm bg-white border-l-4 border-blue-500 overflow-hidden">
-            <CardHeader className="p-4 md:p-6 pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-              <CardTitle className="text-sm md:text-base text-blue-700 flex flex-col gap-1"><span className="flex items-center gap-2 font-bold"><CalendarDays className="h-4 w-4" /> Rekaman Harian</span><CardDescription className="text-[10px] md:text-xs">Saldo berjalan {expandedMethod.method_name}</CardDescription></CardTitle>
-              {selectedMethodDailyRecord && !loadingHistory && <div className="flex gap-4 text-xs"><span className="text-green-600 font-semibold">+{formatCurrency(selectedMethodDailyRecord.totalIncome)}</span><span className="text-red-600 font-semibold">-{formatCurrency(selectedMethodDailyRecord.totalExpense)}</span><span className="text-blue-700 font-bold">Akhir: {formatCurrency(selectedMethodDailyRecord.endingBalance)}</span></div>}
-              <Button onClick={handleExportDailyRecords} variant="outline" size="sm" className="w-full sm:w-auto h-8 text-xs" disabled={!selectedMethodDailyRecord || selectedMethodDailyRecord.records.length === 0 || loadingHistory}><Download className="h-3 w-3 mr-2" /> Export</Button>
+        <div className="space-y-6 mt-8 animate-in fade-in duration-500 slide-in-from-bottom-4">
+          <Card className="border border-slate-200/60 shadow-md bg-white rounded-2xl overflow-hidden">
+            <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+              <div className="space-y-1">
+                 <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <CalendarDays className="h-5 w-5 text-slate-500" /> Analisis Mutasi: {expandedMethod.method_name}
+                 </CardTitle>
+                 <CardDescription className="font-medium text-slate-500">
+                    Rekapitulasi transaksi harian untuk keperluan rekonsiliasi.
+                 </CardDescription>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto">
+                 {/* DATE FILTER */}
+                 <div className="flex items-center bg-white p-1 rounded-xl border border-slate-200 shadow-sm w-full sm:w-auto">
+                    <div className="flex flex-col px-3 py-1">
+                        <Label className="text-[9px] uppercase tracking-widest font-bold text-slate-400 mb-1">Mulai</Label>
+                        <Input 
+                            type="date"
+                            value={dailyRecordStartDate}
+                            onChange={e => setDailyRecordStartDate(e.target.value)}
+                            className="h-7 border-0 bg-transparent p-0 text-xs font-semibold focus-visible:ring-0 shadow-none w-[110px]"
+                        />
+                    </div>
+                    <div className="w-px h-8 bg-slate-200 mx-1"></div>
+                    <div className="flex flex-col px-3 py-1">
+                        <Label className="text-[9px] uppercase tracking-widest font-bold text-slate-400 mb-1">Akhir</Label>
+                        <Input 
+                            type="date"
+                            value={dailyRecordEndDate}
+                            onChange={e => setDailyRecordEndDate(e.target.value)}
+                            className="h-7 border-0 bg-transparent p-0 text-xs font-semibold focus-visible:ring-0 shadow-none w-[110px]"
+                        />
+                    </div>
+                 </div>
+
+                 <Button onClick={handleExportDailyRecords} className="h-[46px] px-5 w-full sm:w-auto bg-slate-900 text-white hover:bg-slate-800 font-semibold rounded-xl shadow-sm transition-all text-xs" disabled={!selectedMethodDailyRecord || selectedMethodDailyRecord.records.length === 0 || loadingHistory}>
+                    <Download className="h-4 w-4 mr-2" /> Export
+                 </Button>
+              </div>
             </CardHeader>
-            <CardContent className="p-4 md:p-6 pt-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4"><div className="space-y-1"><Label className="text-[10px] md:text-xs uppercase font-bold text-gray-500">Dari</Label><Input type="date" value={dailyRecordStartDate} onChange={e => setDailyRecordStartDate(e.target.value)} className="h-8 md:h-9 text-xs md:text-sm" /></div><div className="space-y-1"><Label className="text-[10px] md:text-xs uppercase font-bold text-gray-500">Sampai</Label><Input type="date" value={dailyRecordEndDate} onChange={e => setDailyRecordEndDate(e.target.value)} className="h-8 md:h-9 text-xs md:text-sm" /></div></div>
-              {loadingHistory ? <div className="flex justify-center items-center h-24"><Loader2 className="h-6 w-6 animate-spin text-blue-500" /></div> : selectedMethodDailyRecord ? <div className="overflow-x-auto rounded-md border shadow-inner"><Table className="min-w-[600px]"><TableHeader className="bg-gray-50"><TableRow className="text-[10px] md:text-xs uppercase tracking-wider"><TableHead>Tanggal</TableHead><TableHead className="text-green-700 text-right">Masuk</TableHead><TableHead className="text-red-700 text-right">Keluar</TableHead><TableHead className="text-right text-gray-600">Saldo Awal</TableHead><TableHead className="text-right font-bold text-blue-700">Saldo Akhir</TableHead></TableRow></TableHeader><TableBody>{selectedMethodDailyRecord.records.map(day => (<TableRow key={day.date} className="text-[11px] md:text-sm"><TableCell className="font-medium">{new Date(day.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</TableCell><TableCell className="text-right text-green-600">{day.income > 0 ? formatCurrency(day.income) : '-'}</TableCell><TableCell className="text-right text-red-600">{day.expense > 0 ? formatCurrency(day.expense) : '-'}</TableCell><TableCell className="text-right text-gray-500">{formatCurrency(day.startingBalance)}</TableCell><TableCell className={`text-right font-bold ${day.endingBalance < 0 ? 'text-red-700' : 'text-blue-700'} bg-blue-50/30`}>{formatCurrency(day.endingBalance)}</TableCell></TableRow>))}</TableBody></Table></div> : <div className="text-center py-4 text-gray-500 text-sm">Belum ada data transaksi di periode ini.</div>}
+            
+            <CardContent className="p-6">
+              {/* Daily Summary Tape */}
+              {selectedMethodDailyRecord && !loadingHistory && (
+                 <div className="flex flex-wrap gap-4 mb-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <div className="flex flex-col">
+                       <span className="text-[10px] uppercase font-bold text-slate-400">Total Masuk</span>
+                       <span className="text-sm font-bold text-emerald-600">{formatCurrency(selectedMethodDailyRecord.totalIncome)}</span>
+                    </div>
+                    <div className="w-px bg-slate-200"></div>
+                    <div className="flex flex-col">
+                       <span className="text-[10px] uppercase font-bold text-slate-400">Total Keluar</span>
+                       <span className="text-sm font-bold text-rose-600">{formatCurrency(selectedMethodDailyRecord.totalExpense)}</span>
+                    </div>
+                    <div className="w-px bg-slate-200"></div>
+                    <div className="flex flex-col">
+                       <span className="text-[10px] uppercase font-bold text-slate-400">Saldo Akhir Periode</span>
+                       <span className="text-sm font-bold text-slate-900">{formatCurrency(selectedMethodDailyRecord.endingBalance)}</span>
+                    </div>
+                 </div>
+              )}
+
+              {loadingHistory ? (
+                 <div className="flex justify-center items-center h-32"><Loader2 className="h-6 w-6 animate-spin text-slate-500" /></div>
+              ) : selectedMethodDailyRecord && selectedMethodDailyRecord.records.length > 0 ? (
+                 <div className="overflow-hidden rounded-xl border border-slate-200">
+                    <div className="overflow-x-auto">
+                       <Table className="min-w-[700px]">
+                          <TableHeader className="bg-slate-50">
+                             <TableRow className="text-[11px] uppercase tracking-wider text-slate-500 border-slate-200">
+                                <TableHead className="font-semibold px-4">Tanggal</TableHead>
+                                <TableHead className="font-semibold text-right">Debit (Masuk)</TableHead>
+                                <TableHead className="font-semibold text-right">Kredit (Keluar)</TableHead>
+                                <TableHead className="font-semibold text-right">Saldo Awal</TableHead>
+                                <TableHead className="font-semibold text-right text-slate-900 px-4">Saldo Akhir</TableHead>
+                             </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                             {selectedMethodDailyRecord.records.map(day => (
+                                <TableRow key={day.date} className="text-sm border-slate-100 hover:bg-slate-50">
+                                   <TableCell className="font-medium text-slate-700 px-4">{new Date(day.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</TableCell>
+                                   <TableCell className="text-right text-emerald-600 font-medium">{day.income > 0 ? formatCurrency(day.income) : '-'}</TableCell>
+                                   <TableCell className="text-right text-rose-600 font-medium">{day.expense > 0 ? formatCurrency(day.expense) : '-'}</TableCell>
+                                   <TableCell className="text-right text-slate-500">{formatCurrency(day.startingBalance)}</TableCell>
+                                   <TableCell className={`text-right font-bold px-4 ${day.endingBalance < 0 ? 'text-rose-700' : 'text-slate-900'} bg-slate-50/50`}>{formatCurrency(day.endingBalance)}</TableCell>
+                                </TableRow>
+                             ))}
+                          </TableBody>
+                       </Table>
+                    </div>
+                 </div>
+              ) : (
+                 <div className="flex flex-col items-center justify-center h-32 text-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+                    <p className="text-sm font-semibold text-slate-500">Belum ada mutasi</p>
+                    <p className="text-xs text-slate-400 mt-1">Ubah rentang waktu untuk melihat data histori.</p>
+                 </div>
+              )}
             </CardContent>
           </Card>
-          <Card id="transaction-history-table" className="border-0 shadow-lg bg-white overflow-hidden">
-            <CardHeader className="bg-gray-100 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"><CardTitle className="text-sm md:text-base text-[#011e4b] flex items-center gap-2 font-bold"><FileText className="h-4 w-4" /> Riwayat Transaksi</CardTitle><Button onClick={handleExportTransactions} variant="outline" size="sm" className="w-full sm:w-auto text-xs" disabled={methodTransactions.length === 0}><Download className="h-3 w-3 mr-2" /> Export Riwayat</Button></CardHeader>
+
+          {/* DETAILED TRANSACTION HISTORY */}
+          <Card className="border border-slate-200/60 shadow-md bg-white rounded-2xl overflow-hidden">
+            <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+               <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-slate-500" /> Buku Besar Transaksi
+               </CardTitle>
+               <Button onClick={handleExportTransactions} variant="outline" className="h-9 text-xs font-semibold bg-white border-slate-200 text-slate-700 w-full sm:w-auto" disabled={filteredMethodTransactions.length === 0}>
+                  <Download className="h-3.5 w-3.5 mr-2" /> Download Laporan Mutasi
+               </Button>
+            </CardHeader>
             <CardContent className="p-0">
-              <div className="overflow-x-auto max-h-[500px] scrollbar-thin scrollbar-thumb-gray-300">
-                {loadingHistory ? <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-[#011e4b]" /></div> : <Table className="min-w-[850px] text-xs md:text-sm"><TableHeader className="sticky top-0 bg-gray-100 z-20 shadow-sm"><TableRow className="text-[10px] md:text-xs"><TableHead>Tgl</TableHead><TableHead>Tipe</TableHead><TableHead className="text-green-700">Masuk</TableHead><TableHead className="text-red-700">Keluar</TableHead><TableHead>Saldo</TableHead><TableHead className="w-1/3">Deskripsi</TableHead><TableHead className="text-center">Aksi</TableHead></TableRow></TableHeader><TableBody>{filteredMethodTransactions.map(t => (<TableRow key={t.id} className="hover:bg-gray-50"><TableCell className="whitespace-nowrap font-medium">{new Date(t.date).toLocaleDateString('id-ID')}</TableCell><TableCell><Badge variant={t.type === 'income' ? 'success' : 'destructive'} className="text-[9px] px-1 py-0">{t.type === 'income' ? 'In' : 'Out'}</Badge></TableCell><TableCell className="text-green-700">{t.type === 'income' ? formatCurrency(t.amount) : '-'}</TableCell><TableCell className="text-red-700">{t.type === 'expense' ? formatCurrency(t.amount) : '-'}</TableCell><TableCell className="font-bold">{formatCurrency(t.runningBalance)}</TableCell><TableCell className="max-w-[200px] truncate md:whitespace-normal italic">{t.description}</TableCell><TableCell className="text-center"><div className="flex gap-1 justify-center">{t.proofUrl && <a href={getProofUrl(t.proofUrl)} target="_blank" rel="noreferrer"><Button variant="ghost" size="icon" className="h-7 w-7"><Eye className="h-3.5 w-3.5" /></Button></a>}{(userRole === 'admin' || userRole === 'super_admin') && (<Button variant="ghost" size="icon" className="text-red-500 h-7 w-7" onClick={() => handleDeleteTransaction(t)}><Trash2 className="h-3.5 w-3.5" /></Button>)}</div></TableCell></TableRow>))}</TableBody></Table>}
-              </div>
+               <div className="overflow-x-auto max-h-[600px] scrollbar-thin scrollbar-thumb-slate-300">
+                  {loadingHistory ? (
+                     <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-slate-400" /></div>
+                  ) : (
+                     <Table className="min-w-[900px]">
+                        <TableHeader className="sticky top-0 bg-slate-50 z-20 shadow-sm">
+                           <TableRow className="text-[11px] uppercase tracking-wider text-slate-500 border-slate-200">
+                              <TableHead className="font-semibold px-5">Tgl</TableHead>
+                              <TableHead className="font-semibold">Tipe</TableHead>
+                              <TableHead className="font-semibold text-right">Masuk</TableHead>
+                              <TableHead className="font-semibold text-right">Keluar</TableHead>
+                              <TableHead className="font-semibold text-right">Saldo Saat Ini</TableHead>
+                              <TableHead className="font-semibold w-1/3">Keterangan / Deskripsi</TableHead>
+                              <TableHead className="text-center font-semibold px-5">Opsi</TableHead>
+                           </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                           {filteredMethodTransactions.map(t => (
+                              <TableRow key={t.id} className="text-sm hover:bg-slate-50 border-slate-100 transition-colors">
+                                 <TableCell className="whitespace-nowrap font-medium text-slate-700 px-5">{new Date(t.date).toLocaleDateString('id-ID', {day: '2-digit', month: 'short', year:'numeric'})}</TableCell>
+                                 <TableCell>
+                                    <Badge variant="outline" className={`text-[10px] px-2 py-0.5 border-0 font-semibold ${t.type === 'income' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                                       {t.type === 'income' ? 'IN' : 'OUT'}
+                                    </Badge>
+                                 </TableCell>
+                                 <TableCell className="text-right text-emerald-600 font-medium">{t.type === 'income' ? formatCurrency(t.amount) : '-'}</TableCell>
+                                 <TableCell className="text-right text-rose-600 font-medium">{t.type === 'expense' ? formatCurrency(t.amount) : '-'}</TableCell>
+                                 <TableCell className="text-right font-bold text-slate-900">{formatCurrency(t.runningBalance)}</TableCell>
+                                 <TableCell className="max-w-[250px] truncate text-slate-600 font-medium">{t.description}</TableCell>
+                                 <TableCell className="px-5">
+                                    <div className="flex gap-2 justify-center">
+                                       {t.proofUrl && (
+                                          <a href={getProofUrl(t.proofUrl)} target="_blank" rel="noreferrer">
+                                             <Button variant="outline" size="sm" className="h-8 w-8 p-0 border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 rounded-md">
+                                                <FileText className="h-4 w-4" />
+                                             </Button>
+                                          </a>
+                                       )}
+                                       {(userRole === 'admin' || userRole === 'super_admin') && (
+                                          <Button variant="outline" size="sm" className="h-8 w-8 p-0 border-slate-200 text-slate-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 rounded-md transition-colors" onClick={() => handleDeleteTransaction(t)}>
+                                             <Trash2 className="h-4 w-4" />
+                                          </Button>
+                                       )}
+                                    </div>
+                                 </TableCell>
+                              </TableRow>
+                           ))}
+                           {filteredMethodTransactions.length === 0 && <TableRow><TableCell colSpan={7} className="text-center py-10 text-slate-400 font-medium">Tidak ada transaksi ditemukan.</TableCell></TableRow>}
+                        </TableBody>
+                     </Table>
+                  )}
+               </div>
             </CardContent>
           </Card>
         </div>
       )}
 
+      {/* PAYOUT REQUESTS SECTION */}
       {isPayoutExpanded && (
-        <Card className="border-orange-200 shadow-sm bg-white animate-in slide-in-from-top-2 mb-6">
-          <CardHeader className="bg-orange-50 border-b p-4"><CardTitle className="text-sm md:text-base text-orange-800">Verifikasi Penarikan Komisi</CardTitle></CardHeader>
+        <Card className="border border-amber-200 shadow-md bg-white rounded-2xl overflow-hidden mb-8 animate-in fade-in slide-in-from-top-4 duration-300">
+          <CardHeader className="bg-amber-50/50 border-b border-amber-100 p-5">
+            <CardTitle className="text-base font-bold text-amber-900 flex items-center gap-2">
+               <ArrowRightLeft className="h-5 w-5 text-amber-600" /> Verifikasi Penarikan Komisi Dropship
+            </CardTitle>
+          </CardHeader>
           <CardContent className="p-0">
-            <Table>
-              <TableHeader><TableRow className="text-xs"><TableHead>Dropshipper</TableHead><TableHead>Info Rekening</TableHead><TableHead className="text-right">Nominal</TableHead><TableHead className="text-center">Aksi</TableHead></TableRow></TableHeader>
-              <TableBody>
-                {payoutRequests.map(req => (<TableRow key={req.id}><TableCell className="font-medium">{req.profiles?.full_name}</TableCell><TableCell className="text-xs italic">{req.profiles?.rekening || 'Cek di profil'}</TableCell><TableCell className="text-right font-bold text-orange-600">{formatCurrency(req.amount)}</TableCell><TableCell className="text-center p-2"><Button size="sm" className="bg-green-600 hover:bg-green-700 h-8 text-xs" onClick={() => handleOpenPayoutModal(req)}>Cairkan Sekarang</Button></TableCell></TableRow>))}
-                {payoutRequests.length === 0 && <TableRow><TableCell colSpan={4} className="text-center py-10 text-gray-400">Tidak ada pengajuan aktif.</TableCell></TableRow>}
-              </TableBody>
-            </Table>
+            <div className="overflow-x-auto">
+               <Table>
+                  <TableHeader className="bg-slate-50">
+                     <TableRow className="text-[11px] uppercase tracking-wider text-slate-500 border-slate-100">
+                        <TableHead className="font-semibold px-5">Dropshipper</TableHead>
+                        <TableHead className="font-semibold">Info Rekening</TableHead>
+                        <TableHead className="font-semibold text-right">Nominal Tarik</TableHead>
+                        <TableHead className="text-center font-semibold px-5">Aksi Pembayaran</TableHead>
+                     </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                     {payoutRequests.map(req => (
+                        <TableRow key={req.id} className="text-sm border-slate-100 hover:bg-slate-50">
+                           <TableCell className="font-bold text-slate-900 px-5">{req.profiles?.full_name}</TableCell>
+                           <TableCell className="font-medium text-slate-600">{req.profiles?.rekening || 'Silakan cek profil user'}</TableCell>
+                           <TableCell className="text-right font-bold text-amber-600 text-base">{formatCurrency(req.amount)}</TableCell>
+                           <TableCell className="text-center px-5 py-3">
+                              <Button size="sm" className="bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg h-9 px-4 w-full sm:w-auto" onClick={() => handleOpenPayoutModal(req)}>
+                                 Proses Pencairan
+                              </Button>
+                           </TableCell>
+                        </TableRow>
+                     ))}
+                     {payoutRequests.length === 0 && <TableRow><TableCell colSpan={4} className="text-center py-12 text-slate-400 font-medium flex flex-col items-center justify-center"><CheckCircle2 className="h-8 w-8 mb-2 text-slate-300" /> Tidak ada pengajuan penarikan aktif.</TableCell></TableRow>}
+                  </TableBody>
+               </Table>
+            </div>
           </CardContent>
         </Card>
       )}
 
       {/* DIALOGS */}
       <Dialog open={isTransferModalOpen} onOpenChange={setIsTransferModalOpen}>
-        <DialogContent className="sm:max-w-md max-w-[95%] rounded-lg">
-          <DialogHeader><DialogTitle className="text-lg">Transfer Dana</DialogTitle></DialogHeader>
-          <form onSubmit={handleTransferSubmit} className="grid gap-4 py-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="grid gap-1.5"><Label className="text-xs uppercase font-bold text-gray-500">Dari Sumber</Label><Select value={transferForm.from_method_id} onValueChange={v => setTransferForm(prev => ({ ...prev, from_method_id: v }))} required><SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Pilih sumber" /></SelectTrigger><SelectContent>{paymentMethods.map(m => <SelectItem key={m.id} value={m.id}>{m.method_name}</SelectItem>)}</SelectContent></Select></div>
-              <div className="grid gap-1.5"><Label className="text-xs uppercase font-bold text-gray-500">Ke Tujuan</Label><Select value={transferForm.to_method_id} onValueChange={v => setTransferForm(prev => ({ ...prev, to_method_id: v }))} required><SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Pilih tujuan" /></SelectTrigger><SelectContent>{allMethods.map(m => <SelectItem key={m.id} value={m.id}>{m.method_name}</SelectItem>)}</SelectContent></Select></div>
+        <DialogContent className="sm:max-w-[425px] p-0 rounded-2xl overflow-hidden bg-white border-0 shadow-2xl">
+          <div className="bg-slate-50 p-6 border-b border-slate-100">
+             <DialogTitle className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                <ArrowRightLeft className="h-5 w-5 text-slate-500" /> Transfer Dana Antar Kas
+             </DialogTitle>
+             <DialogDescription className="mt-2 text-sm text-slate-500 font-medium">
+                Pindahkan saldo antar metode pembayaran / rekening bank internal perusahaan.
+             </DialogDescription>
+          </div>
+          <form onSubmit={handleTransferSubmit} className="p-6 space-y-5">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                 <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Sumber Dana</Label>
+                 <Select value={transferForm.from_method_id} onValueChange={v => setTransferForm(prev => ({ ...prev, from_method_id: v }))} required>
+                    <SelectTrigger className="h-10 rounded-xl bg-slate-50 border-slate-200 font-medium focus:ring-slate-300"><SelectValue placeholder="Pilih..." /></SelectTrigger>
+                    <SelectContent>{paymentMethods.map(m => <SelectItem key={m.id} value={m.id}>{m.method_name}</SelectItem>)}</SelectContent>
+                 </Select>
+              </div>
+              <div className="space-y-2">
+                 <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Tujuan Dana</Label>
+                 <Select value={transferForm.to_method_id} onValueChange={v => setTransferForm(prev => ({ ...prev, to_method_id: v }))} required>
+                    <SelectTrigger className="h-10 rounded-xl bg-slate-50 border-slate-200 font-medium focus:ring-slate-300"><SelectValue placeholder="Pilih..." /></SelectTrigger>
+                    <SelectContent>{allMethods.map(m => <SelectItem key={m.id} value={m.id}>{m.method_name}</SelectItem>)}</SelectContent>
+                 </Select>
+              </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="grid gap-1.5"><Label className="text-xs uppercase font-bold text-gray-500">Nominal</Label><Input type="number" value={transferForm.amount} onChange={e => setTransferForm(prev => ({ ...prev, amount: e.target.value }))} className="h-9" required /></div>
-              <div className="grid gap-1.5"><Label className="text-xs uppercase font-bold text-gray-500">Biaya Admin</Label><Input type="number" value={transferForm.admin_fee} onChange={e => setTransferForm(prev => ({ ...prev, admin_fee: e.target.value }))} className="h-9" /></div>
+            
+            <div className="space-y-2">
+               <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Nominal Transfer</Label>
+               <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                     <span className="text-slate-500 font-semibold sm:text-sm">Rp</span>
+                  </div>
+                  <Input type="number" value={transferForm.amount} onChange={e => setTransferForm(prev => ({ ...prev, amount: e.target.value }))} className="h-11 pl-9 rounded-xl border-slate-200 font-bold text-lg focus-visible:ring-slate-300" placeholder="0" required />
+               </div>
             </div>
-            <div className="grid gap-1.5"><Label className="text-xs uppercase font-bold text-gray-500">Bukti (Opsional)</Label><Input type="file" accept="image/*" onChange={e => setTransferForm(prev => ({ ...prev, proof_file: e.target.files }))} className="text-xs h-9 cursor-pointer" /></div>
-            <div className="grid gap-1.5"><Label className="text-xs uppercase font-bold text-gray-500">Keterangan</Label><Input value={transferForm.description} onChange={e => setTransferForm(prev => ({ ...prev, description: e.target.value }))} className="h-9" placeholder="Contoh: Setor tunai ke Bank" /></div>
-            <DialogFooter className="pt-2"><Button type="submit" disabled={isSubmitting} className="w-full bg-[#011e4b]">{isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Catat Transfer'}</Button></DialogFooter>
+
+            <div className="grid grid-cols-2 gap-4">
+               <div className="space-y-2">
+                  <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Biaya Admin</Label>
+                  <Input type="number" value={transferForm.admin_fee} onChange={e => setTransferForm(prev => ({ ...prev, admin_fee: e.target.value }))} className="h-10 rounded-xl border-slate-200 font-medium focus-visible:ring-slate-300" placeholder="Rp 0" />
+               </div>
+               <div className="space-y-2">
+                  <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider text-right block">Bukti (Opsional)</Label>
+                  <Input type="file" accept="image/*" onChange={e => setTransferForm(prev => ({ ...prev, proof_file: e.target.files }))} className="h-10 text-xs rounded-xl border-slate-200 cursor-pointer file:text-slate-700 file:font-semibold focus-visible:ring-slate-300" />
+               </div>
+            </div>
+
+            <div className="space-y-2">
+               <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Keterangan Tambahan</Label>
+               <Input value={transferForm.description} onChange={e => setTransferForm(prev => ({ ...prev, description: e.target.value }))} className="h-10 rounded-xl border-slate-200 font-medium focus-visible:ring-slate-300" placeholder="Contoh: Setoran uang kasir ke bank BCA" />
+            </div>
+
+            <div className="pt-4 flex gap-3">
+               <Button type="button" variant="outline" className="flex-1 rounded-xl h-11 font-semibold text-slate-600 hover:bg-slate-50" onClick={() => setIsTransferModalOpen(false)}>Batal</Button>
+               <Button type="submit" disabled={isSubmitting} className="flex-1 rounded-xl h-11 font-semibold bg-slate-900 hover:bg-slate-800 text-white shadow-md">
+                  {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Selesaikan Transfer'}
+               </Button>
+            </div>
           </form>
         </DialogContent>
       </Dialog>
+
       {isAddPaymentOpen && selectedPayoutRequest && (
         <AddPaymentModal
           isOpen={isAddPaymentOpen}

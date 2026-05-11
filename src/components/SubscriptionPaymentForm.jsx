@@ -2,27 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Input } from '@/components/ui/input';
 import { toast } from 'react-hot-toast';
-import { Loader2, Upload, CheckCircle2, AlertCircle, Landmark, CreditCard, Receipt } from 'lucide-react';
-import { compressAndUpload } from '../lib/UploadUtils';
+import { Loader2, CheckCircle2, CreditCard, MessageSquare, Zap, Send, ExternalLink, Clock } from 'lucide-react';
 
 const SubscriptionPaymentForm = ({ onSuccess }) => {
-    const { companyId } = useAuth();
+    const { companyId, userProfile } = useAuth();
     const [plans, setPlans] = useState([]);
     const [selectedPlanId, setSelectedPlanId] = useState(null);
-    const [customAmount, setCustomAmount] = useState(''); // State baru untuk nominal custom
-    const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [fetchingPlans, setFetchingPlans] = useState(true);
-    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [activeRequest, setActiveRequest] = useState(null);
+    const [fetchingRequest, setFetchingRequest] = useState(true);
 
     useEffect(() => {
         fetchPlans();
-    }, []);
+        fetchActiveRequest();
+    }, [companyId]);
 
     const fetchPlans = async () => {
         setFetchingPlans(true);
@@ -36,102 +34,144 @@ const SubscriptionPaymentForm = ({ onSuccess }) => {
             console.error('Error fetching plans:', error);
         } else {
             setPlans(data || []);
-            if (data?.length > 0) setSelectedPlanId(data[0].id);
+            const currentPlanId = userProfile?.companies?.subscription_plan_id;
+            if (currentPlanId && data.some(p => p.id === currentPlanId)) {
+                setSelectedPlanId(currentPlanId);
+            } else if (data?.length > 0) {
+                setSelectedPlanId(data[0].id);
+            }
         }
         setFetchingPlans(false);
     };
 
-    const handleFileChange = (e) => {
-        if (e.target.files && e.target.files[0]) {
-            setFile(e.target.files[0]);
+    const fetchActiveRequest = async () => {
+        if (!companyId) return;
+        setFetchingRequest(true);
+        const { data, error } = await supabase
+            .from('subscription_payments')
+            .select('*, subscription_plans(name)')
+            .eq('company_id', companyId)
+            .eq('status', 'pending')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (error && error.code !== 'PGRST116') {
+            console.error('Error fetching active request:', error);
+        } else {
+            setActiveRequest(data || null);
         }
+        setFetchingRequest(false);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const selectedPlan = plans.find(p => p.id === selectedPlanId);
         
-        // Finalisasi nominal yang akan dibayar
-        const finalAmount = selectedPlan?.is_custom_pricing 
-            ? parseInt(customAmount) 
-            : selectedPlan?.price;
-
-        if (!selectedPlanId || !file) {
-            toast.error('Pilih paket dan unggah bukti pembayaran');
-            return;
-        }
-
-        if (!finalAmount || finalAmount <= 0) {
-            toast.error('Nominal pembayaran tidak valid');
+        if (!selectedPlanId) {
+            toast.error('Silakan pilih paket langganan');
             return;
         }
 
         setLoading(true);
         try {
-            // 1. Upload proof
-            const proofUrl = await compressAndUpload(file, `subscriptions/${companyId}`);
-            
-            if (!proofUrl) throw new Error('Gagal mengunggah bukti pembayaran');
-
-            // 2. Create payment record
             const { error: paymentError } = await supabase
                 .from('subscription_payments')
                 .insert({
                     company_id: companyId,
                     plan_id: selectedPlanId,
-                    amount: finalAmount, // Menggunakan nominal final
-                    payment_proof_url: proofUrl,
+                    amount: selectedPlan?.price || 0,
                     status: 'pending'
                 });
 
             if (paymentError) throw paymentError;
 
-            setIsSubmitted(true);
-            toast.success('Bukti pembayaran berhasil dikirim! Menunggu verifikasi admin.');
+            toast.success('Permintaan berhasil dikirim!');
+            fetchActiveRequest();
             if (onSuccess) onSuccess();
         } catch (error) {
             console.error('Error submitting subscription:', error);
-            toast.error('Gagal mengirim bukti pembayaran: ' + error.message);
+            toast.error('Gagal mengirim permintaan: ' + error.message);
         } finally {
             setLoading(false);
         }
     };
 
-    if (isSubmitted) {
+    if (fetchingRequest || fetchingPlans) {
         return (
-            <Card className="border border-emerald-200 bg-emerald-50/50 shadow-sm rounded-2xl animate-in fade-in zoom-in-95">
-                <CardContent className="pt-8 pb-8 text-center space-y-5">
-                    <div className="h-16 w-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
-                        <CheckCircle2 className="h-8 w-8 text-emerald-600" />
-                    </div>
-                    <div className="space-y-2">
-                        <h3 className="text-xl font-semibold text-emerald-900">Pembayaran Terkirim</h3>
-                        <p className="text-sm font-medium text-emerald-700 max-w-sm mx-auto">
-                            Terima kasih! Bukti pembayaran Anda telah kami terima. 
-                            Tim Ervo akan melakukan verifikasi dalam waktu maksimal 1x24 jam.
-                        </p>
-                    </div>
-                    <Button 
-                        variant="outline" 
-                        onClick={() => {
-                            setIsSubmitted(false);
-                            setFile(null);
-                            setCustomAmount('');
-                        }}
-                        className="mt-2 font-medium text-emerald-700 border-emerald-200 hover:bg-emerald-100"
-                    >
-                        Kirim Ulang Dokumen
-                    </Button>
-                </CardContent>
-            </Card>
+            <div className="flex flex-col items-center justify-center p-12 space-y-4">
+                <Loader2 className="h-8 w-8 animate-spin text-[#015a97]" />
+                <p className="text-slate-500 font-medium">Memuat informasi langganan...</p>
+            </div>
         );
     }
 
-    const selectedPlan = plans.find(p => p.id === selectedPlanId);
-    
-    // Safety guard untuk tombol submit
-    const isSubmitDisabled = loading || !selectedPlanId || !file || 
-        (selectedPlan?.is_custom_pricing && (!customAmount || parseInt(customAmount) <= 0));
+    // Tampilan jika ada request PENDING
+    if (activeRequest) {
+        const hasPaymentLink = activeRequest.payment_proof_url && activeRequest.payment_proof_url.startsWith('http');
+        
+        return (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+                <Card className="border-blue-200 bg-blue-50/30 shadow-sm overflow-hidden rounded-2xl">
+                    <CardHeader className="bg-white border-b border-blue-100 p-6">
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                                <CardTitle className="text-lg font-bold text-[#011e4b]">Permintaan Sedang Diproses</CardTitle>
+                                <CardDescription className="font-medium">Paket: {activeRequest.subscription_plans?.name}</CardDescription>
+                            </div>
+                            <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200 gap-1.5 px-3 py-1">
+                                <Clock className="h-3.5 w-3.5" /> Menunggu Pembayaran
+                            </Badge>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="p-6 space-y-6">
+                        {hasPaymentLink ? (
+                            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 text-center space-y-4 animate-in zoom-in-95">
+                                <div className="h-14 w-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
+                                    <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+                                </div>
+                                <div className="space-y-2">
+                                    <h4 className="text-xl font-bold text-emerald-900">Link Pembayaran Tersedia!</h4>
+                                    <p className="text-sm text-emerald-700 font-medium">Admin telah mengirimkan link pembayaran resmi untuk tagihan Anda.</p>
+                                </div>
+                                <Button 
+                                    className="w-full h-14 text-lg font-bold bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-900/20 rounded-xl"
+                                    onClick={() => window.open(activeRequest.payment_proof_url, '_blank')}
+                                >
+                                    Bayar Sekarang <ExternalLink className="ml-2 h-5 w-5" />
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="bg-white border border-blue-100 rounded-xl p-6 flex items-start gap-4">
+                                <div className="h-12 w-12 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
+                                    <MessageSquare className="h-6 w-6 text-blue-600" />
+                                </div>
+                                <div className="space-y-1">
+                                    <h4 className="font-bold text-slate-800">Menunggu Link dari Admin</h4>
+                                    <p className="text-sm text-slate-600 leading-relaxed">
+                                        Permintaan Anda sudah masuk. Admin sedang menyiapkan link pembayaran. Link akan muncul di halaman ini segera setelah siap.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="flex justify-center">
+                            <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={fetchActiveRequest}
+                                className="text-blue-600 hover:bg-blue-50 font-semibold"
+                            >
+                                <Loader2 className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> Refresh Status
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
+    const isSubmitDisabled = loading || !selectedPlanId;
 
     return (
         <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in">
@@ -142,132 +182,77 @@ const SubscriptionPaymentForm = ({ onSuccess }) => {
                     <Label className="text-lg font-semibold text-slate-800">Pilih Paket Langganan</Label>
                 </div>
                 
-                {fetchingPlans ? (
-                    <div className="flex justify-center p-8 border border-slate-100 rounded-xl bg-slate-50"><Loader2 className="animate-spin text-slate-400" /></div>
-                ) : (
-                    <RadioGroup 
-                        value={selectedPlanId} 
-                        onValueChange={(val) => {
-                            setSelectedPlanId(val);
-                            setCustomAmount(''); // Reset input custom jika ganti paket
-                        }}
-                        className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                    >
-                        {plans.map((plan) => (
-                            <div key={plan.id} className="relative">
-                                <RadioGroupItem
-                                    value={plan.id}
-                                    id={plan.id}
-                                    className="peer sr-only"
-                                />
-                                <Label
-                                    htmlFor={plan.id}
-                                    className="flex flex-col items-start justify-between rounded-xl border-2 border-slate-200 bg-white p-5 hover:bg-slate-50 hover:border-[#015a97]/40 peer-data-[state=checked]:border-[#011e4b] peer-data-[state=checked]:bg-[#015a97]/5 cursor-pointer transition-all duration-200"
-                                >
-                                    <div className="flex justify-between w-full items-center mb-2">
-                                        <span className="font-semibold text-lg text-slate-800">{plan.name}</span>
-                                        <span className={`font-semibold ${plan.is_custom_pricing ? 'text-amber-600 text-sm' : 'text-[#011e4b] text-lg'}`}>
-                                            {plan.is_custom_pricing ? 'Sesuai Kesepakatan' : `Rp ${plan.price.toLocaleString('id-ID')}`}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5 text-sm font-medium text-slate-500">
-                                        <CreditCard className="h-4 w-4" />
-                                        <span>
-                                            {plan.billing_cycle_days 
-                                                ? `Siklus Tagihan: ${plan.billing_cycle_days} Hari` 
-                                                : 'Siklus Fleksibel'}
-                                        </span>
-                                    </div>
-                                    
-                                    <div className="absolute top-4 right-4 h-5 w-5 rounded-full border-2 border-slate-300 peer-data-[state=checked]:border-[#011e4b] peer-data-[state=checked]:bg-[#011e4b] flex items-center justify-center">
-                                        <div className="h-2 w-2 rounded-full bg-white opacity-0 peer-data-[state=checked]:opacity-100" />
-                                    </div>
-                                </Label>
-                            </div>
-                        ))}
-                    </RadioGroup>
-                )}
+                <RadioGroup 
+                    value={selectedPlanId} 
+                    onValueChange={setSelectedPlanId}
+                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                >
+                    {plans.map((plan) => (
+                        <div key={plan.id} className="relative">
+                            <RadioGroupItem
+                                value={plan.id}
+                                id={plan.id}
+                                className="peer sr-only"
+                            />
+                            <Label
+                                htmlFor={plan.id}
+                                className="flex flex-col items-start justify-between rounded-xl border-2 border-slate-200 bg-white p-5 hover:bg-slate-50 hover:border-[#015a97]/40 peer-data-[state=checked]:border-[#011e4b] peer-data-[state=checked]:bg-[#015a97]/5 cursor-pointer transition-all duration-200"
+                            >
+                                <div className="flex justify-between w-full items-center mb-2">
+                                    <span className="font-semibold text-lg text-slate-800">{plan.name}</span>
+                                    <span className={`font-semibold ${plan.is_custom_pricing ? 'text-amber-600 text-sm' : 'text-[#011e4b] text-lg'}`}>
+                                        {plan.is_custom_pricing ? 'Enterprise' : `Rp ${plan.price.toLocaleString('id-ID')}`}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-1.5 text-sm font-medium text-slate-500">
+                                    <CreditCard className="h-4 w-4" />
+                                    <span>
+                                        {plan.billing_cycle_days 
+                                            ? `${plan.billing_cycle_days} Hari Layanan` 
+                                            : 'Siklus Fleksibel'}
+                                    </span>
+                                </div>
+                                
+                                <div className="absolute top-4 right-4 h-5 w-5 rounded-full border-2 border-slate-300 peer-data-[state=checked]:border-[#011e4b] peer-data-[state=checked]:bg-[#011e4b] flex items-center justify-center">
+                                    <div className="h-2 w-2 rounded-full bg-white opacity-0 peer-data-[state=checked]:opacity-100" />
+                                </div>
+                            </Label>
+                        </div>
+                    ))}
+                </RadioGroup>
             </div>
 
-            {/* Step 2: Payment Info */}
+            {/* Step 2: Confirmation Info */}
             <div className="space-y-4">
                 <div className="flex items-center gap-2">
                     <div className="h-6 w-6 rounded-full bg-[#011e4b] text-white flex items-center justify-center text-xs font-semibold">2</div>
-                    <Label className="text-lg font-semibold text-slate-800">Informasi Pembayaran</Label>
+                    <Label className="text-lg font-semibold text-slate-800">Proses Pembayaran</Label>
                 </div>
                 
-                <div className="p-5 bg-slate-50 rounded-xl border border-slate-200/60 space-y-4">
-                    
-                    {/* Logika Form Input Nominal Custom vs Tagihan Tetap */}
-                    {selectedPlan?.is_custom_pricing ? (
-                        <div className="space-y-3 mb-4 p-4 bg-white border border-amber-200 rounded-xl shadow-sm">
-                            <Label className="text-sm font-semibold text-slate-800">Masukkan Nominal Sesuai Kesepakatan</Label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span className="text-slate-500 font-medium">Rp</span>
-                                </div>
-                                <Input 
-                                    type="number"
-                                    min="0"
-                                    value={customAmount}
-                                    onChange={(e) => setCustomAmount(e.target.value)}
-                                    className="pl-10 h-11 border-slate-300 focus-visible:ring-amber-500 text-lg font-semibold"
-                                    placeholder="Contoh: 5000000"
-                                />
-                            </div>
-                            <p className="text-xs font-medium text-slate-500">
-                                Silakan hubungi Tim Ervo jika Anda belum mengetahui nominal tagihan paket Enterprise Anda.
+                <div className="p-6 bg-[#015a97]/5 rounded-xl border border-[#015a97]/20 space-y-4">
+                    <div className="flex items-start gap-4">
+                        <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center border border-[#015a97]/20 shrink-0">
+                            <Zap className="h-5 w-5 text-[#015a97]" />
+                        </div>
+                        <div className="space-y-1">
+                            <h4 className="font-semibold text-slate-800">Ajukan Perpanjangan</h4>
+                            <p className="text-sm text-slate-600 leading-relaxed">
+                                Setelah Anda menekan tombol di bawah, Admin akan segera memproses permintaan Anda dan memberikan link pembayaran resmi langsung di aplikasi ini.
                             </p>
                         </div>
-                    ) : (
-                        <div className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl shadow-sm mb-4">
-                            <span className="font-medium text-slate-600">Total Tagihan:</span>
-                            <span className="text-xl font-semibold text-[#011e4b]">
-                                Rp {selectedPlan?.price?.toLocaleString('id-ID') || 0}
-                            </span>
-                        </div>
-                    )}
+                    </div>
 
-                    <p className="font-medium text-slate-600 text-sm">Silakan transfer ke rekening tujuan berikut:</p>
-                    
-                    <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex items-center gap-4">
-                        <div className="h-12 w-12 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Landmark className="h-6 w-6 text-blue-600" />
+                    <div className="flex items-start gap-4">
+                        <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center border border-[#015a97]/20 shrink-0">
+                            <CheckCircle2 className="h-5 w-5 text-[#015a97]" />
                         </div>
-                        <div>
-                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Bank BCA</p>
-                            <p className="font-semibold text-xl tracking-wider text-slate-800">8831 234 567</p>
-                            <p className="text-sm font-medium text-slate-600">a.n. PT Ervo Teknologi Indonesia</p>
+                        <div className="space-y-1">
+                            <h4 className="font-semibold text-slate-800">Aktivasi Langsung</h4>
+                            <p className="text-sm text-slate-600 leading-relaxed">
+                                Paket akan langsung diperpanjang secara otomatis setelah Anda menyelesaikan transaksi melalui link yang disediakan.
+                            </p>
                         </div>
                     </div>
-                    
-                    <div className="flex items-start gap-2.5 text-xs font-medium text-amber-700 bg-amber-50 p-3 rounded-lg border border-amber-100">
-                        <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                        <p leading-relaxed>Pastikan nominal transfer sesuai dengan harga paket yang dipilih agar proses aktivasi otomatis dapat berjalan lancar.</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Step 3: Upload Proof */}
-            <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 rounded-full bg-[#011e4b] text-white flex items-center justify-center text-xs font-semibold">3</div>
-                    <Label className="text-lg font-semibold text-slate-800">Unggah Bukti Transfer</Label>
-                </div>
-                
-                <div className="grid w-full items-center gap-2">
-                    <div className="relative">
-                        <Input 
-                            id="proof" 
-                            type="file" 
-                            accept="image/*" 
-                            onChange={handleFileChange}
-                            className="cursor-pointer h-12 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-slate-50 file:text-[#011e4b] hover:file:bg-slate-100"
-                        />
-                    </div>
-                    <p className="text-xs font-medium text-slate-500 flex items-center gap-1.5 mt-1">
-                        <Receipt className="h-3.5 w-3.5" /> Format file: JPG, PNG, WEBP (Maksimal 5MB)
-                    </p>
                 </div>
             </div>
 
@@ -275,17 +260,30 @@ const SubscriptionPaymentForm = ({ onSuccess }) => {
             <div className="pt-2">
                 <Button 
                     type="submit" 
-                    className="w-full bg-[#011e4b] text-white hover:bg-[#00376a] h-14 text-base font-semibold rounded-xl transition-all"
+                    className="w-full bg-[#011e4b] text-white hover:bg-[#00376a] h-14 text-base font-semibold rounded-xl transition-all shadow-lg shadow-blue-900/10"
                     disabled={isSubmitDisabled}
                 >
                     {loading ? (
-                        <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Sedang Mengirim...</>
+                        <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Sedang Memproses...</>
                     ) : (
-                        <><Upload className="mr-2 h-5 w-5" /> Konfirmasi Pembayaran</>
+                        <><Send className="mr-2 h-5 w-5" /> Ajukan Perpanjangan Paket</>
                     )}
                 </Button>
             </div>
         </form>
+    );
+};
+
+// Internal Badge for consistency if not exported globally
+const Badge = ({ children, variant = 'default', className = '' }) => {
+    const variants = {
+        default: 'bg-slate-100 text-slate-800',
+        outline: 'border border-slate-200'
+    };
+    return (
+        <span className={`inline-flex items-center rounded-full text-xs font-bold ${variants[variant]} ${className}`}>
+            {children}
+        </span>
     );
 };
 

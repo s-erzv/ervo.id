@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
       .from('profiles')
       .select(
         `id, role, company_id, full_name, 
-                 companies(name, logo_url, subscription_end_date, is_manually_locked, fonnte_token)`
+                 companies(name, logo_url, subscription_end_date, is_manually_locked, fonnte_token, subscription_plan_id, subscription_plans(name))`
       )
       .eq('id', userId)
       .single();

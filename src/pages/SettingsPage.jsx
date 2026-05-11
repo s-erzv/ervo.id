@@ -279,11 +279,16 @@ const SettingsPage = () => {
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-600">Status Langganan</label>
-                    <div className="p-3.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg font-medium flex items-center">
-                      <ShieldCheck className="h-4 w-4 mr-2" />
-                      {userProfile?.companies?.subscription_end_date 
-                        ? `Aktif sampai ${new Date(userProfile.companies.subscription_end_date).toLocaleDateString('id-ID')}` 
-                        : 'Tidak Aktif'}
+                    <div className="p-3.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg font-medium flex flex-col gap-1">
+                      <div className="flex items-center">
+                        <ShieldCheck className="h-4 w-4 mr-2" />
+                        <span className="font-bold">{userProfile?.companies?.subscription_plans?.name || 'No Plan'}</span>
+                      </div>
+                      <div className="text-xs ml-6 opacity-80">
+                        {userProfile?.companies?.subscription_end_date 
+                          ? `Aktif sampai ${new Date(userProfile.companies.subscription_end_date).toLocaleDateString('id-ID')}` 
+                          : 'Tidak Aktif'}
+                      </div>
                     </div>
                   </div>
 

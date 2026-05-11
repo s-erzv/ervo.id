@@ -1,7 +1,8 @@
 // src/components/AddUserForm.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import {
   Dialog,
   DialogContent,
@@ -12,20 +13,47 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'react-hot-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertTriangle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const AddUserForm = ({ open, onOpenChange, onUserAdded }) => {
   const { companyId } = useAuth();
+  const { getLimit, loading: subLoading } = useSubscription();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rekening, setRekening] = useState(''); 
   const [baseSalary, setBaseSalary] = useState(''); // STATE BARU UNTUK GAJI POKOK
   const [loading, setLoading] = useState(false);
+  const [currentUserCount, setCurrentUserCount] = useState(0);
+
+  useEffect(() => {
+    if (open && companyId) {
+      fetchUserCount();
+    }
+  }, [open, companyId]);
+
+  const fetchUserCount = async () => {
+    const { count, error } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('company_id', companyId);
+    
+    if (!error) {
+      setCurrentUserCount(count || 0);
+    }
+  };
+
+  const maxUsers = getLimit('max_users');
+  const isLimitReached = maxUsers > 0 && currentUserCount >= maxUsers;
 
   const handleAddUser = async (e) => {
     e.preventDefault();
+    if (isLimitReached) {
+      toast.error(`Limit pengguna tercapai (${maxUsers}). Silakan upgrade plan Anda.`);
+      return;
+    }
     setLoading(true);
 
     try {
@@ -83,6 +111,17 @@ const AddUserForm = ({ open, onOpenChange, onUserAdded }) => {
             Isi formulir untuk membuat akun pengguna baru.
           </DialogDescription>
         </DialogHeader>
+
+        {isLimitReached && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Limit Tercapai</AlertTitle>
+            <AlertDescription>
+              Anda telah mencapai batas maksimal pengguna ({maxUsers}) untuk plan saat ini.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <form onSubmit={handleAddUser} className="space-y-4">
           <div>
             <Label className="text-sm font-medium">Nama Lengkap</Label>
@@ -92,6 +131,7 @@ const AddUserForm = ({ open, onOpenChange, onUserAdded }) => {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
+              disabled={isLimitReached}
             />
           </div>
           <div>
@@ -102,6 +142,7 @@ const AddUserForm = ({ open, onOpenChange, onUserAdded }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isLimitReached}
             />
           </div>
           <div>
@@ -112,6 +153,7 @@ const AddUserForm = ({ open, onOpenChange, onUserAdded }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={isLimitReached}
             />
           </div>
           <div>
@@ -121,6 +163,7 @@ const AddUserForm = ({ open, onOpenChange, onUserAdded }) => {
               placeholder="Nomor Rekening"
               value={rekening}
               onChange={(e) => setRekening(e.target.value)}
+              disabled={isLimitReached}
             />
           </div>
           {/* FIELD BARU: GAJI POKOK */}
@@ -131,10 +174,11 @@ const AddUserForm = ({ open, onOpenChange, onUserAdded }) => {
               placeholder="Contoh: 4000000"
               value={baseSalary}
               onChange={(e) => setBaseSalary(e.target.value)}
+              disabled={isLimitReached}
             />
           </div>
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Tambah Pengguna'}
+          <Button type="submit" disabled={loading || isLimitReached || subLoading} className="w-full">
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : isLimitReached ? 'Limit Tercapai' : 'Tambah Pengguna'}
           </Button>
         </form>
       </DialogContent>

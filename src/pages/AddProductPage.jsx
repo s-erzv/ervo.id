@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import { useNavigate } from 'react-router-dom';
 import {
   Card,
@@ -14,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'react-hot-toast';
-import { Loader2, ArrowLeft, Tags, Plus, Package, ImageIcon, X, Hash } from 'lucide-react';
+import { Loader2, ArrowLeft, Tags, Plus, Package, ImageIcon, X, Hash, AlertTriangle } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -25,12 +26,14 @@ import {
 import CategoryModal from '@/components/CategoryModal';
 import SupplierModal from '@/components/SupplierModal';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1 MB
 const TARGET_SIZE_MB = 0.5; // Target 500 KB
 
 const AddProductPage = () => {
   const { userProfile, loading: authLoading, companyId } = useAuth();
+  const { getLimit, loading: subLoading } = useSubscription();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   
@@ -42,6 +45,7 @@ const AddProductPage = () => {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
+  const [currentProductCount, setCurrentProductCount] = useState(0);
   
   // Opsi Penetapan Harga
   const [pricingMode, setPricingMode] = useState('manual');
@@ -158,19 +162,22 @@ const AddProductPage = () => {
       { data: statusData, error: statusError },
       { data: categoriesData, error: categoriesError },
       { data: suppliersData, error: suppliersError },
+      { count: productCount, error: countError },
     ] = await Promise.all([
       supabase.from('customer_statuses').select('status_name, default_percentage').eq('company_id', companyId).order('sort_order', { ascending: true }),
       supabase.from('categories').select('*, subcategories(*)').eq('company_id', companyId),
       supabase.from('suppliers').select('*').eq('company_id', companyId),
+      supabase.from('products').select('*', { count: 'exact', head: true }).eq('company_id', companyId),
     ]);
 
-    if (statusError || categoriesError || suppliersError) {
-      console.error('Error fetching data:', statusError || categoriesError || suppliersError);
+    if (statusError || categoriesError || suppliersError || countError) {
+      console.error('Error fetching data:', statusError || categoriesError || suppliersError || countError);
       toast.error('Gagal memuat data awal.');
     } else {
       setCustomerStatuses(statusData);
       setCategories(categoriesData);
       setSuppliers(suppliersData);
+      setCurrentProductCount(productCount || 0);
       
       const initialPrices = statusData.map(status => {
           const defaultPercentage = status.default_percentage !== null ? status.default_percentage.toString() : '100';
@@ -185,6 +192,9 @@ const AddProductPage = () => {
     }
     setLoading(false);
   };
+
+  const maxProducts = getLimit('max_products');
+  const isLimitReached = maxProducts > 0 && currentProductCount >= maxProducts;
   
   const handleInputWheel = (e) => {
     e.target.blur();
@@ -249,6 +259,10 @@ const AddProductPage = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    if (isLimitReached) {
+      toast.error(`Limit produk tercapai (${maxProducts}). Silakan upgrade plan Anda.`);
+      return;
+    }
     setLoading(true);
 
     try {
@@ -354,7 +368,7 @@ const AddProductPage = () => {
   const formatCurrency = (amount) => 
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount ?? 0);
   
-  if (loading) return <div className="flex justify-center items-center h-screen"><Loader2 className="h-8 w-8 animate-spin text-gray-500" /></div>;
+  if (loading || subLoading) return <div className="flex justify-center items-center h-screen"><Loader2 className="h-8 w-8 animate-spin text-gray-500" /></div>;
 
   return (
     <div className="container mx-auto p-4 md:p-8 max-w-2xl">
@@ -367,7 +381,18 @@ const AddProductPage = () => {
         </Button>
       </div>
 
-      <Card className="border-0 shadow-lg bg-white">
+      {isLimitReached && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Limit Tercapai</AlertTitle>
+          <AlertDescription>
+            Anda telah mencapai batas maksimal produk ({maxProducts}) untuk plan saat ini. 
+            Silakan upgrade langganan Anda untuk menambah lebih banyak produk.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <Card className={`border-0 shadow-lg bg-white ${isLimitReached ? 'opacity-75' : ''}`}>
         <CardHeader className="bg-[#011e4b] text-white rounded-t-lg">
           <CardTitle>Formulir Produk</CardTitle>
           <CardDescription className="text-gray-200">
@@ -400,6 +425,7 @@ const AddProductPage = () => {
                             onChange={handleFileChange} 
                             ref={fileInputRef}
                             className="bg-white"
+                            disabled={isLimitReached}
                         />
                         <p className="text-[10px] text-slate-500 italic">Maks. 1MB. Gambar besar akan dikompresi otomatis.</p>
                     </div>
@@ -409,11 +435,11 @@ const AddProductPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor="name">Nama Produk</Label>
-                    <Input id="name" name="name" value={productForm.name} onChange={handleProductFormChange} required />
+                    <Input id="name" name="name" value={productForm.name} onChange={handleProductFormChange} required disabled={isLimitReached} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="sku" className="flex items-center gap-1.5"><Hash className="h-3.5 w-3.5" /> SKU (Stock Keeping Unit)</Label>
-                    <Input id="sku" name="sku" value={productForm.sku} onChange={(e) => setProductForm(p => ({...p, sku: e.target.value.toUpperCase()}))} placeholder="MISAL: BRG-001" />
+                    <Input id="sku" name="sku" value={productForm.sku} onChange={(e) => setProductForm(p => ({...p, sku: e.target.value.toUpperCase()}))} placeholder="MISAL: BRG-001" disabled={isLimitReached} />
                 </div>
             </div>
             
@@ -421,18 +447,18 @@ const AddProductPage = () => {
                 <div className="space-y-2 w-full">
                     <Label htmlFor="category_id">Kategori</Label>
                     <div className="flex gap-2">
-                        <Select value={productForm.category_id} onValueChange={handleCategoryChange}>
+                        <Select value={productForm.category_id} onValueChange={handleCategoryChange} disabled={isLimitReached}>
                             <SelectTrigger className="bg-white"><SelectValue placeholder="Pilih Kategori" /></SelectTrigger>
                             <SelectContent>
                                 {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                             </SelectContent>
                         </Select>
-                        <Button variant="outline" size="icon" type="button" onClick={() => setIsCategoryModalOpen(true)}><Plus className="h-4 w-4" /></Button>
+                        <Button variant="outline" size="icon" type="button" onClick={() => setIsCategoryModalOpen(true)} disabled={isLimitReached}><Plus className="h-4 w-4" /></Button>
                     </div>
                 </div>
                 <div className="space-y-2 w-full">
                     <Label htmlFor="subcategory_id">Sub Kategori</Label>
-                    <Select value={productForm.subcategory_id} onValueChange={handleSubCategoryChange} disabled={!productForm.category_id || subCategories.length === 0}>
+                    <Select value={productForm.subcategory_id} onValueChange={handleSubCategoryChange} disabled={!productForm.category_id || subCategories.length === 0 || isLimitReached}>
                         <SelectTrigger className="bg-white"><SelectValue placeholder="Pilih Sub Kategori" /></SelectTrigger>
                         <SelectContent>
                             {subCategories.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
@@ -444,36 +470,36 @@ const AddProductPage = () => {
             <div className="space-y-2">
                 <Label htmlFor="supplier_id">Supplier (Opsional)</Label>
                 <div className="flex gap-2">
-                    <Select value={productForm.supplier_id} onValueChange={handleSupplierChange}>
+                    <Select value={productForm.supplier_id} onValueChange={handleSupplierChange} disabled={isLimitReached}>
                         <SelectTrigger className="bg-white"><SelectValue placeholder="Pilih Supplier" /></SelectTrigger>
                         <SelectContent>
                             {suppliers.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                         </SelectContent>
                     </Select>
-                    <Button variant="outline" size="icon" type="button" onClick={() => setIsSupplierModalOpen(true)}><Plus className="h-4 w-4" /></Button>
+                    <Button variant="outline" size="icon" type="button" onClick={() => setIsSupplierModalOpen(true)} disabled={isLimitReached}><Plus className="h-4 w-4" /></Button>
                 </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor="stock">Stok Awal</Label>
-                    <Input id="stock" name="stock" type="number" value={productForm.stock} onChange={handleProductFormChange} onWheel={handleInputWheel} required />
+                    <Input id="stock" name="stock" type="number" value={productForm.stock} onChange={handleProductFormChange} onWheel={handleInputWheel} required disabled={isLimitReached} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="purchase_price">Harga Beli dari Pusat</Label>
-                    <Input id="purchase_price" name="purchase_price" type="number" value={productForm.purchase_price} onChange={handleProductFormChange} onWheel={handleInputWheel} required />
+                    <Input id="purchase_price" name="purchase_price" type="number" value={productForm.purchase_price} onChange={handleProductFormChange} onWheel={handleInputWheel} required disabled={isLimitReached} />
                 </div>
             </div>
 
             <div className="flex items-center space-x-2 p-1">
-                <Checkbox id="is_returnable" checked={productForm.is_returnable} onCheckedChange={(checked) => setProductForm(prev => ({ ...prev, is_returnable: checked }))} />
+                <Checkbox id="is_returnable" checked={productForm.is_returnable} onCheckedChange={(checked) => setProductForm(prev => ({ ...prev, is_returnable: checked }))} disabled={isLimitReached} />
                 <Label htmlFor="is_returnable" className="text-sm font-normal">Produk ini dapat dikembalikan (galon/gas)</Label>
             </div>
 
             {productForm.is_returnable && (
                 <div className="space-y-2">
                     <Label htmlFor="empty_bottle_price">Harga Jual Kemasan Kosong</Label>
-                    <Input id="empty_bottle_price" name="empty_bottle_price" type="number" value={productForm.empty_bottle_price} onChange={handleProductFormChange} onWheel={handleInputWheel} required />
+                    <Input id="empty_bottle_price" name="empty_bottle_price" type="number" value={productForm.empty_bottle_price} onChange={handleProductFormChange} onWheel={handleInputWheel} required disabled={isLimitReached} />
                 </div>
             )}
             
@@ -482,7 +508,7 @@ const AddProductPage = () => {
             {/* OPSI PENETAPAN HARGA */}
             <div className="space-y-2">
                 <Label className="font-medium">Opsi Penetapan Harga Jual</Label>
-                <Select value={pricingMode} onValueChange={handlePricingModeChange}>
+                <Select value={pricingMode} onValueChange={handlePricingModeChange} disabled={isLimitReached}>
                     <SelectTrigger className="bg-white"><SelectValue placeholder="Pilih Mode Harga" /></SelectTrigger>
                     <SelectContent>
                         <SelectItem value="manual">Harga Manual</SelectItem>
@@ -495,7 +521,7 @@ const AddProductPage = () => {
             {(pricingMode === 'percentage' || pricingMode === 'relative_status') && (
                 <div className="space-y-2">
                     <Label htmlFor="base_price">Harga Bandrol / Dasar</Label>
-                    <Input id="base_price" type="number" value={basePrice} onChange={(e) => handleBasePriceChange(e.target.value)} onWheel={handleInputWheel} required />
+                    <Input id="base_price" type="number" value={basePrice} onChange={(e) => handleBasePriceChange(e.target.value)} onWheel={handleInputWheel} required disabled={isLimitReached} />
                 </div>
             )}
             
@@ -503,17 +529,9 @@ const AddProductPage = () => {
                 <div className="space-y-2">
                     <Label className="font-medium">Persentase Harga Jual Global</Label>
                     <div className='flex items-center'>
-                        <Input type="number" value={globalPercentage} onChange={(e) => setGlobalPercentage(e.target.value)} onWheel={handleInputWheel} required className="w-full pr-8" />
+                        <Input type="number" value={globalPercentage} onChange={(e) => setGlobalPercentage(e.target.value)} onWheel={handleInputWheel} required className="w-full pr-8" disabled={isLimitReached} />
                         <span className="ml-[-25px] text-gray-500 font-semibold">%</span>
                     </div>
-                    {basePrice && (
-                        <div className="text-[10px] text-slate-600 mt-2 p-2 border border-blue-100 bg-blue-50/50 rounded-md">
-                            <p className='font-bold mb-1 underline'>Estimasi Harga (Dasar: {formatCurrency(parseFloat(basePrice))}):</p>
-                            {productPrices.map(p => (
-                                <p key={`calc-${p.customer_status}`}>- {p.name}: {formatCurrency((parseFloat(basePrice) || 0) * (parseFloat(globalPercentage) / 100))}</p>
-                            ))}
-                        </div>
-                    )}
                 </div>
             )}
             
@@ -525,20 +543,12 @@ const AddProductPage = () => {
                             <div key={p.customer_status} className="flex items-center gap-3 bg-slate-50 p-2 rounded-lg border">
                                 <Label className="text-xs flex-1 truncate font-bold">{p.name}</Label>
                                 <div className='flex items-center w-24 shrink-0'>
-                                    <Input type="number" value={p.percentage} onChange={(e) => handlePriceChange(p.customer_status, e.target.value)} onWheel={handleInputWheel} required className="h-8 pr-6 text-right" />
+                                    <Input type="number" value={p.percentage} onChange={(e) => handlePriceChange(p.customer_status, e.target.value)} onWheel={handleInputWheel} required className="h-8 pr-6 text-right" disabled={isLimitReached} />
                                     <span className="ml-[-18px] text-[10px] text-gray-400 font-bold">%</span>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    {basePrice && (
-                        <div className="text-[10px] text-slate-600 mt-2 p-2 border border-blue-100 bg-blue-50/50 rounded-md">
-                            <p className='font-bold mb-1 underline'>Estimasi Harga:</p>
-                            {productPrices.map(p => (
-                                <p key={`calc-${p.customer_status}`}>- {p.name}: {formatCurrency((parseFloat(basePrice) || 0) * (parseFloat(p.percentage) / 100))}</p>
-                            ))}
-                        </div>
-                    )}
                 </div>
             )}
             
@@ -549,16 +559,16 @@ const AddProductPage = () => {
                         {productPrices.map(p => (
                             <div key={p.customer_status} className="flex items-center gap-3 bg-slate-50 p-2 rounded-lg border">
                                 <Label className="text-xs flex-1 truncate font-bold">{p.name}</Label>
-                                <Input type="number" value={p.price} onChange={(e) => handlePriceChange(p.customer_status, e.target.value)} onWheel={handleInputWheel} required className="h-8 w-32 text-right" />
+                                <Input type="number" value={p.price} onChange={(e) => handlePriceChange(p.customer_status, e.target.value)} onWheel={handleInputWheel} required className="h-8 w-32 text-right" disabled={isLimitReached} />
                             </div>
                         ))}
                     </div>
                 </div>
             )}
 
-            <Button type="submit" className="w-full bg-[#011e4b] text-white font-bold h-11" disabled={loading || !isFormValid}>
+            <Button type="submit" className="w-full bg-[#011e4b] text-white font-bold h-11" disabled={loading || !isFormValid || isLimitReached}>
                 {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />} 
-                Tambah Produk
+                {isLimitReached ? 'Limit Tercapai' : 'Tambah Produk'}
             </Button>
           </form>
         </CardContent>

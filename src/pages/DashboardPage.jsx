@@ -19,6 +19,7 @@ import {
 import { format, subDays, addDays } from 'date-fns'; 
 import { startOfMonth, endOfMonth } from 'date-fns'; 
 import AdminDashboard from '@/components/dashboards/AdminDashboard';
+import SuperAdminDashboard from '@/components/dashboards/SuperAdminDashboard';
 import UserDashboard from '@/components/dashboards/UserDashboard'; 
 import DropshipDashboard from '@/components/dashboards/DropshipDashboard';
 
@@ -105,8 +106,10 @@ const DashboardPage = () => {
       if (userProfile.role === 'super_admin' && !companyId) {
         setDataLoading(true);
         
-        // 1. Ambil daftar tenant
-        const { data: companiesData, error: companiesError } = await supabase.from('companies').select('id, name');
+        // 1. Ambil daftar tenant beserta paket langganannya
+        const { data: companiesData, error: companiesError } = await supabase
+          .from('companies')
+          .select('id, name, subscription_plans(name), subscription_end_date');
         if (companiesError) {
           console.error('Error fetching companies:', companiesError);
           setCompanies([]);
@@ -400,97 +403,12 @@ const DashboardPage = () => {
   const renderDashboardComponent = () => { 
     if (userProfile.role === 'super_admin' && !companyId) { 
         return (
-            <div className="container mx-auto p-4 md:p-8 max-w-7xl animate-in fade-in slide-in-from-bottom-2">
-                
-                {/* Header Section */}
-                <div className="mb-10">
-                    <h1 className="text-3xl font-medium text-[#011e4b] flex items-center gap-3">
-                        <Building2 className="h-8 w-8 text-[#015a97]" />
-                        Pilih Perusahaan
-                    </h1>
-                    <p className="text-slate-500 mt-2 font-medium">
-                        Pantau metrik dan kelola operasional tenant secara spesifik.
-                    </p>
-                </div>
-                
-                {/* Chart Section */}
-                <Card className="mb-12 border border-slate-200/60 shadow-sm bg-white rounded-2xl overflow-hidden">
-                    <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-6">
-                        <CardTitle className="text-lg font-medium text-[#011e4b] flex items-center gap-2">
-                            <BarChart className="h-5 w-5 text-[#015a97]" /> Tren Pendapatan Langganan (30 Hari Terakhir)
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                        {salesData && salesData.length > 0 ? (
-                            <ResponsiveContainer width="100%" height={320}>
-                                <LineChart data={salesData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                                    <XAxis 
-                                        dataKey="date" 
-                                        tick={{ fill: '#64748B', fontSize: 12 }}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tickFormatter={(val) => format(new Date(val), 'dd MMM')}
-                                        dy={10}
-                                    />
-                                    <YAxis 
-                                      tick={{ fill: '#64748B', fontSize: 12 }}
-                                      tickLine={false}
-                                      axisLine={false}
-                                      tickFormatter={(val) => `Rp ${(val / 1000000).toFixed(1)} Jt`}
-                                      dx={-10}
-                                  />
-                                    <Tooltip 
-                                        contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                    />
-                                    <Legend 
-                                        iconType="circle" 
-                                        wrapperStyle={{ paddingTop: '20px', fontSize: '14px', fontWeight: 500 }}
-                                    />
-                                    {companies.map((company, index) => (
-                                        <Line
-                                            key={company.id}
-                                            type="monotone"
-                                            dataKey={company.name}
-                                            stroke={CHART_COLORS[index % CHART_COLORS.length]}
-                                            strokeWidth={3}
-                                            dot={{ r: 0 }}
-                                            activeDot={{ r: 6, strokeWidth: 0 }}
-                                        />
-                                    ))}
-                                </LineChart>
-                            </ResponsiveContainer>
-                        ) : (
-                            <div className="flex justify-center items-center h-48 text-slate-400 font-medium bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
-                                Belum ada data pendapatan langganan untuk ditampilkan.
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-                
-                {/* Company Selection Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {companies.map((company) => (
-                    <Card 
-                        key={company.id} 
-                        className="group cursor-pointer border border-slate-200/60 shadow-sm hover:shadow-md hover:border-[#015a97]/30 transition-all duration-300 rounded-2xl bg-white"
-                        onClick={() => setActiveCompany(company.id)}
-                    >
-                        <CardHeader className="p-6 pb-2">
-                            <CardTitle className="text-xl font-medium text-slate-800 group-hover:text-[#011e4b] transition-colors">
-                                {company.name}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-6 pt-4 flex justify-between items-center border-t border-slate-50 mt-2">
-                            <span className="text-sm text-slate-500 font-medium">Ketuk untuk masuk</span>
-                            <div className="h-8 w-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-[#015a97] group-hover:text-white text-slate-400 transition-colors">
-                                <ArrowRight className="h-4 w-4" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                    ))}
-                </div>
-            </div>
+            <SuperAdminDashboard 
+                profile={userProfile} 
+                companies={companies} 
+                salesData={salesData} 
+                setActiveCompany={setActiveCompany}
+            />
         );
     }
 

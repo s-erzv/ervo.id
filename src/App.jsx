@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'; 
 import { useAuth } from './contexts/AuthContext';
+import { useSubscription } from './contexts/SubscriptionContext';
 import { Headset, Loader2 } from 'lucide-react'; 
 import { Toaster } from 'react-hot-toast';
 import { useEffect } from 'react';  
@@ -52,7 +53,8 @@ import DropshipDashboard from './components/dashboards/DropshipDashboard';
 
 
 const App = () => {
-  const { session, loading, userProfile, user, isAccessDenied } = useAuth();
+  const { session, loading: authLoading, userProfile, user, isAccessDenied } = useAuth();
+  const { hasFeature, loading: subLoading } = useSubscription();
   const location = useLocation(); 
    
   useEffect(() => {
@@ -70,7 +72,7 @@ const App = () => {
     }
   }, [user]);
 
-  if (loading) {
+  if (authLoading || subLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
@@ -195,7 +197,7 @@ const App = () => {
             
             <Route
               path="/salaries"
-              element={session && isAdminOrSuperAdmin ? <SalaryAndBonusPage /> : <Navigate to="/dashboard" />}
+              element={session && isAdminOrSuperAdmin && hasFeature('salaries') ? <SalaryAndBonusPage /> : <Navigate to="/dashboard" />}
             />
 
             <Route
@@ -205,18 +207,18 @@ const App = () => {
             
             <Route
               path="/maps"
-              element={session && canManageOrders ? <MapsPage /> : <Navigate to="/dashboard" />}
+              element={session && canManageOrders && hasFeature('maps') ? <MapsPage /> : <Navigate to="/dashboard" />}
             />
             
             <Route
               path="/expenses"
-              element={session && (isAdminOrSuperAdmin || isCourier) ? <ExpenseReportsPage /> : <Navigate to="/dashboard" />}
+              element={session && (isAdminOrSuperAdmin || isCourier) && hasFeature('reimbursement') ? <ExpenseReportsPage /> : <Navigate to="/dashboard" />}
             />
             
             {/* Laporan Keuangan Utama */}
             <Route
               path="/financials"
-              element={session && (isAdminOrSuperAdmin || userProfile?.role === 'user') ? <FinancialReportPage /> : <Navigate to="/dashboard" />}
+              element={session && (isAdminOrSuperAdmin || userProfile?.role === 'user') && hasFeature('financials') ? <FinancialReportPage /> : <Navigate to="/dashboard" />}
             />
 
             <Route
@@ -227,17 +229,17 @@ const App = () => {
             {/* Manajemen Keuangan */}
             <Route
               path="/financial-management"
-              element={session && (isAdminOrSuperAdmin || userProfile?.role === 'user') ? <FinancialManagementPage /> : <Navigate to="/dashboard" />}
+              element={session && (isAdminOrSuperAdmin || userProfile?.role === 'user') && hasFeature('financials') ? <FinancialManagementPage /> : <Navigate to="/dashboard" />}
             />
 
             <Route
               path="/data-export"
-              element={session && isAdminOrSuperAdmin ? <DataExportPage /> : <Navigate to="/dashboard" />}
+              element={session && isAdminOrSuperAdmin && hasFeature('data_export') ? <DataExportPage /> : <Navigate to="/dashboard" />}
             />
 
              <Route
               path="/calendar"
-              element={session ? <CalendarPage /> : <Navigate to="/login" />}
+              element={session && hasFeature('calendar') ? <CalendarPage /> : <Navigate to="/login" />}
             />
 
             <Route

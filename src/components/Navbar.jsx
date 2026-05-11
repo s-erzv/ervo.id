@@ -1,6 +1,7 @@
 // src/components/Navbar.jsx
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,18 +35,18 @@ const navItems = [
   { path: '/courier-dashboard', name: 'Dashboard Petugas', icon: <SquareUser />, roles: ['super_admin', 'admin'] }, 
   { path: '/orders', name: 'Manajemen Pesanan', icon: <ListOrdered />, roles: ['super_admin', 'admin', 'user', 'dropship'] },
   { path: '/customers', name: 'Customers', icon: <Users />, roles: ['super_admin', 'admin', 'user', 'dropship'] },
-  { name: 'Peta Pelanggan', path: '/maps', icon: <MapPin />, roles: ['super_admin', 'admin', 'user'] },
+  { name: 'Peta Pelanggan', path: '/maps', icon: <MapPin />, roles: ['super_admin', 'admin', 'user'], feature: 'maps' },
   { path: '/stock', name: 'Stok', icon: <Package />, roles: ['super_admin', 'admin', 'user'] },
   { path: '/stock-reconciliation', name: 'Update Stok', icon: <Files />, roles: ['super_admin', 'admin', 'user'] },
-  { path: '/central-orders', name: 'Procurement', icon: <Truck />, roles: ['super_admin', 'admin', 'user'] },
-  { path: '/expenses', name: 'Reimbursement', icon: <ReceiptText />, roles: ['super_admin', 'admin', 'user'] },
-  { path: '/salaries', name: 'Gaji & Bonus', icon: <DollarSign />, roles: ['admin'] },
-  { path: '/financial-management', name: 'Manajemen Keuangan', icon: <PiggyBank />, roles: ['super_admin', 'admin', 'user'] },
-  { path: '/financials', name: 'Keuangan', icon: <Wallet />, roles: ['super_admin', 'admin', 'user'] },
-  { path: '/reports', name: 'Analisis', icon: <BarChart />, roles: ['super_admin', 'admin', 'user', 'dropship'] },
-  { path: '/final-reports', name: 'Laporan Final', icon: <LibraryBig />, roles: ['super_admin', 'admin'] }, 
-  { path: '/data-export', name: 'Data Center', icon: <Database />, roles: ['super_admin-main', 'admin'] },
-  { path: '/calendar', name: 'Kalender Pesanan', icon: <Calendar />, roles: ['super_admin', 'admin', 'user'] },
+  { path: '/central-orders', name: 'Procurement', icon: <Truck />, roles: ['super_admin', 'admin', 'user'], feature: 'procurement' },
+  { path: '/expenses', name: 'Reimbursement', icon: <ReceiptText />, roles: ['super_admin', 'admin', 'user'], feature: 'reimbursement' },
+  { path: '/salaries', name: 'Gaji & Bonus', icon: <DollarSign />, roles: ['admin'], feature: 'salaries' },
+  { path: '/financial-management', name: 'Manajemen Keuangan', icon: <PiggyBank />, roles: ['super_admin', 'admin', 'user'], feature: 'financials' },
+  { path: '/financials', name: 'Keuangan', icon: <Wallet />, roles: ['super_admin', 'admin', 'user'], feature: 'financials' },
+  { path: '/reports', name: 'Analisis', icon: <BarChart />, roles: ['super_admin', 'admin', 'user', 'dropship'], feature: 'reports' },
+  { path: '/final-reports', name: 'Laporan Final', icon: <LibraryBig />, roles: ['super_admin', 'admin'], feature: 'reports' }, 
+  { path: '/data-export', name: 'Data Center', icon: <Database />, roles: ['super_admin-main', 'admin'], feature: 'data_export' },
+  { path: '/calendar', name: 'Kalender Pesanan', icon: <Calendar />, roles: ['super_admin', 'admin', 'user'], feature: 'calendar' },
   { path: '/settings', name: 'Pengaturan', icon: <Settings />, roles: ['super_admin', 'admin'] },
   { path: '/users', name: 'Manajemen Pengguna', icon: <Users />, roles: ['super_admin', 'super_admin-main'] },
   { path: '/billing-account', name: 'Manajemen Langganan', icon: <FolderKey />, roles: ['super_admin-main'] },
@@ -55,6 +56,7 @@ const navItems = [
 
 const Sidebar = () => {
   const { session, userRole, companyName, companyLogo, setActiveCompany, companyId, userProfile, signOut, notificationRefreshKey } = useAuth();
+  const { hasFeature } = useSubscription();
   const navigate = useNavigate();
   const location = useLocation();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -245,23 +247,27 @@ const Sidebar = () => {
   }
 
   const currentRole = userRole === 'super_admin' && !companyId ? 'super_admin-main' : userRole;
-  const filteredItems = navItems.filter(item => item.roles.includes(currentRole));
+  const filteredItems = navItems.filter(item => {
+    const hasRole = item.roles.includes(currentRole);
+    const hasRequiredFeature = !item.feature || hasFeature(item.feature);
+    return hasRole && hasRequiredFeature;
+  });
 
   const NavContent = ({ onLinkClick, isMobile = false }) => (
-    <nav className="flex flex-col gap-2 px-3 py-4 h-full overflow-y-auto scrollbar-hide">
+    <nav className="flex flex-col gap-1.5 px-3 py-4 h-full overflow-y-auto scrollbar-hide">
       <Link
         to="/dashboard"
-        className={`flex h-10 items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-gray-100 mb-4 ${isMobile ? '' : 'group'}`}
+        className={`flex h-10 items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-white/10 mb-4 ${isMobile ? '' : 'group'}`}
         onClick={onLinkClick}
       >
-        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/20 text-xs font-bold text-white">
           {companyLogo ? (
-            <img src={companyLogo} alt="Company Logo" className="h-full w-full rounded-md object-contain" />
+            <img src={companyLogo} alt="Company Logo" className="h-full w-full rounded-lg object-contain" />
           ) : (
             companyName ? companyName[0].toUpperCase() : 'A'
           )}
         </div>
-        <span className={`${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} text-sm font-semibold transition-opacity duration-300 whitespace-nowrap`}>
+        <span className={`${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} text-sm font-semibold text-white transition-opacity duration-300 whitespace-nowrap`}>
           {companyName || 'Nama Perusahaan'}
         </span>
       </Link>
@@ -271,7 +277,7 @@ const Sidebar = () => {
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
-              className="flex w-full items-center justify-start gap-2 h-10 px-3 py-2 cursor-pointer"
+              className="flex w-full items-center justify-start gap-2 h-10 px-3 py-2 cursor-pointer bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
               disabled={loadingCompanies}
             >
               <Building2 className="h-4 w-4" />
@@ -319,8 +325,8 @@ const Sidebar = () => {
             to={item.path}
             className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 py-2 transition-all duration-150 ease-in-out
               ${location.pathname === item.path
-                ? 'bg-[#afcddd] text-[#011e4b] shadow-sm font-bold'
-                : 'text-gray-600 hover:bg-[#afcddd]/30'
+                ? 'bg-white text-[#011e4b] shadow-sm font-bold'
+                : 'text-blue-100/80 hover:bg-white/10 hover:text-white'
               } ${isMobile ? '' : 'group'}`}
             onClick={onLinkClick}
           >
@@ -345,13 +351,13 @@ const Sidebar = () => {
         )
       })}
 
-      <div className="mt-auto w-full border-t border-gray-200 pt-2">
+      <div className="mt-auto w-full border-t border-white/10 pt-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               className="flex h-10 w-full items-center justify-start gap-3 rounded-lg px-3 py-2 
-                        text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-150"
+                        text-blue-100/80 hover:bg-white/10 hover:text-white transition-colors duration-150"
             >
               <div className="flex h-5 w-5 items-center justify-center">
                 <UserCircle className="h-5 w-5" />
@@ -365,7 +371,7 @@ const Sidebar = () => {
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">{session.user.email}</p>
-                <p className="text-xs leading-none text-muted-foreground">
+                <p className="text-xs leading-none text-slate-500">
                   Role: {userRole}
                 </p>
               </div>
@@ -389,42 +395,42 @@ const Sidebar = () => {
     <>
       {/* Desktop Sidebar */}
       <div className="hidden sm:block">
-        <aside className="group fixed inset-y-0 left-0 z-50 flex w-16 hover:w-64 flex-col border-r border-gray-200 bg-white shadow-sm transition-all duration-300 ease-in-out">
+        <aside className="group fixed inset-y-0 left-0 z-50 flex w-16 hover:w-64 flex-col border-r border-[#001638] bg-[#011e4b] shadow-lg transition-all duration-300 ease-in-out">
           <NavContent onLinkClick={() => { }} />
         </aside>
       </div>
 
       {/* Mobile Navbar with Hamburger Menu */}
-      <header className="sm:hidden sticky top-0 z-40 flex h-16 shrink-0 items-center gap-4 border-b bg-white px-4 shadow-sm md:px-6">
+      <header className="sm:hidden sticky top-0 z-40 flex h-16 shrink-0 items-center gap-4 border-b border-[#001638] bg-[#011e4b] px-4 shadow-md md:px-6">
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
             <Button
               variant="outline"
               size="icon"
-              className="shrink-0 md:hidden"
+              className="shrink-0 md:hidden border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white"
             >
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle navigation menu</span>
             </Button>
           </SheetTrigger>
 
-          <SheetContent side="left" className="flex flex-col bg-white" aria-describedby={undefined}>
+          <SheetContent side="left" className="flex flex-col bg-[#011e4b] border-r-[#001638]" aria-describedby={undefined}>
             <SheetHeader className="px-1">
-              <SheetTitle>Menu</SheetTitle>
+              <SheetTitle className="text-white">Menu</SheetTitle>
             </SheetHeader>
 
             <NavContent onLinkClick={() => setIsSheetOpen(false)} isMobile={true} />
           </SheetContent>
         </Sheet>
 
-        <div className="flex-1 text-center font-bold text-lg">
+        <div className="flex-1 text-center font-bold text-lg text-white">
           {companyName || 'Nama Perusahaan'}
         </div>
         
         <div className="ml-auto flex items-center gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full text-white hover:bg-white/10 hover:text-white">
                 <Bell className="h-5 w-5" />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
@@ -457,7 +463,7 @@ const Sidebar = () => {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full text-white hover:bg-white/10 hover:text-white">
                 <UserCircle className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
@@ -465,7 +471,7 @@ const Sidebar = () => {
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">{session.user.email}</p>
-                  <p className="text-xs leading-none text-muted-foreground">
+                  <p className="text-xs leading-none text-slate-500">
                     Role: {userRole}
                   </p>
                 </div>
