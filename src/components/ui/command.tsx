@@ -15,9 +15,8 @@ const Command = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive
     ref={ref}
-    // Hapus bg-popover dan text-popover-foreground, ganti dengan bg-white dan text-black
     className={cn(
-      "flex h-full w-full flex-col overflow-hidden rounded-md bg-white text-black",
+      "flex h-full w-full flex-col overflow-hidden rounded-md bg-white dark:bg-[#1a2235] text-slate-900 dark:text-slate-100",
       className
     )}
     {...props}

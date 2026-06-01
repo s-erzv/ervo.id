@@ -76,9 +76,10 @@ const STATS = [
 ];
 
 const FOOTER_LINKS = [
-  { title:'Produk',     links:['Fitur Utama','Harga Paket','Cara Kerja','FAQ'] },
-  { title:'Perusahaan', links:['Tentang Kami','Blog Bisnis','Kebijakan Privasi','Kontak'] },
-  { title:'Support',    links:['Pusat Bantuan','WhatsApp Teknis','Status Sistem'] },
+  { title:'Produk',     links:[{label:'Fitur Utama',href:'#fitur'},{label:'Harga Paket',href:'#harga'},{label:'Cara Kerja',href:'#keunggulan'},{label:'FAQ',href:'#'}] },
+  { title:'Perusahaan', links:[{label:'Tentang Kami',href:'#'},{label:'Blog Bisnis',href:'#'},{label:'Kebijakan Privasi',href:'/security'},{label:'Kontak',href:'#'}] },
+  { title:'Legal & Trust', links:[{label:'Terms of Service',href:'/terms'},{label:'SLA & Uptime',href:'/sla'},{label:'Keamanan Data',href:'/security'},{label:'Kebijakan Cookie',href:'/cookies'}] },
+  { title:'Support',    links:[{label:'Pusat Bantuan',href:'#'},{label:'WhatsApp Teknis',href:'https://api.whatsapp.com/send?phone=6285770002355'},{label:'Status Sistem',href:'#'}] },
 ];
 
 const BAR_HEIGHTS = [55, 72, 60, 85, 68, 96, 78];
@@ -254,7 +255,7 @@ export default function LandingPage() {
           </div>
 
           <nav style={S.navLinks} className="desktop-only">
-            {[['fitur','Fitur'],['keunggulan','Keunggulan'],['harga','Harga'],['testimoni','Testimoni']].map(([id, label]) => (
+            {[['fitur','Fitur'],['keunggulan','Keunggulan'],['harga','Harga'],['testimoni','Testimoni'],['keamanan','Keamanan & SLA']].map(([id, label]) => (
               <button key={id} onClick={() => scrollTo(id)} style={S.navLink} className="nav-link">{label}</button>
             ))}
           </nav>
@@ -271,7 +272,7 @@ export default function LandingPage() {
 
         {menuOpen && (
           <div style={S.mobileMenu}>
-            {[['fitur','Fitur'],['keunggulan','Keunggulan'],['harga','Harga'],['testimoni','Testimoni']].map(([id, label]) => (
+            {[['fitur','Fitur'],['keunggulan','Keunggulan'],['harga','Harga'],['testimoni','Testimoni'],['keamanan','Keamanan & SLA']].map(([id, label]) => (
               <button key={id} onClick={() => scrollTo(id)} style={S.mobileLink}>{label}</button>
             ))}
             <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginTop:'16px' }}>
@@ -489,6 +490,85 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── KEAMANAN & SLA ── */}
+      <section id="keamanan" style={{ background:'#fff', padding:'5rem 0', borderTop:'1px solid #f1f5f9' }}>
+        <div style={{ maxWidth:'1280px', margin:'0 auto', padding:'0 2rem' }}>
+          <div style={{ textAlign:'center', marginBottom:'3.5rem' }}>
+            <span style={{ display:'inline-block', background:'#f0f5fa', color:'#011e4b', fontSize:'0.78rem', fontWeight:'700', letterSpacing:'0.1em', textTransform:'uppercase', padding:'6px 16px', borderRadius:'100px', marginBottom:'1rem' }}>Keamanan & Kepercayaan</span>
+            <h2 style={{ fontSize:'clamp(1.6rem,4vw,2.4rem)', fontWeight:'700', color:'#0f172a', lineHeight:'1.2' }}>Platform yang Anda Bisa Percaya</h2>
+            <p style={{ color:'#64748b', marginTop:'1rem', fontSize:'1.05rem', maxWidth:'520px', margin:'1rem auto 0' }}>Data bisnis Anda adalah aset — kami menjaganya dengan standar keamanan enterprise.</p>
+          </div>
+
+          {/* Security cards */}
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))', gap:'1.5rem', marginBottom:'4rem' }}>
+            {[
+              { icon:IC.shield, title:'Enkripsi End-to-End', desc:'Semua data dienkripsi dengan AES-256 saat dikirim dan disimpan. Tidak ada data plain-text yang tersimpan di server.', color:'#011e4b' },
+              { icon:IC.life,   title:'Backup Otomatis Harian', desc:'Data Anda di-backup setiap 24 jam ke storage terpisah secara geografis. Recovery point objective (RPO) < 24 jam.', color:'#0ea5e9' },
+              { icon:IC.cpu,    title:'Infrastruktur Terisolasi', desc:'Setiap tenant berjalan di lingkungan terisolasi dengan Row Level Security (RLS) di tingkat database PostgreSQL.', color:'#10b981' },
+              { icon:IC.check,  title:'Audit Trail Lengkap', desc:'Setiap aksi pengguna tercatat dengan timestamp, user ID, dan IP address. Ideal untuk compliance dan investigasi internal.', color:'#8b5cf6' },
+            ].map((item, i) => (
+              <div key={i} style={{ background:'#f8fafc', borderRadius:'16px', padding:'1.75rem', border:'1px solid #f1f5f9' }}>
+                <div style={{ width:'44px', height:'44px', borderRadius:'12px', background:item.color, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:'1.25rem' }}>
+                  <Ico d={item.icon} size={22} sw={2} style={{ color:'white' }} />
+                </div>
+                <h3 style={{ fontWeight:'700', fontSize:'1rem', color:'#0f172a', marginBottom:'0.65rem' }}>{item.title}</h3>
+                <p style={{ fontSize:'0.9rem', color:'#64748b', lineHeight:'1.65' }}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* SLA Box */}
+          <div style={{ background:'linear-gradient(135deg,#011e4b 0%,#0336a0 100%)', borderRadius:'20px', padding:'2.5rem 3rem', color:'white', marginBottom:'3.5rem' }}>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:'2rem', alignItems:'center', justifyContent:'space-between' }}>
+              <div style={{ flex:'1', minWidth:'260px' }}>
+                <div style={{ fontSize:'0.75rem', fontWeight:'700', letterSpacing:'0.1em', textTransform:'uppercase', color:'rgba(255,255,255,0.6)', marginBottom:'0.75rem' }}>Service Level Agreement</div>
+                <h3 style={{ fontSize:'1.6rem', fontWeight:'700', marginBottom:'1rem' }}>Uptime 99.5% Terjamin</h3>
+                <p style={{ fontSize:'0.95rem', color:'rgba(255,255,255,0.75)', lineHeight:'1.65' }}>Kami berkomitmen menjaga ketersediaan platform minimum 99.5% per bulan. Jika terjadi downtime melebihi batas, tenant berhak mendapat kompensasi perpanjangan langganan.</p>
+              </div>
+              <div style={{ display:'flex', gap:'2.5rem', flexWrap:'wrap' }}>
+                {[
+                  { val:'99.5%', label:'Uptime SLA' },
+                  { val:'< 4 jam', label:'RTO (Recovery Time)' },
+                  { val:'< 24 jam', label:'RPO (Backup Point)' },
+                  { val:'2 jam', label:'Response Time' },
+                ].map((s,i) => (
+                  <div key={i} style={{ textAlign:'center' }}>
+                    <div style={{ fontSize:'1.6rem', fontWeight:'800', color:'white' }}>{s.val}</div>
+                    <div style={{ fontSize:'0.8rem', color:'rgba(255,255,255,0.6)', fontWeight:'500', marginTop:'4px' }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Terms & Conditions */}
+          <div style={{ border:'1px solid #e2e8f0', borderRadius:'16px', overflow:'hidden' }}>
+            <div style={{ background:'#f8fafc', padding:'1.25rem 1.75rem', borderBottom:'1px solid #e2e8f0', display:'flex', alignItems:'center', gap:'12px' }}>
+              <Ico d={IC.shield} size={18} sw={2} />
+              <h3 style={{ fontWeight:'700', fontSize:'1rem', color:'#0f172a' }}>Ketentuan Penggunaan (Terms of Service)</h3>
+            </div>
+            <div style={{ padding:'1.75rem', display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:'1.75rem' }}>
+              {[
+                { title:'1. Hak & Kepemilikan Data', text:'Semua data yang dimasukkan ke dalam platform Ervo adalah milik eksklusif tenant (perusahaan Anda). Ervo tidak mengklaim kepemilikan atas data bisnis Anda dan tidak akan menggunakannya untuk keperluan komersial lain.' },
+                { title:'2. Privasi & Perlindungan Data', text:'Data Anda tidak akan dijual, disewakan, atau dibagikan kepada pihak ketiga tanpa persetujuan eksplisit Anda, kecuali diwajibkan oleh hukum yang berlaku di Indonesia.' },
+                { title:'3. Penggunaan yang Diizinkan', text:'Platform digunakan untuk keperluan operasional bisnis yang sah. Segala bentuk penyalahgunaan, scraping, atau penggunaan yang melanggar hukum dapat mengakibatkan penangguhan akun tanpa peringatan.' },
+                { title:'4. Tanggung Jawab Tenant', text:'Tenant bertanggung jawab atas keamanan kredensial login, keaslian data yang diinput, dan penggunaan platform oleh seluruh anggota tim mereka.' },
+                { title:'5. Kebijakan Pembayaran', text:'Langganan bersifat prabayar dan non-refundable setelah diaktifkan. Pembayaran yang sudah dikonfirmasi akan langsung memperpanjang masa aktif akun.' },
+                { title:'6. Perubahan Layanan', text:'Ervo berhak mengubah fitur, harga, atau ketentuan layanan dengan pemberitahuan minimal 30 hari sebelumnya melalui email dan notifikasi dalam aplikasi.' },
+              ].map((t,i) => (
+                <div key={i}>
+                  <h4 style={{ fontWeight:'700', fontSize:'0.9rem', color:'#0f172a', marginBottom:'0.5rem' }}>{t.title}</h4>
+                  <p style={{ fontSize:'0.875rem', color:'#64748b', lineHeight:'1.65' }}>{t.text}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{ background:'#f8fafc', padding:'1rem 1.75rem', borderTop:'1px solid #e2e8f0', fontSize:'0.82rem', color:'#94a3b8' }}>
+              Terakhir diperbarui: Juni 2025 · Berlaku untuk semua paket langganan Ervo ERP · Hubungi <span style={{ color:'#011e4b', fontWeight:'600' }}>legal@ervo.id</span> untuk pertanyaan lebih lanjut.
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── FOOTER ── */}
       <footer style={S.footer}>
         <div style={S.footerInner}>
@@ -505,7 +585,11 @@ export default function LandingPage() {
               <div key={i} style={S.footerCol}>
                 <h4 style={S.footerColTitle}>{col.title}</h4>
                 {col.links.map(link => (
-                  <a key={link} href="#" style={S.footerLink} className="footer-link">{link}</a>
+                  <a key={link.label} href={link.href} style={S.footerLink} className="footer-link"
+                    target={link.href?.startsWith('http') ? '_blank' : undefined}
+                    rel={link.href?.startsWith('http') ? 'noopener noreferrer' : undefined}>
+                    {link.label}
+                  </a>
                 ))}
               </div>
             ))}

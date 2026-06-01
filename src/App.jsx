@@ -43,6 +43,10 @@ import SalaryAndBonusPage from './pages/SalaryAndBonusPage';
 import CourierDashboardContainer from './pages/CourierDashboardContainer';
 import FinalReportsPage from './pages/FinalReportsPage'; 
 import LandingPage from './pages/LandingPage';
+import TermsPage    from './pages/legal/TermsPage';
+import SLAPage      from './pages/legal/SLAPage';
+import SecurityPage from './pages/legal/SecurityPage';
+import CookiesPage  from './pages/legal/CookiesPage';
 import NewCentralOrderFormPage from './pages/NewCentralOrderFormPage';
 import EditCentralOrderFormPage from './pages/EditCentralOrderFormPage';
 import SubscriptionExpiredPage from './pages/SubscriptionExpiredPage';
@@ -100,8 +104,8 @@ const App = () => {
     <>
       {userProfile && !isAccessDenied && <Sidebar />} 
      <main
-        className={`min-h-screen bg-white transition-all duration-300 ${
-          location.pathname !== "/login" && location.pathname !== "/" ? "md:ml-16" : ""
+        className={`min-h-screen bg-white dark:bg-[#0d1625] text-slate-900 dark:text-slate-100 transition-colors duration-200 ${
+          location.pathname !== "/login" && location.pathname !== "/" && !['/terms','/sla','/security','/cookies'].includes(location.pathname) ? "md:ml-16" : ""
         }`}
       >
         <div className={location.pathname !== "/login" && location.pathname !== "/" ? "p-4 md:p-8" : ""}>
@@ -271,6 +275,12 @@ const App = () => {
                 path="/billing-account"
                 element={session && isSuperAdmin ? <BillingAccountPage /> : <Navigate to="/dashboard" />}
             />
+
+            {/* Legal pages — public, no auth required */}
+            <Route path="/terms"    element={<TermsPage />} />
+            <Route path="/sla"      element={<SLAPage />} />
+            <Route path="/security" element={<SecurityPage />} />
+            <Route path="/cookies"  element={<CookiesPage />} />
 
             <Route path="*" element={<Navigate to="/dashboard" />} />
           </Routes>

@@ -18,7 +18,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { LogOut, UserCircle, LayoutDashboard, ListOrdered, Users, Package, Calendar, BarChart, Settings, Truck, Files, ReceiptText, Wallet, PiggyBank, Menu, Lock, Building2, DollarSign, Database, Bell, SquareUser, LibraryBig, FolderKey, MapPin, BarChart3 } from 'lucide-react';
+import { LogOut, UserCircle, LayoutDashboard, ListOrdered, Users, Package, Calendar, BarChart, Settings, Truck, Files, ReceiptText, Wallet, PiggyBank, Menu, Lock, Building2, DollarSign, Database, Bell, SquareUser, LibraryBig, FolderKey, MapPin, BarChart3, Sun, Moon, CreditCard, ShieldCheck, Globe } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 import { toast } from 'react-hot-toast';
 import { supabase } from '../lib/supabase';
 import { useEffect, useState } from 'react';
@@ -30,31 +31,55 @@ import { formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 const navItems = [
+  // ── Shared
   { path: '/dashboard', name: 'Dashboard', icon: <LayoutDashboard />, roles: ['super_admin', 'super_admin-main', 'admin', 'user', 'dropship'] },
   { path: '/notifications', name: 'Notifikasi', icon: <Bell />, roles: ['super_admin', 'super_admin-main', 'admin', 'user'] },
-  { path: '/courier-dashboard', name: 'Dashboard Petugas', icon: <SquareUser />, roles: ['super_admin', 'admin'] }, 
+
+  // ── Super Admin Platform (super_admin-main only)
+  { type: 'section', label: 'Platform', roles: ['super_admin-main'] },
+  { path: '/users', name: 'Semua Pengguna', icon: <Users />, roles: ['super_admin-main'] },
+  { path: '/billing-account', name: 'Tenant & Langganan', icon: <Building2 />, roles: ['super_admin-main'] },
+
+  // ── Super Admin Tenant Operations (super_admin with company)
+  { type: 'section', label: 'Pengguna', roles: ['super_admin'] },
+  { path: '/users', name: 'Manajemen Pengguna', icon: <Users />, roles: ['super_admin'] },
+  { path: '/courier-dashboard', name: 'Dashboard Petugas', icon: <SquareUser />, roles: ['super_admin', 'admin'] },
+
+  // ── Operations
+  { type: 'section', label: 'Operasional', roles: ['super_admin', 'admin', 'user', 'dropship'] },
   { path: '/orders', name: 'Manajemen Pesanan', icon: <ListOrdered />, roles: ['super_admin', 'admin', 'user', 'dropship'] },
   { path: '/customers', name: 'Customers', icon: <Users />, roles: ['super_admin', 'admin', 'user', 'dropship'] },
   { name: 'Peta Pelanggan', path: '/maps', icon: <MapPin />, roles: ['super_admin', 'admin', 'user'], feature: 'maps' },
-  { path: '/stock', name: 'Stok', icon: <Package />, roles: ['super_admin', 'admin', 'user'] },
-  { path: '/stock-reconciliation', name: 'Update Stok', icon: <Files />, roles: ['super_admin', 'admin', 'user'] },
+  { path: '/calendar', name: 'Kalender Pesanan', icon: <Calendar />, roles: ['super_admin', 'admin', 'user'], feature: 'calendar' },
   { path: '/central-orders', name: 'Procurement', icon: <Truck />, roles: ['super_admin', 'admin', 'user'], feature: 'procurement' },
+
+  // ── Stok
+  { type: 'section', label: 'Stok', roles: ['super_admin', 'admin', 'user'] },
+  { path: '/stock', name: 'Stok Produk', icon: <Package />, roles: ['super_admin', 'admin', 'user'] },
+  { path: '/stock-reconciliation', name: 'Update Stok', icon: <Files />, roles: ['super_admin', 'admin', 'user'] },
+
+  // ── Keuangan
+  { type: 'section', label: 'Keuangan', roles: ['super_admin', 'admin', 'user'] },
+  { path: '/financial-management', name: 'Manajemen Keuangan', icon: <PiggyBank />, roles: ['super_admin', 'admin', 'user'], feature: 'financials' },
+  { path: '/financials', name: 'Laporan Keuangan', icon: <Wallet />, roles: ['super_admin', 'admin', 'user'], feature: 'financials' },
   { path: '/expenses', name: 'Reimbursement', icon: <ReceiptText />, roles: ['super_admin', 'admin', 'user'], feature: 'reimbursement' },
   { path: '/salaries', name: 'Gaji & Bonus', icon: <DollarSign />, roles: ['admin'], feature: 'salaries' },
-  { path: '/financial-management', name: 'Manajemen Keuangan', icon: <PiggyBank />, roles: ['super_admin', 'admin', 'user'], feature: 'financials' },
-  { path: '/financials', name: 'Keuangan', icon: <Wallet />, roles: ['super_admin', 'admin', 'user'], feature: 'financials' },
+
+  // ── Laporan
+  { type: 'section', label: 'Laporan', roles: ['super_admin', 'admin', 'user', 'dropship'] },
   { path: '/reports', name: 'Analisis', icon: <BarChart />, roles: ['super_admin', 'admin', 'user', 'dropship'], feature: 'reports' },
-  { path: '/final-reports', name: 'Laporan Final', icon: <LibraryBig />, roles: ['super_admin', 'admin'], feature: 'reports' }, 
+  { path: '/final-reports', name: 'Laporan Final', icon: <LibraryBig />, roles: ['super_admin', 'admin'], feature: 'reports' },
   { path: '/data-export', name: 'Data Center', icon: <Database />, roles: ['super_admin-main', 'admin'], feature: 'data_export' },
-  { path: '/calendar', name: 'Kalender Pesanan', icon: <Calendar />, roles: ['super_admin', 'admin', 'user'], feature: 'calendar' },
+
+  // ── Settings
+  { type: 'section', label: 'Sistem', roles: ['super_admin', 'admin'] },
   { path: '/settings', name: 'Pengaturan', icon: <Settings />, roles: ['super_admin', 'admin'] },
-  { path: '/users', name: 'Manajemen Pengguna', icon: <Users />, roles: ['super_admin', 'super_admin-main'] },
-  { path: '/billing-account', name: 'Manajemen Langganan', icon: <FolderKey />, roles: ['super_admin-main'] },
 ];
 
 
 
 const Sidebar = () => {
+  const { theme, toggleTheme } = useTheme();
   const { session, userRole, companyName, companyLogo, setActiveCompany, companyId, userProfile, signOut, notificationRefreshKey } = useAuth();
   const { hasFeature } = useSubscription();
   const navigate = useNavigate();
@@ -82,7 +107,7 @@ const Sidebar = () => {
   // State untuk Pending Reimbursement
   const [pendingExpensesCount, setPendingExpensesCount] = useState(0);
 
-  // Effect untuk Notifikasi Umum
+  // Effect untuk Notifikasi Umum — real-time
   useEffect(() => {
     if (!session) return;
 
@@ -94,24 +119,29 @@ const Sidebar = () => {
         .eq('is_read', false)
         .order('created_at', { ascending: false });
 
-      if (!error) {
-        setUnreadNotifications(data || []);
-      }
+      if (!error) setUnreadNotifications(data || []);
     };
 
     fetchUnreadNotifications();
 
+    // Handle real-time: INSERT = tambah langsung ke state; UPDATE = re-fetch (mungkin sudah dibaca)
     const channel = supabase
-      .channel('public:notifications:navbar')
+      .channel(`notif:${session.user.id}`)
       .on('postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${session.user.id}`
-        },
-        () => {
-          fetchUnreadNotifications();
+        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${session.user.id}` },
+        (payload) => {
+          if (payload.new && !payload.new.is_read) {
+            setUnreadNotifications(prev => [payload.new, ...prev]);
+          }
+        }
+      )
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${session.user.id}` },
+        (payload) => {
+          if (payload.new?.is_read) {
+            // Langsung hapus dari state tanpa re-fetch
+            setUnreadNotifications(prev => prev.filter(n => n.id !== payload.new.id));
+          }
         }
       )
       .subscribe();
@@ -175,15 +205,11 @@ const Sidebar = () => {
   }, [companyId, userRole, session?.user?.id]); // Tambahkan dependency userRole dan session.user.id
 
   const handleNotificationClick = async (notification) => {
-    if (notification.link_to) {
-      navigate(notification.link_to);
-    }
-    await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('id', notification.id);
-    
+    // Optimistic: hapus dari state dulu
     setUnreadNotifications(prev => prev.filter(n => n.id !== notification.id));
+    // Update DB (real-time subscription juga akan fire UPDATE dan hapus jika belum terhapus)
+    await supabase.from('notifications').update({ is_read: true }).eq('id', notification.id);
+    if (notification.link_to) navigate(notification.link_to);
   };
 
   useEffect(() => {
@@ -253,6 +279,16 @@ const Sidebar = () => {
     return hasRole && hasRequiredFeature;
   });
 
+  // Remove consecutive duplicate section headers and sections with no following links
+  const dedupedItems = filteredItems.reduce((acc, item, idx) => {
+    if (item.type === 'section') {
+      const next = filteredItems[idx + 1];
+      if (!next || next.type === 'section') return acc; // skip empty section
+    }
+    acc.push(item);
+    return acc;
+  }, []);
+
   const NavContent = ({ onLinkClick, isMobile = false }) => (
     <nav className="flex flex-col gap-1.5 px-3 py-4 h-full overflow-y-auto scrollbar-hide">
       <Link
@@ -315,9 +351,17 @@ const Sidebar = () => {
         </DropdownMenu>
       )}
 
-      {filteredItems.map((item) => {
+      {dedupedItems.map((item, idx) => {
+        if (item.type === 'section') {
+          return (
+            <div key={`section-${idx}`} className={`px-3 pt-3 pb-1 ${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity duration-300`}>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-white/40 whitespace-nowrap">{item.label}</p>
+            </div>
+          );
+        }
+
         const isNotifications = item.path === '/notifications';
-        const isExpenses = item.path === '/expenses'; 
+        const isExpenses = item.path === '/expenses';
 
         return (
           <Link
@@ -341,7 +385,6 @@ const Sidebar = () => {
                 {unreadCount}
               </span>
             )}
-            {/* Tampilkan badge jika ini menu Reimbursement dan ada pending count */}
             {isExpenses && pendingExpensesCount > 0 && (
               <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
                 {pendingExpensesCount}
@@ -352,6 +395,20 @@ const Sidebar = () => {
       })}
 
       <div className="mt-auto w-full border-t border-white/10 pt-2">
+        {/* Dark / Light mode toggle */}
+        <button
+          onClick={toggleTheme}
+          className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 py-2 text-blue-100/80 hover:bg-white/10 hover:text-white transition-colors duration-150 ${isMobile ? '' : 'group'}`}
+          title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
+        >
+          <div className="flex h-5 w-5 items-center justify-center shrink-0">
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </div>
+          <span className={`${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} text-sm font-medium transition-opacity duration-300 whitespace-nowrap`}>
+            {theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
+          </span>
+        </button>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -427,7 +484,17 @@ const Sidebar = () => {
           {companyName || 'Nama Perusahaan'}
         </div>
         
-        <div className="ml-auto flex items-center gap-4">
+        <div className="ml-auto flex items-center gap-2">
+          {/* Dark mode toggle - mobile */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-full text-white hover:bg-white/10 hover:text-white"
+            onClick={toggleTheme}
+          >
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full text-white hover:bg-white/10 hover:text-white">

@@ -4,16 +4,19 @@ import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './contexts/AuthContext';
 import { SubscriptionProvider } from './contexts/SubscriptionContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { BrowserRouter } from 'react-router-dom';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AuthProvider>
-      <SubscriptionProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </SubscriptionProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <SubscriptionProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </SubscriptionProvider>
+      </AuthProvider>
+    </ThemeProvider>
   </StrictMode>,
 )

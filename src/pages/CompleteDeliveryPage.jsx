@@ -359,7 +359,7 @@ useEffect(() => {
     
     const { data: paymentsData, error: paymentsError } = await supabase
       .from('payments')
-      .select('amount, proof_url')
+      .select('amount, proof_url, received_by_name')
       .eq('order_id', orderData.id);
 
     if (paymentsError) {
@@ -394,6 +394,11 @@ useEffect(() => {
         setInitialTransferProofUrl(data?.publicUrl);
     }
 
+    // Pre-fill nama penerima dari pembayaran sebelumnya
+    const lastPaymentWithReceiver = paymentsData?.find(p => p.received_by_name);
+    if (lastPaymentWithReceiver?.received_by_name) {
+        setReceivedByName(lastPaymentWithReceiver.received_by_name);
+    }
 
     const orderWithDetails = {
       ...orderData,

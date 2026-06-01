@@ -4,23 +4,153 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── CSS Variables (shadcn/ui) ─────────────────────────────── */
 @layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 8%;
+    --primary: 214 100% 15%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 8%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 8%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 214 100% 15%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 94%;
+    --card: 222 40% 11%;
+    --card-foreground: 210 40% 94%;
+    --popover: 222 40% 11%;
+    --popover-foreground: 210 40% 94%;
+    --primary: 213 80% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217 32% 17%;
+    --secondary-foreground: 210 40% 94%;
+    --muted: 217 32% 17%;
+    --muted-foreground: 215 20% 60%;
+    --accent: 217 32% 20%;
+    --accent-foreground: 210 40% 94%;
+    --destructive: 0 63% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 217 32% 20%;
+    --input: 217 32% 20%;
+    --ring: 213 80% 55%;
+  }
+
   html, body {
     font-family: 'Poppins', sans-serif;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+/* ── Dark mode global overrides ────────────────────────────── */
+/* Backgrounds */
+.dark .bg-white               { background-color: hsl(222 40% 11%) !important; }
+.dark .bg-slate-50            { background-color: hsl(222 47% 9%) !important; }
+.dark .bg-slate-100           { background-color: hsl(220 35% 14%) !important; }
+.dark .bg-slate-200           { background-color: hsl(218 30% 18%) !important; }
+.dark .bg-slate-800           { background-color: hsl(222 40% 14%) !important; }
+.dark .bg-slate-900           { background-color: hsl(222 47% 7%) !important; }
+.dark .bg-gray-50             { background-color: hsl(222 47% 9%) !important; }
+.dark .bg-gray-100            { background-color: hsl(220 35% 14%) !important; }
+
+/* Semi-transparent white variants */
+.dark .bg-white\/90           { background-color: rgba(22, 30, 50, 0.95) !important; }
+.dark .bg-white\/95           { background-color: rgba(22, 30, 50, 0.98) !important; }
+.dark .bg-slate-50\/50        { background-color: hsl(222 47% 8%) !important; }
+
+/* Text */
+.dark .text-slate-900         { color: hsl(210 40% 94%) !important; }
+.dark .text-slate-800         { color: hsl(210 40% 90%) !important; }
+.dark .text-slate-700         { color: hsl(210 30% 80%) !important; }
+.dark .text-slate-600         { color: hsl(215 20% 65%) !important; }
+.dark .text-slate-500         { color: hsl(215 16% 55%) !important; }
+.dark .text-slate-400         { color: hsl(215 16% 45%) !important; }
+.dark .text-gray-900          { color: hsl(210 40% 94%) !important; }
+.dark .text-gray-800          { color: hsl(210 40% 90%) !important; }
+.dark .text-gray-700          { color: hsl(210 30% 80%) !important; }
+.dark .text-gray-600          { color: hsl(215 20% 65%) !important; }
+.dark .text-gray-500          { color: hsl(215 16% 55%) !important; }
+
+/* Borders */
+.dark .border-slate-200       { border-color: hsl(217 32% 22%) !important; }
+.dark .border-slate-100       { border-color: hsl(217 32% 18%) !important; }
+.dark .border-slate-300       { border-color: hsl(217 32% 26%) !important; }
+.dark .border-gray-200        { border-color: hsl(217 32% 22%) !important; }
+.dark .border-gray-100        { border-color: hsl(217 32% 18%) !important; }
+.dark .divide-slate-100 > *   { border-color: hsl(217 32% 18%) !important; }
+.dark .divide-slate-200 > *   { border-color: hsl(217 32% 22%) !important; }
+
+/* Inputs */
+.dark input[type="text"],
+.dark input[type="number"],
+.dark input[type="date"],
+.dark input[type="password"],
+.dark input[type="email"],
+.dark input[type="file"],
+.dark textarea,
+.dark select {
+  background-color: hsl(222 40% 13%) !important;
+  color: hsl(210 40% 94%) !important;
+  border-color: hsl(217 32% 22%) !important;
 }
 
-.scrollbar-hide {
-  -ms-overflow-style: none; 
-  scrollbar-width: none;   
-}
+.dark input::placeholder,
+.dark textarea::placeholder { color: hsl(215 16% 45%) !important; }
 
+/* Hover states */
+.dark .hover\:bg-slate-50:hover  { background-color: hsl(222 40% 14%) !important; }
+.dark .hover\:bg-slate-100:hover { background-color: hsl(220 35% 16%) !important; }
+.dark .hover\:bg-gray-50:hover   { background-color: hsl(222 40% 14%) !important; }
+
+/* Backdrop blur panels */
+.dark .backdrop-blur-md { background-color: rgba(13, 22, 37, 0.9) !important; }
+
+/* shadcn/ui component overrides */
+.dark [data-radix-popper-content-wrapper] { color-scheme: dark; }
+.dark [role="dialog"]         { background-color: hsl(222 40% 11%) !important; color: hsl(210 40% 94%) !important; }
+.dark [role="listbox"]        { background-color: hsl(222 40% 11%) !important; }
+.dark [role="option"]         { color: hsl(210 40% 90%) !important; }
+.dark [role="option"]:hover   { background-color: hsl(220 35% 16%) !important; }
+.dark [cmdk-item]             { color: hsl(210 40% 90%) !important; }
+
+/* Specific bg combinations that appear throughout the app */
+.dark .bg-\[\#10182b\],
+.dark .bg-\[\#011e4b\]        { background-color: #011e4b !important; }
+
+/* Tables — only bg, not text (text is handled per-class above) */
+.dark thead                   { background-color: hsl(222 40% 12%) !important; }
+.dark tfoot                   { background-color: hsl(222 40% 12%) !important; }
+.dark tbody tr:hover          { background-color: hsl(222 40% 14%) !important; }
+
+/* Tabs with hardcoded data-[state=active]:bg-white */
+.dark [data-state=active]     { --tw-bg-opacity: 1; }
+.dark [data-state=active].data-\[state\=active\]\:bg-white {
+  background-color: hsl(222 40% 18%) !important;
+  color: hsl(210 40% 90%) !important;
+}
+/* Tabs with hardcoded data-[state=active]:text-white stay white (on dark bg) — keep as-is */
+
+/* ── Scrollbar ─────────────────────────────────────────────── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide   { -ms-overflow-style: none; scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar     { -ms-overflow-style: none; scrollbar-width: none; }
 
 .pac-container {
   z-index: 9999 !important;
