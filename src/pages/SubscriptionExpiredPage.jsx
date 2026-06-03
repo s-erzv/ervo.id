@@ -63,7 +63,7 @@ const SubscriptionExpiredPage = () => {
                                 </Button>
                                 <Button 
                                     variant="outline"
-                                    onClick={() => window.location.href = 'https://api.whatsapp.com/send?phone=6285111301943'} 
+                                    onClick={() => window.location.href = 'https://api.whatsapp.com/send?phone=6287762407811'} 
                                     className="w-full border-green-600 text-green-700 hover:bg-green-50 flex items-center justify-center"
                                 >
                                     <Settings className="h-4 w-4 mr-2" /> Hubungi Super Admin

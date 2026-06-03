@@ -79,13 +79,13 @@ const FOOTER_LINKS = [
   { title:'Produk',     links:[{label:'Fitur Utama',href:'#fitur'},{label:'Harga Paket',href:'#harga'},{label:'Cara Kerja',href:'#keunggulan'},{label:'FAQ',href:'#'}] },
   { title:'Perusahaan', links:[{label:'Tentang Kami',href:'#'},{label:'Blog Bisnis',href:'#'},{label:'Kebijakan Privasi',href:'/security'},{label:'Kontak',href:'#'}] },
   { title:'Legal & Trust', links:[{label:'Terms of Service',href:'/terms'},{label:'SLA & Uptime',href:'/sla'},{label:'Keamanan Data',href:'/security'},{label:'Kebijakan Cookie',href:'/cookies'}] },
-  { title:'Support',    links:[{label:'Pusat Bantuan',href:'#'},{label:'WhatsApp Teknis',href:'https://api.whatsapp.com/send?phone=6285770002355'},{label:'Status Sistem',href:'#'}] },
+  { title:'Support',    links:[{label:'Pusat Bantuan',href:'#'},{label:'WhatsApp Teknis',href:'https://api.whatsapp.com/send?phone=6287762407811'},{label:'Status Sistem',href:'#'}] },
 ];
 
 const BAR_HEIGHTS = [55, 72, 60, 85, 68, 96, 78];
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
-const WA_URL = 'https://api.whatsapp.com/send?phone=6285770002355';
+const WA_URL = 'https://api.whatsapp.com/send?phone=6287762407811';
 
 const CSS_RULES = `
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
