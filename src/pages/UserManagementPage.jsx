@@ -11,7 +11,8 @@ import { toast } from 'react-hot-toast';
 import AddUserForm from '@/components/AddUserForm';
 import AddAdminForm from '@/components/AddAdminForm';
 import EditUserForm from '@/components/EditUserForm';
-import { Loader2, Pencil, Trash2, Users, Building2, Search, UserPlus, ShieldCheck, RefreshCw, Phone, CreditCard } from 'lucide-react';
+import CompanyExtensionForm from '@/components/CompanyExtensionForm';
+import { Loader2, Pencil, Trash2, Users, Building2, Search, UserPlus, ShieldCheck, RefreshCw, Phone, CreditCard, CalendarClock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -52,6 +53,9 @@ const UserManagementPage = () => {
   const [newCompanyAddress, setNewCompanyAddress] = useState('');
   const [isCompanySubmitting, setIsCompanySubmitting] = useState(false);
 
+  const [isSubModalOpen,  setIsSubModalOpen]  = useState(false);
+  const [companyForSub,   setCompanyForSub]   = useState(null);
+
   useEffect(() => {
     if (!session) return;
     fetchUsers();
@@ -73,7 +77,7 @@ const UserManagementPage = () => {
     setLoadingCompanies(true);
     const { data, error } = await supabase
       .from('companies')
-      .select('id, name, created_at, google_sheets_link, address, subscription_end_date, is_manually_locked, subscription_plans(name)')
+      .select('id, name, created_at, google_sheets_link, address, subscription_end_date, is_manually_locked, subscription_plan_id, subscription_plans(name, price, billing_cycle_days)')
       .order('created_at', { ascending: false });
     if (error) { toast.error('Gagal mengambil data perusahaan.'); }
     else setCompanies(data ?? []);
@@ -238,6 +242,7 @@ const UserManagementPage = () => {
               loading={loadingCompanies}
               companyStats={companyStats}
               onEdit={(c) => { setCompanyToEdit(c); setNewCompanyName(c.name); setNewCompanyAddress(c.address || ''); setIsEditCompanyModalOpen(true); }}
+              onEditSub={(c) => { setCompanyForSub(c); setIsSubModalOpen(true); }}
               onDelete={handleDeleteCompany}
               openSheets={(link, id) => link ? window.open(`${link}?company_id=${id}`, '_blank') : toast.error('Link Google Sheets tidak tersedia.')}
             />
@@ -273,6 +278,30 @@ const UserManagementPage = () => {
         <EditUserForm open={isEditModalOpen} onOpenChange={setIsEditModalOpen} userToEdit={userToEdit}
           onUserUpdated={(u) => { setUsers(prev => prev.map(x => x.id === u.id ? { ...x, ...u } : x)); setIsEditModalOpen(false); }} />
       )}
+
+      {/* Subscription Dialog */}
+      <Dialog open={isSubModalOpen} onOpenChange={setIsSubModalOpen}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+              <CalendarClock className="h-5 w-5 text-[#011e4b]" />
+              Atur Langganan: {companyForSub?.name}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-2">
+            <CompanyExtensionForm
+              company={companyForSub}
+              onSuccess={(updated) => {
+                setIsSubModalOpen(false);
+                setCompanies(prev => prev.map(c =>
+                  c.id === companyForSub?.id ? { ...c, ...updated } : c
+                ));
+                fetchCompanies();
+              }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isEditCompanyModalOpen} onOpenChange={setIsEditCompanyModalOpen}>
         <DialogContent className="sm:max-w-md rounded-2xl">
@@ -428,7 +457,7 @@ const UserTable = ({ users, companies, selectedCompanyId, setSelectedCompanyId, 
   </Card>
 );
 
-const CompanyTable = ({ companies, loading, companyStats, onEdit, onDelete, openSheets }) => (
+const CompanyTable = ({ companies, loading, companyStats, onEdit, onEditSub, onDelete, openSheets }) => (
   <div className="space-y-5">
     {/* Mini stats */}
     <div className="grid grid-cols-3 gap-4">
@@ -465,6 +494,7 @@ const CompanyTable = ({ companies, loading, companyStats, onEdit, onDelete, open
                   <TableHead className="font-semibold text-slate-600 dark:text-slate-400">Status</TableHead>
                   <TableHead className="font-semibold text-slate-600 dark:text-slate-400">Masa Aktif</TableHead>
                   <TableHead className="font-semibold text-slate-600 dark:text-slate-400">Dibuat</TableHead>
+                  <TableHead className="font-semibold text-slate-600 dark:text-slate-400 text-center">Langganan</TableHead>
                   <TableHead className="text-center font-semibold text-slate-600 dark:text-slate-400 px-5">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
@@ -495,6 +525,18 @@ const CompanyTable = ({ companies, loading, companyStats, onEdit, onDelete, open
                       </TableCell>
                       <TableCell className="py-3.5 text-sm text-slate-600 dark:text-slate-300">{formatDate(c.subscription_end_date)}</TableCell>
                       <TableCell className="py-3.5 text-xs text-slate-500 dark:text-slate-400">{formatDate(c.created_at)}</TableCell>
+                      {/* Subscription column */}
+                      <TableCell className="py-3.5 text-center">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 px-3 rounded-lg border-[#011e4b]/30 text-[#011e4b] dark:border-blue-400/30 dark:text-blue-300 hover:bg-[#011e4b] hover:text-white text-xs font-semibold gap-1.5 transition-colors"
+                          onClick={() => onEditSub(c)}
+                        >
+                          <CalendarClock className="h-3.5 w-3.5" />
+                          Atur
+                        </Button>
+                      </TableCell>
                       <TableCell className="px-5 py-3.5">
                         <div className="flex gap-1.5 justify-center">
                           <Button variant="outline" size="sm" className="h-8 w-8 p-0 rounded-lg border-slate-200 text-slate-500 hover:text-blue-600 hover:border-blue-200" onClick={() => onEdit(c)}>
@@ -514,7 +556,7 @@ const CompanyTable = ({ companies, loading, companyStats, onEdit, onDelete, open
                   );
                 })}
                 {companies.length === 0 && (
-                  <TableRow><TableCell colSpan={6} className="text-center py-12 text-slate-400 text-sm">Tidak ada perusahaan.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={7} className="text-center py-12 text-slate-400 text-sm">Tidak ada perusahaan.</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>
