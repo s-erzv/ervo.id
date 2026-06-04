@@ -1,290 +1,283 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'react-hot-toast';
-import { Loader2, CheckCircle2, CreditCard, MessageSquare, Zap, Send, ExternalLink, Clock } from 'lucide-react';
+import { Loader2, Clock, ExternalLink, RefreshCw, Zap, ShieldCheck, Lock, Star } from 'lucide-react';
 
-const SubscriptionPaymentForm = ({ onSuccess }) => {
-    const { companyId, userProfile } = useAuth();
-    const [plans, setPlans] = useState([]);
-    const [selectedPlanId, setSelectedPlanId] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [fetchingPlans, setFetchingPlans] = useState(true);
-    const [activeRequest, setActiveRequest] = useState(null);
-    const [fetchingRequest, setFetchingRequest] = useState(true);
+const fmt = (n) =>
+  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
 
-    useEffect(() => {
-        fetchPlans();
-        fetchActiveRequest();
-    }, [companyId]);
+const MONTH_OPTIONS = [
+  { value: 1,  label: '1 Bln',  discount: 0 },
+  { value: 3,  label: '3 Bln',  discount: 5 },
+  { value: 6,  label: '6 Bln',  discount: 10 },
+  { value: 12, label: '12 Bln', discount: 15 },
+];
 
-    const fetchPlans = async () => {
-        setFetchingPlans(true);
-        const { data, error } = await supabase
-            .from('subscription_plans')
-            .select('*')
-            .eq('is_active', true)
-            .order('price', { ascending: true });
-
-        if (error) {
-            console.error('Error fetching plans:', error);
-        } else {
-            setPlans(data || []);
-            const currentPlanId = userProfile?.companies?.subscription_plan_id;
-            if (currentPlanId && data.some(p => p.id === currentPlanId)) {
-                setSelectedPlanId(currentPlanId);
-            } else if (data?.length > 0) {
-                setSelectedPlanId(data[0].id);
-            }
-        }
-        setFetchingPlans(false);
-    };
-
-    const fetchActiveRequest = async () => {
-        if (!companyId) return;
-        setFetchingRequest(true);
-        const { data, error } = await supabase
-            .from('subscription_payments')
-            .select('*, subscription_plans(name)')
-            .eq('company_id', companyId)
-            .eq('status', 'pending')
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
-
-        if (error && error.code !== 'PGRST116') {
-            console.error('Error fetching active request:', error);
-        } else {
-            setActiveRequest(data || null);
-        }
-        setFetchingRequest(false);
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const selectedPlan = plans.find(p => p.id === selectedPlanId);
-        
-        if (!selectedPlanId) {
-            toast.error('Silakan pilih paket langganan');
-            return;
-        }
-
-        setLoading(true);
-        try {
-            const { error: paymentError } = await supabase
-                .from('subscription_payments')
-                .insert({
-                    company_id: companyId,
-                    plan_id: selectedPlanId,
-                    amount: selectedPlan?.price || 0,
-                    status: 'pending'
-                });
-
-            if (paymentError) throw paymentError;
-
-            toast.success('Permintaan berhasil dikirim!');
-            fetchActiveRequest();
-            if (onSuccess) onSuccess();
-        } catch (error) {
-            console.error('Error submitting subscription:', error);
-            toast.error('Gagal mengirim permintaan: ' + error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (fetchingRequest || fetchingPlans) {
-        return (
-            <div className="flex flex-col items-center justify-center p-12 space-y-4">
-                <Loader2 className="h-8 w-8 animate-spin text-[#015a97]" />
-                <p className="text-slate-500 font-medium">Memuat informasi langganan...</p>
-            </div>
-        );
+function loadDuitkuScript(isSandbox) {
+  return new Promise((resolve) => {
+    if (window.checkout) { resolve(); return; }
+    const id = 'duitku-pop-js';
+    if (document.getElementById(id)) {
+      document.getElementById(id).addEventListener('load', resolve); return;
     }
+    const s = document.createElement('script');
+    s.id = id;
+    s.src = isSandbox
+      ? 'https://app-sandbox.duitku.com/lib/js/duitku.js'
+      : 'https://app.duitku.com/lib/js/duitku.js';
+    s.onload = resolve;
+    document.body.appendChild(s);
+  });
+}
 
-    // Tampilan jika ada request PENDING
-    if (activeRequest) {
-        const hasPaymentLink = activeRequest.payment_proof_url && activeRequest.payment_proof_url.startsWith('http');
-        
-        return (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-                <Card className="border-blue-200 bg-blue-50/30 shadow-sm overflow-hidden rounded-2xl">
-                    <CardHeader className="bg-white border-b border-blue-100 p-6">
-                        <div className="flex items-center justify-between">
-                            <div className="space-y-1">
-                                <CardTitle className="text-lg font-bold text-[#011e4b]">Permintaan Sedang Diproses</CardTitle>
-                                <CardDescription className="font-medium">Paket: {activeRequest.subscription_plans?.name}</CardDescription>
-                            </div>
-                            <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200 gap-1.5 px-3 py-1">
-                                <Clock className="h-3.5 w-3.5" /> Menunggu Pembayaran
-                            </Badge>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="p-6 space-y-6">
-                        {hasPaymentLink ? (
-                            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 text-center space-y-4 animate-in zoom-in-95">
-                                <div className="h-14 w-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
-                                    <CheckCircle2 className="h-8 w-8 text-emerald-600" />
-                                </div>
-                                <div className="space-y-2">
-                                    <h4 className="text-xl font-bold text-emerald-900">Link Pembayaran Tersedia!</h4>
-                                    <p className="text-sm text-emerald-700 font-medium">Admin telah mengirimkan link pembayaran resmi untuk tagihan Anda.</p>
-                                </div>
-                                <Button 
-                                    className="w-full h-14 text-lg font-bold bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-900/20 rounded-xl"
-                                    onClick={() => window.open(activeRequest.payment_proof_url, '_blank')}
-                                >
-                                    Bayar Sekarang <ExternalLink className="ml-2 h-5 w-5" />
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="bg-white border border-blue-100 rounded-xl p-6 flex items-start gap-4">
-                                <div className="h-12 w-12 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
-                                    <MessageSquare className="h-6 w-6 text-blue-600" />
-                                </div>
-                                <div className="space-y-1">
-                                    <h4 className="font-bold text-slate-800">Menunggu Link dari Admin</h4>
-                                    <p className="text-sm text-slate-600 leading-relaxed">
-                                        Permintaan Anda sudah masuk. Admin sedang menyiapkan link pembayaran. Link akan muncul di halaman ini segera setelah siap.
-                                    </p>
-                                </div>
-                            </div>
-                        )}
+export default function SubscriptionPaymentForm({ onSuccess }) {
+  const { companyId, userProfile } = useAuth();
+  const navigate = useNavigate();
 
-                        <div className="flex justify-center">
-                            <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={fetchActiveRequest}
-                                className="text-blue-600 hover:bg-blue-50 font-semibold"
-                            >
-                                <Loader2 className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> Refresh Status
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-        );
+  const [plans, setPlans]                     = useState([]);
+  const [selectedPlanId, setSelectedPlanId]   = useState(null);
+  const [selectedMonths, setSelectedMonths]   = useState(1);
+  const [loading, setLoading]                 = useState(false);
+  const [fetchingPlans, setFetchingPlans]     = useState(true);
+  const [activeRequest, setActiveRequest]     = useState(null);
+  const [fetchingRequest, setFetchingRequest] = useState(true);
+
+  useEffect(() => { fetchPlans(); fetchActiveRequest(); }, [companyId]);
+
+  const fetchPlans = async () => {
+    setFetchingPlans(true);
+    const { data } = await supabase
+      .from('subscription_plans').select('*').eq('is_active', true).order('price');
+    setPlans(data || []);
+    const cur = userProfile?.companies?.subscription_plan_id;
+    if (cur && data?.some(p => p.id === cur)) setSelectedPlanId(cur);
+    else if (data?.length) setSelectedPlanId(data[0].id);
+    setFetchingPlans(false);
+  };
+
+  const fetchActiveRequest = async () => {
+    if (!companyId) return;
+    setFetchingRequest(true);
+    const { data } = await supabase
+      .from('subscription_payments')
+      .select('*, subscription_plans(name)')
+      .eq('company_id', companyId).eq('status', 'pending')
+      .order('created_at', { ascending: false }).limit(1).maybeSingle();
+    setActiveRequest(data ?? null);
+    setFetchingRequest(false);
+  };
+
+  const handlePay = async (e) => {
+    e.preventDefault();
+    if (!selectedPlanId) return toast.error('Pilih paket terlebih dahulu.');
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-duitku-payment', {
+        body: { plan_id: selectedPlanId, company_id: companyId, months: selectedMonths },
+      });
+      if (error) throw new Error(error.message);
+      if (!data?.reference) throw new Error('Tidak ada reference dari Duitku.');
+
+      await loadDuitkuScript(data.is_sandbox ?? true);
+      if (!window.checkout) throw new Error('Duitku checkout SDK tidak tersedia.');
+
+      await fetchActiveRequest();
+
+      window.checkout.process(data.reference, {
+        successEvent: () => navigate(`/payment/result?merchantOrderId=${data.order_id}&resultCode=00&reference=${data.reference}`),
+        pendingEvent: () => navigate(`/payment/result?merchantOrderId=${data.order_id}&resultCode=01&reference=${data.reference}`),
+        errorEvent:   () => navigate(`/payment/result?merchantOrderId=${data.order_id}&resultCode=02&reference=${data.reference}`),
+        closeEvent:   () => { toast('Pembayaran ditutup.'); fetchActiveRequest(); },
+      });
+
+      if (onSuccess) onSuccess();
+    } catch (err) {
+      console.error(err);
+      toast.error('Gagal: ' + err.message);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const isSubmitDisabled = loading || !selectedPlanId;
-
+  if (fetchingRequest || fetchingPlans) {
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in">
-            {/* Step 1: Plan Selection */}
-            <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 rounded-full bg-[#011e4b] text-white flex items-center justify-center text-xs font-semibold">1</div>
-                    <Label className="text-lg font-semibold text-slate-800">Pilih Paket Langganan</Label>
-                </div>
-                
-                <RadioGroup 
-                    value={selectedPlanId} 
-                    onValueChange={setSelectedPlanId}
-                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                >
-                    {plans.map((plan) => (
-                        <div key={plan.id} className="relative">
-                            <RadioGroupItem
-                                value={plan.id}
-                                id={plan.id}
-                                className="peer sr-only"
-                            />
-                            <Label
-                                htmlFor={plan.id}
-                                className="flex flex-col items-start justify-between rounded-xl border-2 border-slate-200 bg-white p-5 hover:bg-slate-50 hover:border-[#015a97]/40 peer-data-[state=checked]:border-[#011e4b] peer-data-[state=checked]:bg-[#015a97]/5 cursor-pointer transition-all duration-200"
-                            >
-                                <div className="flex justify-between w-full items-center mb-2">
-                                    <span className="font-semibold text-lg text-slate-800">{plan.name}</span>
-                                    <span className={`font-semibold ${plan.is_custom_pricing ? 'text-amber-600 text-sm' : 'text-[#011e4b] text-lg'}`}>
-                                        {plan.is_custom_pricing ? 'Enterprise' : `Rp ${plan.price.toLocaleString('id-ID')}`}
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-1.5 text-sm font-medium text-slate-500">
-                                    <CreditCard className="h-4 w-4" />
-                                    <span>
-                                        {plan.billing_cycle_days 
-                                            ? `${plan.billing_cycle_days} Hari Layanan` 
-                                            : 'Siklus Fleksibel'}
-                                    </span>
-                                </div>
-                                
-                                <div className="absolute top-4 right-4 h-5 w-5 rounded-full border-2 border-slate-300 peer-data-[state=checked]:border-[#011e4b] peer-data-[state=checked]:bg-[#011e4b] flex items-center justify-center">
-                                    <div className="h-2 w-2 rounded-full bg-white opacity-0 peer-data-[state=checked]:opacity-100" />
-                                </div>
-                            </Label>
-                        </div>
-                    ))}
-                </RadioGroup>
-            </div>
-
-            {/* Step 2: Confirmation Info */}
-            <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 rounded-full bg-[#011e4b] text-white flex items-center justify-center text-xs font-semibold">2</div>
-                    <Label className="text-lg font-semibold text-slate-800">Proses Pembayaran</Label>
-                </div>
-                
-                <div className="p-6 bg-[#015a97]/5 rounded-xl border border-[#015a97]/20 space-y-4">
-                    <div className="flex items-start gap-4">
-                        <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center border border-[#015a97]/20 shrink-0">
-                            <Zap className="h-5 w-5 text-[#015a97]" />
-                        </div>
-                        <div className="space-y-1">
-                            <h4 className="font-semibold text-slate-800">Ajukan Perpanjangan</h4>
-                            <p className="text-sm text-slate-600 leading-relaxed">
-                                Setelah Anda menekan tombol di bawah, Admin akan segera memproses permintaan Anda dan memberikan link pembayaran resmi langsung di aplikasi ini.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-start gap-4">
-                        <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center border border-[#015a97]/20 shrink-0">
-                            <CheckCircle2 className="h-5 w-5 text-[#015a97]" />
-                        </div>
-                        <div className="space-y-1">
-                            <h4 className="font-semibold text-slate-800">Aktivasi Langsung</h4>
-                            <p className="text-sm text-slate-600 leading-relaxed">
-                                Paket akan langsung diperpanjang secara otomatis setelah Anda menyelesaikan transaksi melalui link yang disediakan.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Submit Button */}
-            <div className="pt-2">
-                <Button 
-                    type="submit" 
-                    className="w-full bg-[#011e4b] text-white hover:bg-[#00376a] h-14 text-base font-semibold rounded-xl transition-all shadow-lg shadow-blue-900/10"
-                    disabled={isSubmitDisabled}
-                >
-                    {loading ? (
-                        <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Sedang Memproses...</>
-                    ) : (
-                        <><Send className="mr-2 h-5 w-5" /> Ajukan Perpanjangan Paket</>
-                    )}
-                </Button>
-            </div>
-        </form>
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-[#011e4b]" />
+        <p className="text-slate-500 text-sm">Memuat informasi langganan...</p>
+      </div>
     );
-};
+  }
 
-// Internal Badge for consistency if not exported globally
-const Badge = ({ children, variant = 'default', className = '' }) => {
-    const variants = {
-        default: 'bg-slate-100 text-slate-800',
-        outline: 'border border-slate-200'
-    };
+  if (activeRequest) {
     return (
-        <span className={`inline-flex items-center rounded-full text-xs font-bold ${variants[variant]} ${className}`}>
-            {children}
-        </span>
+      <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+        <div className="rounded-2xl border-2 border-amber-200 bg-amber-50 p-5 space-y-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="font-bold text-[#011e4b]">Pembayaran Sedang Menunggu</p>
+              <p className="text-sm text-slate-500 mt-0.5">
+                Paket: <span className="font-semibold">{activeRequest.subscription_plans?.name}</span>
+              </p>
+            </div>
+            <Badge className="bg-amber-100 text-amber-700 border-amber-200 border shrink-0 gap-1">
+              <Clock className="h-3 w-3" /> Pending
+            </Badge>
+          </div>
+          {activeRequest.payment_url && (
+            <Button
+              className="w-full bg-[#011e4b] hover:bg-[#022a6b] rounded-xl h-11 font-bold gap-2"
+              onClick={() => window.open(activeRequest.payment_url, '_blank')}
+            >
+              Lanjutkan · {fmt(activeRequest.amount)} <ExternalLink className="h-4 w-4" />
+            </Button>
+          )}
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={fetchActiveRequest} className="flex-1 rounded-xl gap-1.5">
+              <RefreshCw className="h-3.5 w-3.5" /> Refresh
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setActiveRequest(null)} className="text-slate-400 text-xs rounded-xl">
+              Buat Baru
+            </Button>
+          </div>
+        </div>
+      </div>
     );
-};
+  }
 
-export default SubscriptionPaymentForm;
+  const plan      = plans.find(p => p.id === selectedPlanId);
+  const disc      = MONTH_OPTIONS.find(m => m.value === selectedMonths)?.discount ?? 0;
+  const base      = plan ? Math.round(plan.price * selectedMonths) : 0;
+  const total     = Math.round(base * (1 - disc / 100));
+  const totalDays = (plan?.billing_cycle_days ?? 30) * selectedMonths;
+
+  return (
+    <form onSubmit={handlePay} className="space-y-5 animate-in fade-in">
+
+      {/* Pilih Paket */}
+      <div className="space-y-2.5">
+        <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Paket Langganan</p>
+        <RadioGroup value={selectedPlanId} onValueChange={setSelectedPlanId} className="space-y-2">
+          {plans.map((p) => (
+            <div key={p.id}>
+              <RadioGroupItem value={p.id} id={`plan-${p.id}`} className="peer sr-only" />
+              <Label
+                htmlFor={`plan-${p.id}`}
+                className="flex items-center gap-3 rounded-2xl border-2 border-slate-200 bg-white px-4 py-3.5 hover:border-[#011e4b]/30 peer-data-[state=checked]:border-[#011e4b] peer-data-[state=checked]:bg-[#011e4b]/[0.03] cursor-pointer transition-all"
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-slate-800">{p.name}</p>
+                  <p className="text-xs text-slate-400">
+                    {p.billing_cycle_days ? `${p.billing_cycle_days} hari / bulan` : 'Durasi fleksibel'}
+                  </p>
+                </div>
+                <p className="font-extrabold text-[#011e4b] text-base shrink-0">
+                  {p.is_custom_pricing ? 'Custom' : fmt(p.price)}
+                  {!p.is_custom_pricing && <span className="text-[11px] font-normal text-slate-400">/bln</span>}
+                </p>
+              </Label>
+            </div>
+          ))}
+        </RadioGroup>
+      </div>
+
+      {/* Durasi */}
+      <div className="space-y-2.5">
+        <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Durasi</p>
+        <div className="grid grid-cols-4 gap-2">
+          {MONTH_OPTIONS.map((opt) => {
+            const optFinal = plan ? Math.round(plan.price * opt.value * (1 - opt.discount / 100)) : 0;
+            const isSel    = selectedMonths === opt.value;
+            return (
+              <button
+                key={opt.value} type="button"
+                onClick={() => setSelectedMonths(opt.value)}
+                className={`relative rounded-2xl border-2 py-3 px-1 text-center transition-all ${
+                  isSel
+                    ? 'border-[#011e4b] bg-[#011e4b] text-white shadow-lg shadow-[#011e4b]/20'
+                    : 'border-slate-200 bg-white hover:border-[#011e4b]/40'
+                }`}
+              >
+                {opt.discount > 0 && (
+                  <span className={`absolute -top-2.5 left-1/2 -translate-x-1/2 text-[9px] font-black px-1.5 py-0.5 rounded-full whitespace-nowrap ${
+                    isSel ? 'bg-emerald-400 text-white' : 'bg-emerald-100 text-emerald-700'
+                  }`}>
+                    -{opt.discount}%
+                  </span>
+                )}
+                <p className={`font-bold text-sm ${isSel ? 'text-white' : 'text-slate-700'}`}>{opt.label}</p>
+                {plan && !plan.is_custom_pricing && (
+                  <p className={`text-[10px] mt-0.5 ${isSel ? 'text-white/70' : 'text-slate-400'}`}>
+                    {fmt(optFinal)}
+                  </p>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Ringkasan */}
+      {plan && !plan.is_custom_pricing && (
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden">
+          <div className="flex justify-between items-center px-4 py-3 text-sm border-b border-slate-200">
+            <span className="text-slate-500">{plan.name} × {selectedMonths} bulan</span>
+            <span className="font-medium text-slate-700">{fmt(base)}</span>
+          </div>
+          {disc > 0 && (
+            <div className="flex justify-between items-center px-4 py-3 text-sm bg-emerald-50 border-b border-slate-200">
+              <span className="text-emerald-700 font-medium flex items-center gap-1.5">
+                <Star className="h-3.5 w-3.5" /> Diskon {disc}%
+              </span>
+              <span className="text-emerald-700 font-bold">−{fmt(base - total)}</span>
+            </div>
+          )}
+          <div className="flex justify-between items-center px-4 py-4">
+            <div>
+              <p className="font-bold text-slate-800 text-sm">Total Bayar</p>
+              <p className="text-xs text-slate-400">{totalDays} hari aktif</p>
+            </div>
+            <p className="text-2xl font-extrabold text-[#011e4b]">{fmt(total)}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Trust */}
+      <div className="flex items-center justify-center gap-5 py-1">
+        {[
+          { icon: Lock,        text: 'SSL Encrypted' },
+          { icon: ShieldCheck, text: 'Duitku Verified' },
+          { icon: Star,        text: 'Popup di halaman ini' },
+        ].map(({ icon: Icon, text }) => (
+          <div key={text} className="flex items-center gap-1.5">
+            <Icon className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+            <p className="text-[11px] text-slate-500">{text}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* CTA */}
+      <Button
+        type="submit"
+        disabled={loading || !selectedPlanId}
+        className="w-full h-14 bg-[#011e4b] hover:bg-[#012d70] rounded-2xl text-base font-extrabold shadow-lg shadow-[#011e4b]/30 gap-2 transition-all hover:shadow-xl disabled:opacity-50"
+      >
+        {loading
+          ? <><Loader2 className="h-5 w-5 animate-spin" /> Memproses...</>
+          : <><Zap className="h-5 w-5" /> Bayar {plan && !plan.is_custom_pricing ? fmt(total) : 'Sekarang'}</>
+        }
+      </Button>
+
+      <p className="text-center text-[11px] text-slate-400">
+        Dengan melanjutkan, kamu menyetujui{' '}
+        <a href="/terms" className="underline hover:text-slate-600">Syarat & Ketentuan</a> Ervo.
+        Pembayaran diproses aman oleh <span className="font-semibold">Duitku</span>.
+      </p>
+    </form>
+  );
+}

@@ -586,3 +586,27 @@ entrypoint = "./functions/generate-orders-report/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/generate-orders-report/*.html" ]
+
+[functions.create-duitku-payment]
+enabled = true
+verify_jwt = true
+import_map = "./functions/create-duitku-payment/deno.json"
+entrypoint = "./functions/create-duitku-payment/index.ts"
+
+[functions.duitku-callback]
+enabled = true
+verify_jwt = false
+import_map = "./functions/duitku-callback/deno.json"
+entrypoint = "./functions/duitku-callback/index.ts"
+
+[functions.check-duitku-status]
+enabled = true
+verify_jwt = true
+import_map = "./functions/check-duitku-status/deno.json"
+entrypoint = "./functions/check-duitku-status/index.ts"
+
+[functions.get-duitku-payment-methods]
+enabled = true
+verify_jwt = true
+import_map = "./functions/get-duitku-payment-methods/deno.json"
+entrypoint = "./functions/get-duitku-payment-methods/index.ts"

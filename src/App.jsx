@@ -50,10 +50,11 @@ import CookiesPage  from './pages/legal/CookiesPage';
 import NewCentralOrderFormPage from './pages/NewCentralOrderFormPage';
 import EditCentralOrderFormPage from './pages/EditCentralOrderFormPage';
 import SubscriptionExpiredPage from './pages/SubscriptionExpiredPage';
-import BillingAccountPage from './pages/BillingAccountPage'; 
+import BillingAccountPage from './pages/BillingAccountPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import MapsPage from './pages/MapsPage';
 import DropshipDashboard from './components/dashboards/DropshipDashboard';
+import PaymentResultPage from './pages/PaymentResultPage';
 
 
 const App = () => {
@@ -95,20 +96,21 @@ const App = () => {
   // Role yang diizinkan melihat Customer & Pesanan (Admin, Kurir, dan Dropshipper)
   const canManageOrders = isAdminOrSuperAdmin || isCourier || isDropship;
 
-  if (session && isAccessDenied && !isSuperAdmin) {
-      return <SubscriptionExpiredPage />; 
+  const isPaymentResultPage = location.pathname === '/payment/result';
+  if (session && isAccessDenied && !isSuperAdmin && !isPaymentResultPage) {
+      return <SubscriptionExpiredPage />;
   }
 
 
   return (
     <>
-      {userProfile && !isAccessDenied && <Sidebar />} 
-     <main
+      {userProfile && !isAccessDenied && !isPaymentResultPage && <Sidebar />}
+      <main
         className={`min-h-screen bg-white dark:bg-[#0d1625] text-slate-900 dark:text-slate-100 transition-colors duration-200 ${
-          location.pathname !== "/login" && location.pathname !== "/" && !['/terms','/sla','/security','/cookies'].includes(location.pathname) ? "md:ml-16" : ""
+          location.pathname !== "/login" && location.pathname !== "/" && !['/terms','/sla','/security','/cookies','/payment/result'].includes(location.pathname) ? "md:ml-16" : ""
         }`}
       >
-        <div className={location.pathname !== "/login" && location.pathname !== "/" ? "p-4 md:p-8" : ""}>
+        <div className={location.pathname !== "/login" && location.pathname !== "/" && location.pathname !== "/payment/result" ? "p-4 md:p-8" : ""}>
 
           <Routes> 
             <Route path="/" element={session ? <Navigate to="/dashboard" replace /> : <LandingPage />} /> 
@@ -275,6 +277,9 @@ const App = () => {
                 path="/billing-account"
                 element={session && isSuperAdmin ? <BillingAccountPage /> : <Navigate to="/dashboard" />}
             />
+
+            {/* Payment result — accessible even when subscription expired */}
+            <Route path="/payment/result" element={<PaymentResultPage />} />
 
             {/* Legal pages — public, no auth required */}
             <Route path="/terms"    element={<TermsPage />} />
