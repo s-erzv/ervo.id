@@ -88,15 +88,28 @@ CREATE POLICY "super_admin_all_bookings" ON public.support_session_bookings
     EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'super_admin')
   );
 
--- Company users: see & manage their own company's conversations
-CREATE POLICY "company_users_own_conversations" ON public.support_conversations
-  FOR ALL USING (
+-- Company users: read conversations milik company sendiri
+CREATE POLICY "company_users_read_conversations" ON public.support_conversations
+  FOR SELECT USING (
     company_id = (SELECT company_id FROM public.profiles WHERE id = auth.uid())
   );
 
--- Company users: see & send messages in their company's conversations
-CREATE POLICY "company_users_own_messages" ON public.support_messages
-  FOR ALL USING (
+-- Company users: hanya bisa buat conversation untuk diri sendiri
+CREATE POLICY "company_users_insert_conversations" ON public.support_conversations
+  FOR INSERT WITH CHECK (
+    user_id    = auth.uid()
+    AND company_id = (SELECT company_id FROM public.profiles WHERE id = auth.uid())
+  );
+
+-- Company users: update status conversation milik sendiri
+CREATE POLICY "company_users_update_conversations" ON public.support_conversations
+  FOR UPDATE USING (
+    company_id = (SELECT company_id FROM public.profiles WHERE id = auth.uid())
+  );
+
+-- Company users: baca pesan di conversation company sendiri
+CREATE POLICY "company_users_read_messages" ON public.support_messages
+  FOR SELECT USING (
     EXISTS (
       SELECT 1 FROM public.support_conversations sc
       JOIN public.profiles p ON p.id = auth.uid()
@@ -104,8 +117,28 @@ CREATE POLICY "company_users_own_messages" ON public.support_messages
     )
   );
 
--- Company users: manage their own bookings
-CREATE POLICY "company_users_own_bookings" ON public.support_session_bookings
-  FOR ALL USING (
+-- Company users: kirim pesan — sender_id harus diri sendiri, sender_type harus 'user'
+CREATE POLICY "company_users_send_messages" ON public.support_messages
+  FOR INSERT WITH CHECK (
+    sender_id   = auth.uid()
+    AND sender_type = 'user'
+    AND EXISTS (
+      SELECT 1 FROM public.support_conversations sc
+      JOIN public.profiles p ON p.id = auth.uid()
+      WHERE sc.id = conversation_id AND sc.company_id = p.company_id
+    )
+  );
+
+-- Company users: read bookings milik company sendiri
+CREATE POLICY "company_users_read_bookings" ON public.support_session_bookings
+  FOR SELECT USING (
     company_id = (SELECT company_id FROM public.profiles WHERE id = auth.uid())
+  );
+
+-- Company users: buat booking untuk diri sendiri, tidak bisa set zoom_link
+CREATE POLICY "company_users_insert_bookings" ON public.support_session_bookings
+  FOR INSERT WITH CHECK (
+    requested_by = auth.uid()
+    AND company_id = (SELECT company_id FROM public.profiles WHERE id = auth.uid())
+    AND zoom_link IS NULL  -- hanya super_admin yang bisa set zoom_link
   );

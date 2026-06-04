@@ -69,6 +69,14 @@ serve(async (req) => {
       });
     }
 
+    // Verifikasi amount cocok dengan yang tersimpan di DB
+    if (Number(amount) !== Number(payment.amount)) {
+      console.error('Amount mismatch', { expected: payment.amount, got: amount });
+      return new Response(JSON.stringify({ status: 'AMOUNT_MISMATCH' }), {
+        status: 400, headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     // Jika sudah diproses sebelumnya, return OK supaya Duitku tidak retry terus
     if (payment.status === 'approved') {
       return new Response(JSON.stringify({ status: 'OK' }), {
