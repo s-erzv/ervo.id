@@ -580,6 +580,20 @@ export default function LandingPage() {
               <p style={S.footerTagline}>
                 Solusi Mini ERP & Sistem Informasi Akuntansi untuk bisnis distribusi modern di Indonesia.
               </p>
+              <div style={{ display:'flex', flexDirection:'column', gap:'6px', marginTop:'12px' }}>
+                <a href="mailto:admin.ervo.id@gmail.com" style={{ color:'#64748b', fontSize:'13px', textDecoration:'none', display:'flex', alignItems:'center', gap:'8px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7"/></svg>
+                  admin.ervo.id@gmail.com
+                </a>
+                <a href="https://api.whatsapp.com/send?phone=6287762407811" target="_blank" rel="noopener noreferrer" style={{ color:'#64748b', fontSize:'13px', textDecoration:'none', display:'flex', alignItems:'center', gap:'8px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.07 1.18 2 2 0 012.03 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                  +62 877-6240-7811
+                </a>
+                <span style={{ color:'#64748b', fontSize:'13px', display:'flex', alignItems:'flex-start', gap:'8px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop:'2px', flexShrink:0 }}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  Kota Wisata, Kab. Bogor,<br/>Jawa Barat, Indonesia
+                </span>
+              </div>
             </div>
             {FOOTER_LINKS.map((col, i) => (
               <div key={i} style={S.footerCol}>
