@@ -171,7 +171,7 @@ const CategoryModal = ({ open, onOpenChange, onCategoriesUpdated }) => {
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Tambah Kategori'}
           </Button>
 
-          <div className="mt-4">
+          <div className="mt-4 text-black">
             <h4 className="font-semibold text-sm sm:text-base">Daftar Kategori</h4>
             {loading ? (
               <div className="flex justify-center items-center h-40">
@@ -182,9 +182,9 @@ const CategoryModal = ({ open, onOpenChange, onCategoriesUpdated }) => {
                 <Table className="text-xs sm:text-sm">
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="min-w-[120px] sm:min-w-auto">Nama Kategori</TableHead>
-                      <TableHead className="min-w-[100px] sm:min-w-auto">Jumlah Sub</TableHead>
-                      <TableHead className="text-right min-w-[60px] sm:min-w-auto">Aksi</TableHead>
+                      <TableHead className="min-w-[120px] sm:min-w-auto text-black">Nama Kategori</TableHead>
+                      <TableHead className="min-w-[100px] sm:min-w-auto text-black">Jumlah Sub</TableHead>
+                      <TableHead className="text-right min-w-[60px] sm:min-w-auto text-black">Aksi</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -236,8 +236,8 @@ const CategoryModal = ({ open, onOpenChange, onCategoriesUpdated }) => {
                 <Table className="text-xs sm:text-sm">
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="min-w-[150px] sm:min-w-auto">Nama Subkategori</TableHead>
-                      <TableHead className="text-right min-w-[60px] sm:min-w-auto">Aksi</TableHead>
+                      <TableHead className="min-w-[150px] sm:min-w-auto text-black">Nama Subkategori</TableHead>
+                      <TableHead className="text-right min-w-[60px] sm:min-w-auto text-black">Aksi</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
