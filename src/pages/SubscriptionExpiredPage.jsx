@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { LogOut, Lock, CalendarOff, Settings, CreditCard, History } from 'lucide-react';
+import React from 'react';
+import { LogOut, Settings } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,88 +7,70 @@ import SubscriptionPaymentForm from '../components/SubscriptionPaymentForm';
 
 const SubscriptionExpiredPage = () => {
     const { userProfile, signOut, isSubscriptionExpired, isManuallyLocked, subscriptionEndDate } = useAuth();
-    const [showPaymentForm, setShowPaymentForm] = useState(false);
     
-    // Format tanggal
     const formattedEndDate = subscriptionEndDate ? new Date(subscriptionEndDate).toLocaleDateString('id-ID', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
-    }) : 'Tidak ditentukan';
+    }) : null;
 
-    // Tentukan pesan utama
-    let mainTitle = "Akses Aplikasi Dibatasi";
-    let mainMessage = "Perusahaan Anda telah dibatasi. Silakan hubungi Super Admin untuk membuka akses.";
-    let icon = <Lock className="h-10 w-10 text-red-600 mb-4" />;
+    let mainTitle = "Berlangganan ERVO";
+    let mainMessage = "Pilih paket yang sesuai untuk mulai menggunakan layanan ERVO.";
     
-    if (isSubscriptionExpired) {
+    if (isManuallyLocked) {
+        mainTitle = "Akses Aplikasi Dibatasi";
+        mainMessage = "Perusahaan Anda telah dibatasi. Silakan hubungi Super Admin untuk membuka akses.";
+    } else if (isSubscriptionExpired) {
         mainTitle = "Masa Langganan Telah Berakhir";
-        mainMessage = `Langganan akun Anda telah berakhir pada tanggal ${formattedEndDate}. Untuk melanjutkan layanan, silakan lakukan perpanjangan.`;
-        icon = <CalendarOff className="h-10 w-10 text-yellow-600 mb-4" />;
+        mainMessage = `Langganan Anda telah berakhir pada ${formattedEndDate}. Silakan perpanjang untuk melanjutkan.`;
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4 pb-20">
-            <Card className="w-full max-w-lg shadow-xl border-t-4 border-red-600">
-                <CardHeader className="text-center">
-                    {!showPaymentForm && icon}
-                    <CardTitle className="text-2xl font-bold text-gray-800">
-                        {showPaymentForm ? "Perpanjang Langganan" : mainTitle}
+        <div className="min-h-screen bg-slate-50 flex flex-col items-center py-12 px-4 sm:px-6">
+            <div className="w-full max-w-[600px] mb-8 text-center space-y-4">
+                <div className="inline-flex items-center justify-center p-4 bg-white rounded-[2rem] shadow-sm border border-slate-100 mb-2">
+                    <img src="/logo.png" alt="ERVO" className="h-16 w-auto object-contain" />
+                </div>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">ERVO Business</h1>
+            </div>
+
+            <Card className={`w-full max-w-[600px] shadow-lg border-t-4 ${isManuallyLocked ? 'border-red-600' : 'border-[#011e4b]'}`}>
+                <CardHeader className="text-center pb-4 border-b border-slate-50">
+                    <CardTitle className="text-xl font-bold text-slate-800">
+                        {mainTitle}
                     </CardTitle>
-                    <CardDescription className="text-md text-gray-600 mt-2">
-                        {showPaymentForm 
-                            ? "Pilih paket dan unggah bukti transfer untuk mengaktifkan kembali akun Anda." 
-                            : mainMessage}
+                    <CardDescription className="text-sm text-slate-500 mt-2">
+                        {mainMessage}
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    {!showPaymentForm ? (
-                        <>
-                            <div className="bg-red-50 p-3 rounded-lg border border-red-200">
-                                <p className="text-sm font-medium text-red-700">Detail Akun:</p>
-                                <ul className="text-sm text-gray-700 mt-1 space-y-1">
-                                    <li><span className="font-semibold">Perusahaan:</span> {userProfile?.companies?.name || '-'}</li>
-                                    <li><span className="font-semibold">Nama:</span> {userProfile?.full_name || 'Admin'}</li>
-                                    <li><span className="font-semibold">Role:</span> {userProfile?.role}</li>
-                                    {isSubscriptionExpired && <li><span className="font-semibold">Kedaluwarsa:</span> {formattedEndDate}</li>}
-                                </ul>
+                <CardContent className="space-y-6 pt-6 px-4">
+                    {isManuallyLocked ? (
+                        <div className="space-y-4 text-center">
+                            <div className="bg-red-50 p-4 rounded-xl border border-red-100">
+                                <Settings className="h-8 w-8 text-red-500 mx-auto mb-3" />
+                                <p className="text-sm text-red-700">Akses perusahaan <span className="font-bold">{userProfile?.companies?.name || '-'}</span> saat ini ditangguhkan.</p>
                             </div>
-
-                            <div className="flex flex-col space-y-2 pt-4">
-                                <Button 
-                                    onClick={() => setShowPaymentForm(true)} 
-                                    className="w-full bg-[#011e4b] hover:bg-[#00376a] text-white flex items-center justify-center h-12"
-                                >
-                                    <CreditCard className="h-4 w-4 mr-2" /> Bayar Sekarang
-                                </Button>
-                                <Button 
-                                    variant="outline"
-                                    onClick={() => window.location.href = 'https://api.whatsapp.com/send?phone=6287762407811'} 
-                                    className="w-full border-green-600 text-green-700 hover:bg-green-50 flex items-center justify-center"
-                                >
-                                    <Settings className="h-4 w-4 mr-2" /> Hubungi Super Admin
-                                </Button>
-                                <Button 
-                                    variant="ghost" 
-                                    onClick={signOut}
-                                    className="w-full text-gray-500 hover:bg-gray-100 flex items-center justify-center"
-                                >
-                                    <LogOut className="h-4 w-4 mr-2" /> Logout
-                                </Button>
-                            </div>
-                        </>
-                    ) : (
-                        <div className="space-y-6">
-                            <SubscriptionPaymentForm />
                             <Button 
-                                variant="ghost" 
-                                onClick={() => setShowPaymentForm(false)}
-                                className="w-full text-gray-500"
+                                variant="outline"
+                                onClick={() => window.location.href = 'https://api.whatsapp.com/send?phone=6287762407811'} 
+                                className="w-full border-slate-200 text-slate-700 hover:bg-slate-50 h-12 rounded-xl"
                             >
-                                Kembali
+                                Hubungi Super Admin
                             </Button>
                         </div>
+                    ) : (
+                        <SubscriptionPaymentForm />
                     )}
+
+                    <div className="pt-6 mt-6 border-t border-slate-100">
+                        <Button 
+                            variant="ghost" 
+                            onClick={signOut}
+                            className="w-full text-slate-500 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center rounded-xl h-12"
+                        >
+                            <LogOut className="h-4 w-4 mr-2" /> Keluar atau Ganti Akun
+                        </Button>
+                    </div>
                 </CardContent>
             </Card>
         </div>

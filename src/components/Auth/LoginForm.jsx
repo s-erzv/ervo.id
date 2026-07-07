@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 // 🚨 PERBAIKAN KRITIS: Mengganti import fungsi yang diekspor
 import { setupOneSignal } from '../../lib/onesignal-setup.jsx'; 
 
-const LoginForm = () => {
+const LoginForm = ({ onForgotPassword }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -62,9 +62,20 @@ const LoginForm = () => {
         />
       </div>
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-muted-foreground">
-          Kata Sandi
-        </label>
+        <div className="flex items-center justify-between">
+          <label htmlFor="password" className="block text-sm font-medium text-muted-foreground">
+            Kata Sandi
+          </label>
+          {onForgotPassword && (
+            <button
+              type="button"
+              onClick={onForgotPassword}
+              className="text-xs font-semibold text-[#011e4b] hover:underline"
+            >
+              Lupa Kata Sandi?
+            </button>
+          )}
+        </div>
         <Input
           type="password"
           id="password"

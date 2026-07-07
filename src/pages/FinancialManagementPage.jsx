@@ -260,9 +260,14 @@ const FinancialManagementPage = () => {
         .eq('company_id', companyId)
         .order('transaction_date', { ascending: false });
 
-    if (error) toast.error("Gagal memuat transaksi.");
+    const { data: orderPayments, error: paymentError } = await supabase
+        .from('payments')
+        .select(`*, payment_method:payment_method_id (method_name), order:order_id (invoice_number)`)
+        .eq('company_id', companyId);
 
-    setTransactions(allFin?.map(t => ({
+    if (error || paymentError) toast.error("Gagal memuat transaksi.");
+
+    const mappedFin = (allFin || []).map(t => ({
         id: t.id,
         date: t.transaction_date,
         type: t.type,
@@ -276,7 +281,26 @@ const FinancialManagementPage = () => {
         payment_method_id: t.payment_method_id,
         source: t.source_table || 'Manual',
         proofUrl: t.proof_url
-    })) || []);
+    }));
+
+    const mappedPayments = (orderPayments || []).map(p => ({
+        id: p.id,
+        date: p.paid_at || p.created_at,
+        type: 'income',
+        amount: p.amount,
+        description: `Pembayaran Pesanan ${p.order?.invoice_number ? `#${p.order.invoice_number}` : ''}`.trim(),
+        category: 'Pesanan Masuk',
+        category_id: null,
+        subcategory: '-',
+        subcategory_id: null,
+        method: p.payment_method?.method_name || '-',
+        payment_method_id: p.payment_method_id,
+        source: 'order_payment',
+        proofUrl: p.proof_url
+    }));
+
+    const combined = [...mappedFin, ...mappedPayments].sort((a, b) => new Date(b.date) - new Date(a.date));
+    setTransactions(combined);
     setLoading(false);
   };
 
@@ -439,21 +463,21 @@ const FinancialManagementPage = () => {
             {isPrivileged && (
               <TabsTrigger
                 value="dashboard"
-                className="flex-1 lg:flex-none text-[10px] md:text-xs gap-1 md:gap-1.5 px-2 md:px-4 py-2 font-bold data-[state=active]:bg-[#011e4b] data-[state=active]:text-white transition-all rounded-lg"
+                className="flex-1 lg:flex-none text-black text-[10px] md:text-xs gap-1 md:gap-1.5 px-2 md:px-4 py-2 font-bold data-[state=active]:bg-[#011e4b] data-[state=active]:text-white transition-all rounded-lg"
               >
                 <BarChart3 className="h-3.5 w-3.5" /> <span>Dashboard</span>
               </TabsTrigger>
             )}
             <TabsTrigger
               value="management"
-              className="flex-1 lg:flex-none text-[10px] md:text-xs gap-1 md:gap-1.5 px-2 md:px-4 py-2 font-bold data-[state=active]:bg-[#011e4b] data-[state=active]:text-white transition-all rounded-lg"
+              className="flex-1 lg:flex-none text-black text-[10px] md:text-xs gap-1 md:gap-1.5 px-2 md:px-4 py-2 font-bold data-[state=active]:bg-[#011e4b] data-[state=active]:text-white transition-all rounded-lg"
             >
               <ListOrdered className="h-3.5 w-3.5" /> <span>Kas</span>
             </TabsTrigger>
             {isPrivileged && (
               <TabsTrigger
                 value="settings"
-                className="flex-1 lg:flex-none text-[10px] md:text-xs gap-1 md:gap-1.5 px-2 md:px-4 py-2 font-bold data-[state=active]:bg-[#011e4b] data-[state=active]:text-white transition-all rounded-lg"
+                className="flex-1 lg:flex-none text-black text-[10px] md:text-xs gap-1 md:gap-1.5 px-2 md:px-4 py-2 font-bold data-[state=active]:bg-[#011e4b] data-[state=active]:text-white transition-all rounded-lg"
               >
                 <Shield className="h-3.5 w-3.5" /> <span>Akses</span>
               </TabsTrigger>

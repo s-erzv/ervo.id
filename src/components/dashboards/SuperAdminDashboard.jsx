@@ -240,61 +240,6 @@ const SuperAdminDashboard = ({ profile, setActiveCompany }) => {
         </Card>
       </div>
 
-      {/* Pending Approvals */}
-      {pendingPayments.length > 0 && (
-        <Card className="rounded-2xl border-amber-200 dark:border-amber-700/50 shadow-md overflow-hidden">
-          <CardHeader className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-100 dark:border-amber-800/50 p-5">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base font-bold text-amber-900 dark:text-amber-300 flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-amber-500" />
-                Menunggu Persetujuan Pembayaran
-                <Badge className="bg-amber-500 text-white text-[10px] font-bold ml-1">{pendingPayments.length}</Badge>
-              </CardTitle>
-              <Button onClick={() => navigate('/billing-account')} variant="outline" size="sm" className="h-8 text-xs rounded-lg border-amber-200 text-amber-700 hover:bg-amber-50">
-                Kelola Semua <ArrowRight className="h-3 w-3 ml-1" />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="divide-y divide-slate-100 dark:divide-slate-700">
-              {pendingPayments.slice(0, 5).map(p => (
-                <div key={p.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg shrink-0">
-                      <CreditCard className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sm text-slate-800 dark:text-slate-200">{p.companies?.name || '—'}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        Paket: <span className="font-medium text-slate-600 dark:text-slate-300">{p.subscription_plans?.name || '—'}</span>
-                        {' · '}{formatDate(p.created_at)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 sm:shrink-0">
-                    <span className="font-bold text-slate-800 dark:text-slate-200 text-sm">{formatCurrency(p.amount)}</span>
-                    {p.payment_proof_url && (
-                      <a href={p.payment_proof_url} target="_blank" rel="noreferrer">
-                        <Button variant="outline" size="sm" className="h-8 w-8 p-0 rounded-lg border-slate-200 text-slate-500 hover:text-blue-600">
-                          <Eye className="h-3.5 w-3.5" />
-                        </Button>
-                      </a>
-                    )}
-                    <Button size="sm" onClick={() => handleApprove(p)} disabled={processingId === p.id}
-                      className="h-8 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg">
-                      {processingId === p.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <><CheckCircle2 className="h-3.5 w-3.5 mr-1" />Setujui</>}
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleReject(p)} disabled={processingId === p.id}
-                      className="h-8 px-3 border-red-200 text-red-600 hover:bg-red-50 text-xs font-semibold rounded-lg">
-                      <XCircle className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Revenue Chart + Tenant List */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">

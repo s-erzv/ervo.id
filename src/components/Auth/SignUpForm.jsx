@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, ChevronDown } from 'lucide-react'; 
 import { toast } from 'react-hot-toast'; 
+import { useNavigate } from 'react-router-dom';
 
 // Komponen Pembungkus untuk Accordion Item
 const AccordionItem = ({ title, children, isOpen, onToggle }) => {
@@ -49,6 +50,7 @@ const SignUpForm = ({ onSignUpSuccess }) => {
   const [googleSheetsLink, setGoogleSheetsLink] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(''); 
+  const navigate = useNavigate();
 
   // State untuk mengontrol Accordion. Default buka di Informasi Perusahaan.
   const [openSection, setOpenSection] = useState(' '); 
@@ -142,13 +144,21 @@ const SignUpForm = ({ onSignUpSuccess }) => {
         throw new Error(data.error || 'Failed to create admin');
       }
       
-      toast.success('Registrasi Admin dan perusahaan berhasil! Silakan login.');
-      setMessage('Registrasi Admin dan perusahaan berhasil! Silakan login.');
-       
-      if (onSignUpSuccess) {
-          onSignUpSuccess();
-      } else {
-          resetForm();
+      toast.success('Registrasi berhasil! Anda mendapatkan Trial 14 Hari GRATIS. Sedang mengalihkan...', { duration: 4000 });
+      setMessage('Registrasi berhasil! Melakukan login otomatis...');
+      
+      // Auto-login!
+      const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (loginError) {
+        throw new Error('Registrasi berhasil, tapi auto-login gagal. Silakan login manual.');
+      }
+      
+      if (loginData.session && loginData.user) {
+         navigate('/dashboard');
       }
 
     } catch (error) {

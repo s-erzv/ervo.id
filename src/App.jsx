@@ -55,7 +55,7 @@ import ProductDetailPage from './pages/ProductDetailPage';
 import MapsPage from './pages/MapsPage';
 import DropshipDashboard from './components/dashboards/DropshipDashboard';
 import PaymentResultPage from './pages/PaymentResultPage';
-
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 const App = () => {
   const { session, loading: authLoading, userProfile, user, isAccessDenied } = useAuth();
@@ -121,6 +121,11 @@ const App = () => {
                     ? <AuthPage /> 
                     : <Navigate to={location.pathname === '/login' ? "/dashboard" : location.pathname} replace />
                 } 
+            />
+
+            <Route 
+                path="/reset-password" 
+                element={<ResetPasswordPage />} 
             />
 
             <Route

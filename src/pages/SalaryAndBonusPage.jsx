@@ -354,8 +354,8 @@ const SalaryAndBonusPage = () => {
             {editingPayoutId ? 'Update Detail Gaji' : 'Hitung Gaji Baru'}
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <CardContent className="p-4 sm:p-6 space-y-6 text-black">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-black">
             <div className="space-y-2">
               <Label>Karyawan</Label>
               <Select value={selectedEmployeeId} onValueChange={setSelectedEmployeeId}>
@@ -435,7 +435,7 @@ const SalaryAndBonusPage = () => {
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3 text-black">
               <Input type="number" value={paymentAmountInput} onChange={(e) => setPaymentAmountInput(e.target.value)} className="bg-white text-black font-bold" placeholder="Nominal Bayar" />
               <Select value={paymentMethodId} onValueChange={setPaymentMethodId}>
                 <SelectTrigger className="bg-white text-black"><SelectValue placeholder="Pilih Rekening (Wajib jika bayar)" /></SelectTrigger>

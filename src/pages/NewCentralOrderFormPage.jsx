@@ -164,7 +164,7 @@ const NewCentralOrderFormPage = () => {
           .from('central_orders')
           .insert({
             order_date: orderDate,
-            company_id: userProfile.company_id,
+            company_id: companyId,
             user_id: userProfile.id,
             status: 'draft',
           })
@@ -189,7 +189,7 @@ const NewCentralOrderFormPage = () => {
             product_id: item.product_id,
             price: parseFloat(item.price) || 0,
             order_date: orderDate,
-            company_id: userProfile.company_id,
+            company_id: companyId,
           })));
         if (pricesError) throw pricesError;
 

@@ -38,7 +38,7 @@ import {
 } from 'lucide-react';
 
 import CompanyExtensionForm from '../components/CompanyExtensionForm'; 
-import SubscriptionPaymentList from '../components/SubscriptionPaymentList';
+
 import SubscriptionPlanList from '../components/SubscriptionPlanList';
 
 // Date formatter
@@ -177,12 +177,7 @@ const BillingAccountPage = () => {
                     >
                         <Building2 className="w-4 h-4 mr-2" /> Direktori Perusahaan
                     </TabsTrigger>
-                    <TabsTrigger 
-                        value="payments" 
-                        className="rounded-lg px-6 py-2 font-medium text-slate-500 hover:text-slate-900 data-[state=active]:bg-[#011e4b] data-[state=active]:text-white transition-all"
-                    >
-                        <CreditCard className="w-4 h-4 mr-2" /> Konfirmasi Pembayaran
-                    </TabsTrigger>
+
                     <TabsTrigger 
                         value="plans" 
                         className="rounded-lg px-6 py-2 font-medium text-slate-500 hover:text-slate-900 data-[state=active]:bg-[#011e4b] data-[state=active]:text-white transition-all"
@@ -340,25 +335,6 @@ const BillingAccountPage = () => {
                             </div>
                         )}
                     </div>
-                </TabsContent>
-
-                <TabsContent value="payments" className="animate-in fade-in slide-in-from-bottom-2">
-                    <Card className="border border-slate-200 shadow-md bg-white rounded-2xl overflow-hidden">
-                        <CardHeader className="bg-gradient-to-r from-[#015a97] to-[#011e4b] text-white p-8">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-white/10 rounded-xl backdrop-blur-md">
-                                    <CreditCard className="h-8 w-8" />
-                                </div>
-                                <div>
-                                    <CardTitle className="text-2xl font-medium">Verifikasi Pembayaran</CardTitle>
-                                    <CardDescription className="text-blue-100 mt-1">Pantau dan setujui bukti transfer dari tenant.</CardDescription>
-                                </div>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                            <SubscriptionPaymentList />
-                        </CardContent>
-                    </Card>
                 </TabsContent>
 
                 <TabsContent value="plans" className="animate-in fade-in slide-in-from-bottom-2">

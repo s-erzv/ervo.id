@@ -2,16 +2,17 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import LoginForm from '@/components/Auth/LoginForm';
 import SignUpForm from '@/components/Auth/SignUpForm'; 
-import { Button } from '@/components/ui/button';
-import { Phone, FileText, MessageSquare, Megaphone } from 'lucide-react'; 
+import ForgotPasswordForm from '@/components/Auth/ForgotPasswordForm';
+import { Button } from '@/components/ui/button'; 
+import { Phone, FileText, MessageSquare, Megaphone } from 'lucide-react';
 import HighlightSlider from '@/components/HighlightSlider';
 
 
 const AuthPage = () => {
-  const [isLoginForm, setIsLoginForm] = useState(true);
+  const [formType, setFormType] = useState('login'); // 'login', 'signup', 'forgot'
 
   const handleSignUpSuccess = () => {
-    setIsLoginForm(true);
+    setFormType('login');
   };
   
   return (
@@ -35,19 +36,25 @@ const AuthPage = () => {
                   className="mx-auto mb-4"
                 />
                 <CardTitle className="text-2xl font-bold text-[#011e4b]">
-                  {isLoginForm ? 'Selamat Datang Kembali' : 'Mulai Sekarang'}
+                  {formType === 'login' && 'Selamat Datang Kembali'}
+                  {formType === 'signup' && 'Mulai Sekarang'}
+                  {formType === 'forgot' && 'Lupa Kata Sandi'}
                 </CardTitle>
                 <CardDescription className="text-sm text-gray-500 mt-2">
-                  {isLoginForm 
-                    ? 'Silakan masuk untuk mengelola operasional distribusi Anda.' 
-                    : 'Daftarkan perusahaan Anda dan optimalkan manajemen distribusi dalam satu platform.'}
+                  {formType === 'login' && 'Silakan masuk untuk mengelola operasional distribusi Anda.'}
+                  {formType === 'signup' && 'Daftarkan perusahaan Anda dan optimalkan manajemen distribusi dalam satu platform.'}
+                  {formType === 'forgot' && 'Masukkan email Anda untuk menerima tautan atur ulang kata sandi.'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {isLoginForm ? (
-                  <LoginForm />
-                ) : (
+                {formType === 'login' && (
+                  <LoginForm onForgotPassword={() => setFormType('forgot')} />
+                )}
+                {formType === 'signup' && (
                   <SignUpForm onSignUpSuccess={handleSignUpSuccess} />
+                )}
+                {formType === 'forgot' && (
+                  <ForgotPasswordForm />
                 )}
                 
                 {/* Toggle Button */}
@@ -55,9 +62,9 @@ const AuthPage = () => {
                   <Button
                     variant="link"
                     className="text-[#011e4b]"
-                    onClick={() => setIsLoginForm(!isLoginForm)}
+                    onClick={() => setFormType(formType === 'login' ? 'signup' : 'login')}
                   >
-                    {isLoginForm 
+                    {formType === 'login' 
                       ? 'Belum punya akun? Daftar Perusahaan Baru' 
                       : 'Sudah punya akun? Masuk di sini'}
                   </Button>

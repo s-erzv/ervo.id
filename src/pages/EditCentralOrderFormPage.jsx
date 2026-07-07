@@ -516,7 +516,7 @@ const EditCentralOrderFormPage = () => { // NAMA KOMPONEN DIUBAH
                   driver_tip: parseFloat(transactionDetails.driver_tip) || null,
                   admin_fee: parseFloat(transactionDetails.admin_fee) || null,
               },
-              companyId: userProfile.company_id,
+              companyId: companyId,
           };
           
           const { data, error } = await supabase.functions.invoke('manage-central-order-galons', {
@@ -538,7 +538,7 @@ const EditCentralOrderFormPage = () => { // NAMA KOMPONEN DIUBAH
               product_id: item.product_id,
               price: parseFloat(item.price) || 0,
               order_date: orderDate,
-              company_id: userProfile.company_id,
+              company_id: companyId,
             })));
           if (pricesError) throw pricesError;
 
@@ -591,7 +591,7 @@ const EditCentralOrderFormPage = () => { // NAMA KOMPONEN DIUBAH
         }
 
         const fileExt = file.name.split('.').pop();
-        const filePath = `${userProfile.company_id}/${id}/${type}_${Date.now()}_${i}.${fileExt}`;
+        const filePath = `${companyId}/${id}/${type}_${Date.now()}_${i}.${fileExt}`;
 
         uploadPromises.push(
           supabase.storage
@@ -941,19 +941,19 @@ const EditCentralOrderFormPage = () => { // NAMA KOMPONEN DIUBAH
         <div className="bg-white rounded-lg border p-1 mb-6">
           <TabsList className="grid w-full justify-start grid-cols-1 gap-1 bg-transparent p-0 h-auto md:grid-cols-3">
             <TabsTrigger 
-              className="w-full text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-[#011e4b] data-[state=active]:text-white rounded-md" 
+              className="w-full text-black text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-[#011e4b] data-[state=active]:text-white rounded-md" 
               value="order-items"
             >
               1. Detail & Item
             </TabsTrigger>
             <TabsTrigger 
-                className="w-full text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-[#011e4b] data-[state=active]:text-white rounded-md" 
+                className="w-full text-black text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-[#011e4b] data-[state=active]:text-white rounded-md" 
               value="attachments-expenses"
               >
                 2. Pembayaran & Lampiran
             </TabsTrigger>
             <TabsTrigger 
-                className="w-full text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-[#011e4b] data-[state=active]:text-white rounded-md" 
+                className="w-full text-black text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-[#011e4b] data-[state=active]:text-white rounded-md" 
                 value="cross-check"
                 disabled={!isCrossCheckEnabled}
               >

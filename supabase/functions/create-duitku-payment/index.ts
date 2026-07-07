@@ -9,11 +9,19 @@ const corsHeaders = {
 
 // Duitku POP API — signature via header, bukan body
 const SANDBOX_URL = 'https://api-sandbox.duitku.com/api/merchant/createInvoice';
-const PROD_URL    = 'https://api.duitku.com/api/merchant/createInvoice';
+const PROD_URL    = 'https://api-prod.duitku.com/api/merchant/createInvoice';
 
-async function sha256(str: string): Promise<string> {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+async function hmacSha256(secret: string, data: string): Promise<string> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const signature = await crypto.subtle.sign('HMAC', key, enc.encode(data));
+  return Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 serve(async (req) => {
@@ -40,7 +48,7 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const { plan_id, company_id, months = 1 } = body;
+    const { plan_id, company_id, months = 1, custom_amount } = body;
 
     if (!plan_id || !company_id) {
       return new Response(JSON.stringify({ error: 'plan_id dan company_id diperlukan' }), {
@@ -67,14 +75,16 @@ serve(async (req) => {
 
     const merchantCode = Deno.env.get('DUITKU_MERCHANT_CODE') ?? '';
     const apiKey       = Deno.env.get('DUITKU_API_KEY') ?? '';
-    const isSandbox    = (Deno.env.get('DUITKU_ENV') ?? 'sandbox') !== 'production';
+    // Memastikan environment backend sama dengan frontend.
+    // Jika tidak di-set di Supabase Secrets, kita anggap Production untuk menghindari error blank POP UI.
+    const isSandbox    = Deno.env.get('DUITKU_ENV') === 'sandbox'; 
     const appBaseUrl   = Deno.env.get('APP_BASE_URL') ?? 'https://app.ervo.id';
     const supabaseUrl  = Deno.env.get('SUPABASE_URL') ?? '';
 
     // Ambil plan
     const { data: plan, error: planError } = await supabase
       .from('subscription_plans')
-      .select('id, name, price, billing_cycle_days')
+      .select('id, name, price, billing_cycle_days, is_custom_pricing')
       .eq('id', plan_id)
       .single();
 
@@ -103,11 +113,23 @@ serve(async (req) => {
     const shortCompanyId = company_id.replace(/-/g, '').slice(0, 8).toUpperCase();
     const merchantOrderId = `ERVO-${shortCompanyId}-${timestamp}`;
 
-    const amount   = Math.round(plan.price * qty);
+    let amount = Math.round(plan.price * qty);
+    if (plan.is_custom_pricing) {
+      amount = Math.round(Number(custom_amount) || 0);
+      if (amount < 1) {
+        return new Response(JSON.stringify({ error: 'Nominal pembayaran tidak valid untuk paket ini' }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
     const totalDays = (plan.billing_cycle_days ?? 30) * qty;
 
-    // Duitku POP signature: SHA256(merchantCode + timestamp + apiKey)
-    const signature = await sha256(`${merchantCode}${timestamp}${apiKey}`);
+    // Duitku POP signature (Header): HMAC_SHA256(merchantCode + timestamp, apiKey)
+    const signature = await hmacSha256(apiKey, `${merchantCode}${timestamp}`);
+
+    // Duitku POP signature (Body): HMAC_SHA256(merchantCode + amount + merchantOrderId, apiKey)
+    const bodySignature = await hmacSha256(apiKey, `${merchantCode}${amount}${merchantOrderId}`);
 
     const callbackUrl = `${supabaseUrl}/functions/v1/duitku-callback`;
     const returnUrl   = `${appBaseUrl}/payment/result`;
@@ -117,6 +139,7 @@ serve(async (req) => {
       merchantCode,
       paymentAmount: amount,
       merchantOrderId,
+      signature: bodySignature,
       productDetails: `Langganan Ervo - ${plan.name}${qty > 1 ? ` (${qty} bulan)` : ''}`,
       email,
       phoneNumber: '',
@@ -147,8 +170,18 @@ serve(async (req) => {
       body: JSON.stringify(payload),
     });
 
-    const duitkuData = await duitkuRes.json();
-    console.log('Duitku POP response:', JSON.stringify(duitkuData));
+    const textData = await duitkuRes.text();
+    let duitkuData;
+    try {
+      duitkuData = JSON.parse(textData);
+      console.log('Duitku POP response:', JSON.stringify(duitkuData));
+    } catch (e) {
+      console.error('Duitku returned non-JSON response:', textData);
+      return new Response(
+        JSON.stringify({ error: `Duitku API Error: ${textData}` }),
+        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (!duitkuRes.ok || duitkuData.statusCode !== '00') {
       console.error('Duitku POP error:', duitkuData);

@@ -164,7 +164,7 @@ const UserManagementPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-700">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50 flex items-center gap-3">
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-3">
             <div className="p-2 bg-[#011e4b] rounded-xl"><Users className="h-5 w-5 text-white" /></div>
             Manajemen Pengguna
           </h1>
@@ -208,10 +208,10 @@ const UserManagementPage = () => {
       {isSuperAdmin ? (
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 w-full sm:w-auto">
-            <TabsTrigger value="users" className="rounded-lg data-[state=active]:bg-[#011e4b] data-[state=active]:text-white px-5 gap-2">
+            <TabsTrigger value="users" className="rounded-lg  text-black data-[state=active]:bg-[#011e4b] data-[state=active]:text-white px-5 gap-2">
               <Users className="h-4 w-4" /> Pengguna <Badge className="ml-1 text-[9px] bg-white/20 text-current border-0">{stats.total}</Badge>
             </TabsTrigger>
-            <TabsTrigger value="companies" className="rounded-lg data-[state=active]:bg-[#011e4b] data-[state=active]:text-white px-5 gap-2">
+            <TabsTrigger value="companies" className="rounded-lg text-black data-[state=active]:bg-[#011e4b] data-[state=active]:text-white px-5 gap-2">
               <Building2 className="h-4 w-4" /> Perusahaan <Badge className="ml-1 text-[9px] bg-white/20 text-current border-0">{companyStats.total}</Badge>
             </TabsTrigger>
           </TabsList>

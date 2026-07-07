@@ -50,9 +50,11 @@ serve(async (req) => {
         })
       }
       
+      const trialEndDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
       const companyInsertData = { 
         name: companyName, 
-        google_sheets_link: googleSheetsLink 
+        google_sheets_link: googleSheetsLink,
+        subscription_end_date: trialEndDate
       };
  
       if (logoUrl) companyInsertData.logo_url = logoUrl;

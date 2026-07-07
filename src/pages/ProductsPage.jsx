@@ -25,10 +25,10 @@ const ProductsPage = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   
   useEffect(() => {
-    if (!authLoading && userProfile?.company_id) {
+    if (!authLoading && companyId) {
       fetchData();
     }
-  }, [authLoading, userProfile]);
+  }, [authLoading, companyId]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -41,7 +41,7 @@ const ProductsPage = () => {
         category:category_id(id, name),
         subcategory:subcategory_id(id, name)
       `)
-      .eq('company_id', userProfile.company_id)
+      .eq('company_id', companyId)
       .order('sort_order', { ascending: true });
 
     if (productsError) {

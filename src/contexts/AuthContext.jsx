@@ -94,6 +94,11 @@ export const AuthProvider = ({ children }) => {
           '[Auth] profile load failed, will retry on next auth change/focus:',
           err
         );
+        if (err?.code === 'PGRST301') {
+          console.warn('[Auth] Invalid JWT Signature detected. Clearing local storage and reloading...');
+          localStorage.clear();
+          window.location.reload();
+        }
       } finally {
         profilePromiseRef.current = null;
         if (!cancelled) setProfileLoading(false);
@@ -120,6 +125,11 @@ export const AuthProvider = ({ children }) => {
           '[Auth] profile reload failed on visibility change:',
           error
         );
+        if (error?.code === 'PGRST301') {
+          console.warn('[Auth] Invalid JWT Signature detected. Clearing local storage and reloading...');
+          localStorage.clear();
+          window.location.reload();
+        }
       }
     };
     document.addEventListener('visibilitychange', onVisible);
@@ -206,19 +216,20 @@ export const AuthProvider = ({ children }) => {
 
     // --- LOGIKA KUNCI AKSES BARU (PERUSAHAAN) ---
     let isExpired = false;
+    let isNewUser = false;
     // Pengecekan hanya jika userProfile ada dan bukan SuperAdmin
-    if (
-      userProfile &&
-      userProfile.role !== 'super_admin' &&
-      companySubscription?.subscription_end_date
-    ) {
-      const expiryDate = new Date(companySubscription.subscription_end_date);
-      isExpired = new Date() > expiryDate;
+    if (userProfile && userProfile.role !== 'super_admin') {
+      if (companySubscription?.subscription_end_date) {
+        const expiryDate = new Date(companySubscription.subscription_end_date);
+        isExpired = new Date() > expiryDate;
+      } else {
+        isNewUser = true; // Belum pernah langganan (baru regis)
+      }
     }
 
-    // Akses DITOLAK jika: (1) Dikunci manual di level perusahaan ATAU (2) Langganan perusahaan kedaluwarsa
+    // Akses DITOLAK jika: (1) Dikunci manual (2) Kedaluwarsa (3) Baru regis belum langganan
     const isAccessDenied =
-      companySubscription?.is_manually_locked === true || isExpired;
+      companySubscription?.is_manually_locked === true || isExpired || isNewUser;
     // --- AKHIR LOGIKA KUNCI AKSES ---
 
     return {

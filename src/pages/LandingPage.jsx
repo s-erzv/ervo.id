@@ -450,7 +450,7 @@ export default function LandingPage() {
 
       {/* ── TESTIMONIALS ── */}
       <section id="testimoni" style={{ ...S.section, background:'#f8fafc' }} className="section-padding-resp">
-        <div style={S.sectionInner} style={{ padding: 0 }}>
+        <div style={{ ...S.sectionInner, padding: 0 }}>
           <div style={S.sectionHead} {...fadeIn('testi-head')}>
             <SectionTag>Testimoni</SectionTag>
             <h2 style={S.sectionH2}>Dipercaya Pemimpin Bisnis</h2>

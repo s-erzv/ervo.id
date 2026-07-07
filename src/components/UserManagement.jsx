@@ -19,7 +19,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import SubscriptionExtensionForm from './SubscriptionExtensionForm';
 
 const UserManagementComponent = () => {
-  const { session, userProfile } = useAuth(); 
+  const { session, userProfile, companyId } = useAuth(); 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -43,8 +43,8 @@ const UserManagementComponent = () => {
             .from('profiles')
             .select(`id, full_name, role, phone, rekening, base_salary, company_id, subscription_end_date, is_manually_locked`);
 
-        if (!isSuperAdmin && userProfile?.company_id) {
-            query = query.eq('company_id', userProfile.company_id);
+        if (!isSuperAdmin && companyId) {
+            query = query.eq('company_id', companyId);
         }
 
         const { data, error } = await query.order('role', { ascending: false });
@@ -102,9 +102,9 @@ const UserManagementComponent = () => {
         <Table>
           <TableHeader className="bg-slate-50">
             <TableRow>
-              <TableHead className="w-[200px]">Detail User</TableHead>
-              <TableHead className="hidden md:table-cell">Kontak & Rekening</TableHead>
-              <TableHead className="hidden lg:table-cell text-right">Gaji Pokok</TableHead>
+              <TableHead className="w-[200px] text-black">Detail User</TableHead>
+              <TableHead className="hidden md:table-cell text-black">Kontak & Rekening</TableHead>
+              <TableHead className="hidden lg:table-cell text-right text-black">Gaji Pokok</TableHead>
               {isSuperAdmin && (
                 <>
                   <TableHead className="text-center hidden sm:table-cell">Akses</TableHead>

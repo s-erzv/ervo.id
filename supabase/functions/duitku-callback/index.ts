@@ -2,10 +2,17 @@
 // Callback dari Duitku — verify_jwt = false karena dipanggil server Duitku
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import md5fn from 'https://esm.sh/md5@2.3.0';
-
-async function md5(str: string): Promise<string> {
-  return md5fn(str);
+async function hmacSha256(secret: string, data: string): Promise<string> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const signature = await crypto.subtle.sign('HMAC', key, enc.encode(data));
+  return Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 serve(async (req) => {
@@ -46,8 +53,8 @@ serve(async (req) => {
 
     console.log('Duitku callback received:', { merchantOrderId, resultCode, amount, reference });
 
-    // Verifikasi signature: MD5(merchantCode + amount + merchantOrderId + apiKey)
-    const expectedSig = await md5(`${merchantCode}${amount}${merchantOrderId}${apiKey}`);
+    // Verifikasi signature: HMAC_SHA256(merchantCode + amount + merchantOrderId, apiKey)
+    const expectedSig = await hmacSha256(apiKey, `${merchantCode}${amount}${merchantOrderId}`);
     if (expectedSig.toLowerCase() !== (incomingSignature ?? '').toLowerCase()) {
       console.error('Signature mismatch. Expected:', expectedSig, 'Got:', incomingSignature);
       return new Response(JSON.stringify({ status: 'INVALID_SIGNATURE' }), {
